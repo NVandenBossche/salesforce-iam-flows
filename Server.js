@@ -13,7 +13,7 @@ var express = require('express'),
 	domainName='localhost:8081',
 	jwt_consumer_key = '3MVG9Rd3qC6oMalWJCSJXAUD00nMY5lzQY9mrsY5h0XCCTuct5fiPyFQKYoEpYirZ4Em7JePye6X.wRu1FzcS', 
 	consumer_secret='3108037298021720739',
-	jwt_aud = 'https://login.salesforce.com', 
+	jwt_aud = 'https://nicolasvandenbossche-dev-ed.salesforce.com', 
 	callbackURL='https://localhost:8081/oauthcallback.html';
 
  
