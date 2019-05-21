@@ -4,6 +4,7 @@
   "description": "Salesforce JWT OAuth Demo",
   "main": "Server.js",
   "scripts": {
+    "start": "node Server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -33,6 +34,7 @@
     "request": ">=2.68.0"
   },
   "engines": {
-    "node": "6.9.5"
+    "node": ">=6.9.5",
+    "npm": ">=6.9.0"
   }
 }
