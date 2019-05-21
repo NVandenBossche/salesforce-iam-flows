@@ -13,7 +13,7 @@ var express = require('express'),
 	domainName='localhost:8081',
 	jwt_consumer_key = '3MVG9Rd3qC6oMalWJCSJXAUD00nMY5lzQY9mrsY5h0XCCTuct5fiPyFQKYoEpYirZ4Em7JePye6X.wRu1FzcS', 
 	consumer_secret='3108037298021720739',
-	jwt_aud = 'https://nicolasvandenbossche-dev-ed.salesforce.com', 
+	jwt_aud = 'https://login.salesforce.com', 
 	callbackURL='https://localhost:8081/oauthcallback.html';
 
  
@@ -59,7 +59,7 @@ app.all('/proxy',  function(req, res) {
 
 app.get('/jwt', function (req,res){  
 	var isSandbox = req.query.isSandbox;
-	var sfdcURL = 'https://login.salesforce.com/services/oauth2/token' ;
+	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/token' ;
 	if(isSandbox == 'true'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
 	}
@@ -86,7 +86,7 @@ app.get('/jwt', function (req,res){
 app.get('/webServer', function (req,res){  
 	var isSandbox = req.query.isSandbox;
 	var state = 'webServerProd';
-	var sfdcURL = 'https://login.salesforce.com/services/oauth2/authorize' ;
+	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/authorize' ;
 	if(isSandbox == 'true'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/authorize' ;
 		state = 'webServerSandbox';
@@ -107,7 +107,7 @@ app.get('/webServer', function (req,res){
  */
 app.get('/webServerStep2', function (req,res){  
 	var state = req.query.state;
-	var sfdcURL = 'https://login.salesforce.com/services/oauth2/token' ;
+	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/token' ;
 	if(state == 'webServerSandbox'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
 	}
@@ -131,7 +131,7 @@ app.get('/webServerStep2', function (req,res){
 */
 app.get('/uAgent', function (req,res){  
 	var isSandbox = req.query.isSandbox;
-	var sfdcURL = 'https://login.salesforce.com/services/oauth2/authorize' ;
+	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/authorize' ;
 	if(isSandbox == 'true'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/authorize' ;
 	}
@@ -152,7 +152,7 @@ app.post('/uPwd', function (req,res){
 	var pwd = req.body.sfdcPassword; 
 
 	var state = req.query.state;
-	var sfdcURL = 'https://login.salesforce.com/services/oauth2/token' ;
+	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/token' ;
 	if(instance == 'sand'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
 	}
@@ -180,7 +180,7 @@ app.post('/uPwd', function (req,res){
 app.get('/device', function (req,res){  
 
 	var isSandbox = req.query.isSandbox;
-	var sfdcURL = 'https://login.salesforce.com/services/oauth2/token' ;
+	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/token' ;
 	if(isSandbox == 'true'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
 	}
@@ -226,7 +226,7 @@ app.get('/devicePol', function (req,res){
 	var user_code = req.query.user_code;
 	var device_code = req.query.device_code;
 
-	var sfdcURL = 'https://login.salesforce.com/services/oauth2/token' ;
+	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/token' ;
 	if(isSandbox == 'true'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
 	}

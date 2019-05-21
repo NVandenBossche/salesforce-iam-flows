@@ -1,5 +1,5 @@
 {
-  "name": "Salesfore_OAuthDemo_JWT",
+  "name": "salesforce-oauth-jwt",
   "version": "0.0.1",
   "description": "Salesforce JWT OAuth Demo",
   "main": "Server.js",
@@ -25,10 +25,11 @@
     "body-parser": "~1.6.2",
     "express": "~4.7.1",
     "http": "~0.0.0",
-    "morgan": "^1.8.1",
+    "lodash": ">=4.17.11",
+    "morgan": ">=1.9.1",
     "njwt": "^0.4.0",
     "path": "^0.12.7",
-    "request": "~2.36.0",
+    "request": ">=2.68.0",
     "ejs": "^1.0.0"
   },
   "engines": {
