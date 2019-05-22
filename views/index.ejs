@@ -110,13 +110,14 @@
 				<img style="height:inherit" src="Salesforce.png" />
 			</div>
 		</div>
-
-		<div style="display: block; width:100%">
-			<b>Tips : </b> 
-			<ol>
-				<li>If the user is never redirected to login at Salesforce in flows like JWT or Username password, the user can’t directly authorize the application, so no refresh tokens can be used. If your application requires refresh tokens, you should consider using the Web server or <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_understanding_username_password_oauth_flow.htm">user-agent OAuth flow</a> or Device Authentication Flow	.</li>
-			</ol>
-		</div>
+		<!-- Commented because to be moved somewhere else
+			<div style="display: block; width:100%">
+				<b>Tips : </b> 
+				<ol>
+					<li>If the user is never redirected to login at Salesforce in flows like JWT or Username password, the user can’t directly authorize the application, so no refresh tokens can be used. If your application requires refresh tokens, you should consider using the Web server or <a href="https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_understanding_username_password_oauth_flow.htm">user-agent OAuth flow</a> or Device Authentication Flow	.</li>
+				</ol>
+			</div>
+		-->
 	</div>
 
 	<div class="jumbotron" id="userAgentFlow">
@@ -152,7 +153,8 @@
 					</ul>
 				</li>
 			</ol>
-
+		</div>
+		<div>
 			<a id="prodBtn" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
 			<a id="sandBtn" role="button" class="btn btn-primary btn-lg">Sandbox</a>
 		</div>
