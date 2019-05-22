@@ -11,14 +11,13 @@ var express = require('express'),
 	nJwt = require('njwt'),  
 	apiVersion = 'v45.0',
 	domainName='localhost:8081',
-	jwt_consumer_key = '3MVG9Rd3qC6oMalWJCSJXAUD00nMY5lzQY9mrsY5h0XCCTuct5fiPyFQKYoEpYirZ4Em7JePye6X.wRu1FzcS', 
-	consumer_secret='3108037298021720739',
-	baseURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com',
-	jwt_aud = 'https://login.salesforce.com', 
+	jwt_consumer_key = process.env.CLIENT_ID, 
+	consumer_secret=process.env.CLIENT_SECRET,
+	baseURL = process.env.BASE_URL,
+	jwt_aud = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com', 
 	callbackURL='https://localhost:8081/oauthcallback.html';
-
  
-	app.set('view engine', 'ejs');
+app.set('view engine', 'ejs');
 
 app.use(express.static(__dirname + '/client')); 
  
@@ -26,7 +25,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.json());  
 app.use(bodyParser.urlencoded({extended : true}));
 
-app.set('port', process.env.PORT || 8080);
+app.set('port', process.env.PORT || global.gConfig.node_port);
 
 /**
  *  Extract Access token from POST response and redirect to page Main
@@ -298,7 +297,7 @@ app.get('/index*' ,  function(req,res) {
 } );  
  
 app.get('/oauthcallback.html' ,  function(req,res) {
-    res.sendfile('views/oauthcallback.html');
+    res.render('oauthcallback');
 } ); 
 
 app.get('/Main*' ,   function(req,res) {
