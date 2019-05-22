@@ -120,11 +120,12 @@
 		-->
 	</div>
 
+	<!-- User Agent Flow -->
 	<div class="jumbotron" id="userAgentFlow">
 		<h2> User Agent Flow</h2>
-		<button type="button" class="btn btn-info" data-toggle="collapse" data-target="#userAgentCollapse">Show/Hide</button>
+		<button type="button" style="margin-right:40px" class="btn btn-info" data-toggle="collapse" data-target="#userAgentCollapse">Show/Hide</button>
 		
-		<div id="userAgentCollapse" class="collapse in">
+		<div id="userAgentCollapse" class="collapse">
 			<ol class="smallFont">
 				<li>
 					This page contains a JavaScript application that will use the <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_user_agent_flow.htm&type=5&sfdcIFrameOrigin=null"> OAuth 2.0 User-Agent flow</a>
@@ -154,29 +155,57 @@
 				</li>
 			</ol>
 		</div>
-		<div>
-			<a id="prodBtn" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
-			<a id="sandBtn" role="button" class="btn btn-primary btn-lg">Sandbox</a>
-		</div>
+		<a id="prodBtn" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
+		<a id="sandBtn" role="button" class="btn btn-primary btn-lg">Sandbox</a>
 	</div>
+	
+	<!-- Web Server Flow -->
 	<div class="jumbotron" id="webServer">
+		<h2>Web Server Flow </h2>
 		<p>
-			<h2>Web Server Flow </h2>
+			This section contains a JavaScript application that will use the <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5">OAuth 2.0 Web Server flow</a>.
+		</p>
+		<div>
+			<h3>Web Server Flow with Client Secret</h3>
+			<button type="button" style="margin-right:40px" class="btn btn-info" data-toggle="collapse" data-target="#wsclientsecret">Show/Hide</button>
+			
+			<div id="wsclientsecret" class="collapse in">
+				<ol class="smallFont">
+					<li> 
+						This section contains a JavaScript application that will use the <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5">OAuth 2.0 Web Server flow</a>.
+					</li>
+					<li> Salesforce
+						<b>authorize</b> URL, response type
+						<b>code</b>
+					</li>
+					<li> oauthCallback.html</li>
+					<li> Salesforce
+						<b>token</b> URL, grant_type
+						<b>authorization_code</b>, POST request </li>
+					<li>Main.html (Salesforce Query operations) </li>
+				</ol>
+			</div>
+			<a id="prodBtnWS" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
+			<a id="sandBtnWS" role="button" class="btn btn-primary btn-lg">Sandbox</a>
+		</div>
+		<div>
+			<h3>Web Server Flow with Client Assertion</h3>
+
 			<ol class="smallFont">
-				<li> This page (Index.html) </li>
-				<li> Salesforce
-					<b>authorize</b> URL, response type
-					<b>code</b>
-				</li>
-				<li> oauthCallback.html</li>
-				<li> Salesforce
-					<b>token</b> URL, grant_type
-					<b>authorization_code</b>, POST request </li>
-				<li>Main.html (Salesforce Query operations) </li>
+				<li> TBD - currently buttons just do WS with Client Secret </li>
 			</ol>
 			<a id="prodBtnWS" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
 			<a id="sandBtnWS" role="button" class="btn btn-primary btn-lg">Sandbox</a>
-		</p>
+		</div>
+		<div>
+			<h3>Web Server Flow without Client Secret or Assertion</h3>
+
+			<ol class="smallFont">
+				<li> TBD - currently buttons just do WS with Client Secret </li>
+			</ol>
+			<a id="prodBtnWS" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
+			<a id="sandBtnWS" role="button" class="btn btn-primary btn-lg">Sandbox</a>
+		</div>
 	</div>
 	
 
