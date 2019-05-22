@@ -14,8 +14,7 @@ var express = require('express'),
 	jwt_consumer_key = process.env.CLIENT_ID, 
 	consumer_secret=process.env.CLIENT_SECRET,
 	baseURL = process.env.BASE_URL,
-	jwt_aud = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com', 
-	callbackURL='https://localhost:8081/oauthcallback.html';
+	jwt_aud = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com';
  
 app.set('view engine', 'ejs');
 
@@ -107,7 +106,7 @@ app.get('/webServer', function (req,res){
  */
 app.get('/webServerStep2', function (req,res){  
 	var state = req.query.state;
-	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/token' ;
+	var sfdcURL = process.env.BASE_URL + '/services/oauth2/token' ;
 	if(state == 'webServerSandbox'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
 	}
@@ -131,12 +130,12 @@ app.get('/webServerStep2', function (req,res){
 */
 app.get('/uAgent', function (req,res){  
 	var isSandbox = req.query.isSandbox;
-	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/authorize' ;
+	var sfdcURL = process.env.BASE_URL + '/services/oauth2/authorize' ;
 	if(isSandbox == 'true'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/authorize' ;
 	}
 	
-	 request({ 	url : sfdcURL+'?client_id='+jwt_consumer_key+'&redirect_uri='+callbackURL+'&response_type=token',  
+	 request({ 	url : sfdcURL+'?client_id='+process.env.CLIENT_ID+'&redirect_uri='+process.env.CALLBACK_URL+'&response_type=token',  
 				method:'GET' 
 			}).pipe(res); 
 	 
@@ -289,14 +288,14 @@ function encryptUsingPrivateKey_nJWTLib (claims) {
 };
 
 app.get('/' ,  function(req,res) {
-    res.render('index',{callbackURL:callbackURL, baseURL:baseURL});
+    res.render('index',{callbackURL:process.env.CALLBACK_URL, baseURL:process.env.BASE_URL});
 } ); 
 
 app.get('/index*' ,  function(req,res) {
-    res.render('index',{callbackURL:callbackURL});
+    res.render('index',{callbackURL:process.env.CALLBACK_URL, baseURL:process.env.BASE_URL});
 } );  
  
-app.get('/oauthcallback.html' ,  function(req,res) {
+app.get('/oauthcallback' ,  function(req,res) {
     res.render('oauthcallback');
 } ); 
 
