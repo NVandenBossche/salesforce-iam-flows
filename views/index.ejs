@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	<title>Login to Salesforce </title>
+	<title>Salesforce OAuth - Explained</title>
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="css/custom.css" rel="stylesheet">
 	<link rel="icon" type="image/icon" href="Cloud Red.ico" />
@@ -189,16 +189,20 @@
 					<li>Client application redirects to authorization endpoint at <code><%= baseURL %>/services/oauth2/authorize</code> using the GET method with the following parameters:
 						<ul>
 							<li><code>response_type=code</code></li>
-							<li><code>client_id=&lt;Connected App client_id&gt;</code></li>
+							<li><code>client_id=<%= clientId %></code> (client ID configured in Connected App)</li>
 							<li><code>redirect_uri=<%= callbackURL %></code></li>
-							<li><code>code_challenge=&lt;Unique code for verifying&gt;</code> (optional - prevent authorization code interception attack)</li>
+							<li><code>code_challenge=<%= codeChallenge %></code> (optional - prevent authorization code interception attack)</li>
 							<li><code>state=&lt;UniqueIdentifier&gt;</code> (optional - prevents CSRF - other websites sending on behalf of this one)</li>
 							<li><code>scope=&lt;Scope parameters&gt;</code> (optional - uses scope defined in Connected App if not specified)</li>
 						</ul>
-						<b>authorize</b> URL, response type
-						<b>code</b>
 					</li>
-					<li> oauthCallback.html</li>
+					<li>
+						Salesforce asks the user to authenticate and then authorize the application. If successful, it redirects to the redirect_uri passing along the following parameters
+						<ul>
+							<li><code>code</code> (the authorization code to be used in the second part of the request)</li>
+							<li><code>state</code> (if state was provided in original request)</li>
+						</ul>
+					</li>
 					<li> Salesforce
 						<b>token</b> URL, grant_type
 						<b>authorization_code</b>, POST request </li>

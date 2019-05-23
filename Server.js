@@ -17,7 +17,6 @@ var express = require('express'),
 	clientSecret=process.env.CLIENT_SECRET,
 	callbackURL = process.env.CALLBACK_URL,
 	baseURL = process.env.BASE_URL,
-	codeVerifier = '',
 	jwt_aud = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com';
 
 // Set default view engine to ejs. This will be used when calling res.render()
@@ -121,9 +120,6 @@ app.get('/webServer', function (req,res){
 	var state = 'webServerProd';
 	var responseType = 'code';
 	var scope = 'full%20refresh_token';
-	
-	codeVerifier = generateCodeVerifier();
-	var codeChallenge = generateCodeChallenge(codeVerifier);
 
 	if(req.query.isSandbox == 'true'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/authorize' ;
@@ -334,19 +330,24 @@ function encryptUsingPrivateKey_nJWTLib (claims) {
 	return jwt_token_b64;     
 };
 
-app.get('/' ,  function(req,res) {
-    res.render('index',{callbackURL:process.env.CALLBACK_URL, baseURL:baseURL});
+app.route(/^\/(index.*)?$/).get(function(req,res) {
+	res.render('index',
+				{
+					callbackURL: callbackURL, 
+					baseURL: baseURL, 
+					clientId: clientId, 
+					clientSecret: clientSecret,
+					codeVerifier: codeVerifier,
+					codeChallenge: codeChallenge
+				}
+	);
 } ); 
-
-app.get('/index*' ,  function(req,res) {
-    res.render('index',{callbackURL:process.env.CALLBACK_URL, baseURL:baseURL});
-} );  
  
-app.get('/oauthcallback' ,  function(req,res) {
+app.get('/oauthcallback', function(req,res) {
     res.render('oauthcallback');
 } ); 
 
-app.get('/Main*' ,   function(req,res) {
+app.get('/Main*', function(req,res) {
     res.sendfile('views/Main.html');
 } );
   
@@ -358,6 +359,10 @@ var options = {
   key: fs.readFileSync('./key.pem', 'utf8'),
   cert: fs.readFileSync('./server.crt', 'utf8')
 };
+
+// Define code verifier and code challenge
+var codeVerifier = generateCodeVerifier();
+var codeChallenge = generateCodeChallenge(codeVerifier);
 
 https.createServer(options, app).listen(8081);
 console.log("Server listening for HTTPS connections on port ", 8081);
