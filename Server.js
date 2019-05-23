@@ -1,3 +1,4 @@
+// Load Express and other dependencies
 var express = require('express'),
     http = require('http'), 
     request = require('request'),
@@ -8,26 +9,33 @@ var express = require('express'),
 	https = require('https'), 
 	fs = require('fs'),  
 	base64url = require('base64-url'), 
-	nJwt = require('njwt'),  
+	nJwt = require('njwt'),
+	CryptoJS = require('crypto-js'),
 	apiVersion = 'v45.0',
 	domainName='localhost:8081',
-	jwt_consumer_key = process.env.CLIENT_ID, 
-	consumer_secret=process.env.CLIENT_SECRET,
+	clientId = process.env.CLIENT_ID, 
+	clientSecret=process.env.CLIENT_SECRET,
+	callbackURL = process.env.CALLBACK_URL,
 	baseURL = process.env.BASE_URL,
+	codeVerifier = '',
 	jwt_aud = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com';
- 
+
+// Set default view engine to ejs. This will be used when calling res.render()
 app.set('view engine', 'ejs');
 
+// Let Express know where the client files are located
 app.use(express.static(__dirname + '/client')); 
- 
+
+// Setting up of app
 app.use(morgan('dev'));
 app.use(bodyParser.json());  
 app.use(bodyParser.urlencoded({extended : true}));
 
-app.set('port', process.env.PORT || global.gConfig.node_port);
+// Set the port to use based on the environment variables
+app.set('port', process.env.PORT);
 
 /**
- *  Extract Access token from POST response and redirect to page Main
+ * Extract Access token from POST response and redirect to page Main
  */
 function extractAccessToken(err, remoteResponse, remoteBody,res){
 	if (err) { 
@@ -48,6 +56,31 @@ function extractAccessToken(err, remoteResponse, remoteBody,res){
 		res.write( remoteBody ); 
 	} 
 	res.end();
+}
+
+/**
+ * Function that generates a cryptographically random code verifier
+ * @returns Cryptographically random code verifier
+ */
+function generateCodeVerifier() {
+	return code_verifier = base64URL(CryptoJS.lib.WordArray.random(32));
+}
+
+/**
+ * Function that hashes the code verifier and encodes it into base64URL
+ * @param {String} code_verifier
+ * @returns Code challenge based on provided code_verifier
+ */
+function generateCodeChallenge(code_verifier) {
+	return code_challenge = base64URL(CryptoJS.SHA256(code_verifier));
+}
+
+/**
+ * Base64URL encode the given string
+ * @param {String} string 
+ */
+function base64URL(string) {
+	return string.toString(CryptoJS.enc.Base64).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
 }
 
 app.all('/proxy',  function(req, res) {     
@@ -82,21 +115,30 @@ app.get('/jwt', function (req,res){
 /**
  * Step 1 Web Server Flow - Get Code
  */
-app.get('/webServer', function (req,res){  
-	var isSandbox = req.query.isSandbox;
+app.get('/webServer', function (req,res){	
+	// Set parameter values based on environment variables
+	var sfdcURL = baseURL + '/services/oauth2/authorize';
 	var state = 'webServerProd';
-	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/authorize' ;
-	if(isSandbox == 'true'){
+	var responseType = 'code';
+	var scope = 'full%20refresh_token';
+	
+	codeVerifier = generateCodeVerifier();
+	var codeChallenge = generateCodeChallenge(codeVerifier);
+
+	if(req.query.isSandbox == 'true'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/authorize' ;
 		state = 'webServerSandbox';
 	}
+
+	var authorizationUrl = sfdcURL +
+								'?client_id=' + clientId +
+								'&redirect_uri=' + callbackURL +
+								'&response_type=' + responseType +
+								'&state=' + state + 
+								'&scope=' + scope +
+								'&code_challenge=' + codeChallenge;
 	
-	 request({ 	url : sfdcURL+'?client_id='+
-				 jwt_consumer_key+'&redirect_uri='+
-				 callbackURL+'&response_type=code&state='+state,  
-				method:'GET' 
-			}).pipe(res);
-	 
+	 request({url: authorizationUrl, method: 'GET'}).pipe(res);
 } );
 
 
@@ -104,25 +146,30 @@ app.get('/webServer', function (req,res){
 /**
  * Step 2 Web Server Flow - Get token from Code
  */
-app.get('/webServerStep2', function (req,res){  
+app.get('/webServerStep2', function (req,res) {  
+	var sfdcURL = baseURL + '/services/oauth2/token';
+	var grantType = 'authorization_code';
+	var code = req.query.code;
 	var state = req.query.state;
-	var sfdcURL = process.env.BASE_URL + '/services/oauth2/token' ;
+
 	if(state == 'webServerSandbox'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
 	}
-	
-	 request({ 	url : sfdcURL+'?client_id='+
-				 jwt_consumer_key+'&redirect_uri='+
-				 callbackURL+'&grant_type=authorization_code&code='+
-				 req.query.code+'&client_secret'+consumer_secret,  
-				method:'POST' 
-			},
-			function(err, remoteResponse, remoteBody) {
+
+	var tokenUrl = sfdcURL +
+						'?client_id=' + clientId +
+						'&client_secret=' + clientSecret +
+						'&redirect_uri=' + callbackURL +
+						'&grant_type=' + grantType +
+						'&code=' + code +
+						'&state=' + state + 
+						'&code_verifier=' + codeVerifier;
+		
+	 request({url: tokenUrl, method: 'POST'}, function(err, remoteResponse, remoteBody) {
 				extractAccessToken(err, remoteResponse, remoteBody, res); 
-			} 
-		);
-	 
-} );
+		} 
+	);
+});
 
 
 /**
@@ -130,7 +177,7 @@ app.get('/webServerStep2', function (req,res){
 */
 app.get('/uAgent', function (req,res){  
 	var isSandbox = req.query.isSandbox;
-	var sfdcURL = process.env.BASE_URL + '/services/oauth2/authorize' ;
+	var sfdcURL = baseURL + '/services/oauth2/authorize' ;
 	if(isSandbox == 'true'){
 		sfdcURL = 'https://test.salesforce.com/services/oauth2/authorize' ;
 	}
@@ -157,9 +204,9 @@ app.post('/uPwd', function (req,res){
 	}
 	
 	var computedURL = sfdcURL+
-	'?client_id='+ jwt_consumer_key+
+	'?client_id='+ clientId+
 	 '&grant_type=password'+
-	 '&client_secret='+consumer_secret+
+	 '&client_secret='+clientSecret+
 	 '&username='+uname+
 	 '&password='+pwd ;
  
@@ -185,7 +232,7 @@ app.get('/device', function (req,res){
 	}
 	
 	var computedURL = sfdcURL+
-	'?client_id='+ jwt_consumer_key+
+	'?client_id='+ clientId+
 	 '&response_type=device_code' ;
  
 
@@ -231,7 +278,7 @@ app.get('/devicePol', function (req,res){
 	}
 	
 	var computedURL = sfdcURL+
-	'?client_id='+ jwt_consumer_key+
+	'?client_id='+ clientId+
 	 '&grant_type=device'+
 	 '&code='+device_code ;
 
@@ -267,7 +314,7 @@ app.get('/devicePol', function (req,res){
 
 function getJWTSignedToken_nJWTLib(sfdcUserName){ 
 	var claims = {
-	  iss: jwt_consumer_key,   
+	  iss: clientId,   
 	  sub: sfdcUserName,     
 	  aud: jwt_aud,
 	  exp : (Math.floor(Date.now() / 1000) + (60*3))
@@ -288,11 +335,11 @@ function encryptUsingPrivateKey_nJWTLib (claims) {
 };
 
 app.get('/' ,  function(req,res) {
-    res.render('index',{callbackURL:process.env.CALLBACK_URL, baseURL:process.env.BASE_URL});
+    res.render('index',{callbackURL:process.env.CALLBACK_URL, baseURL:baseURL});
 } ); 
 
 app.get('/index*' ,  function(req,res) {
-    res.render('index',{callbackURL:process.env.CALLBACK_URL, baseURL:process.env.BASE_URL});
+    res.render('index',{callbackURL:process.env.CALLBACK_URL, baseURL:baseURL});
 } );  
  
 app.get('/oauthcallback' ,  function(req,res) {

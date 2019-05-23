@@ -135,7 +135,7 @@
 						<li><code>response_type=token</code> OR <code>response_type=token%20id_token</code></li>
 						<li><code>client_id=&lt;Connected App client_id&gt;</code></li>
 						<li><code>redirect_uri=<%= callbackURL %></code></li>
-						<li><code>scope=&lt;Connected App client_id&gt;</code> (optional - uses scope defined in Connected App if not specified)</li>
+						<li><code>scope=&lt;Scope parameters&gt;</code> (optional - uses scope defined in Connected App if not specified)</li>
 						<li><code>state=&lt;UniqueIdentifier&gt;</code> (prevents CSRF - other websites sending on behalf of this one)</li>
 						<li><code>nonce=&lt;highEntropyCode&gt;</code> (prevents replay attack for Open ID)</li>
 					</ul>
@@ -162,19 +162,39 @@
 	<!-- Web Server Flow -->
 	<div class="jumbotron" id="webServer">
 		<h2>Web Server Flow </h2>
-		<p>
-			This section contains a JavaScript application that will use the <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5">OAuth 2.0 Web Server flow</a>.
-		</p>
+		<button type="button" style="margin-right:40px" class="btn btn-info" data-toggle="collapse" data-target="#wsintro">Show/Hide</button>
+
+		<div id="wsintro" class="collapse">
+			<p>
+				This section contains a JavaScript application that will use the <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5">OAuth 2.0 Web Server flow</a>.
+			</p>
+			<p>
+				Three scenarios are covered: 
+				<ol>
+					<li>Web Server flow with a client secret: when using a secure web server that can store a client secret</li>
+					<li>Web Server flow with a client assertion: when using a secure web server that has a private key to sign the message</li>
+					<li>Web Server flow without client secret or assertion: when using a client application (browser / mobile app) that uses an external browser for auth</li>
+				</ol>
+			</p>
+		</div>
 		<div>
 			<h3>Web Server Flow with Client Secret</h3>
 			<button type="button" style="margin-right:40px" class="btn btn-info" data-toggle="collapse" data-target="#wsclientsecret">Show/Hide</button>
 			
 			<div id="wsclientsecret" class="collapse in">
+				<p> 
+					This section contains a JavaScript application that will use the <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5">OAuth 2.0 Web Server flow</a> with client secret.
+				</p>
 				<ol class="smallFont">
-					<li> 
-						This section contains a JavaScript application that will use the <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5">OAuth 2.0 Web Server flow</a>.
-					</li>
-					<li> Salesforce
+					<li>Client application redirects to authorization endpoint at <code><%= baseURL %>/services/oauth2/authorize</code> using the GET method with the following parameters:
+						<ul>
+							<li><code>response_type=code</code></li>
+							<li><code>client_id=&lt;Connected App client_id&gt;</code></li>
+							<li><code>redirect_uri=<%= callbackURL %></code></li>
+							<li><code>code_challenge=&lt;Unique code for verifying&gt;</code> (optional - prevent authorization code interception attack)</li>
+							<li><code>state=&lt;UniqueIdentifier&gt;</code> (optional - prevents CSRF - other websites sending on behalf of this one)</li>
+							<li><code>scope=&lt;Scope parameters&gt;</code> (optional - uses scope defined in Connected App if not specified)</li>
+						</ul>
 						<b>authorize</b> URL, response type
 						<b>code</b>
 					</li>
