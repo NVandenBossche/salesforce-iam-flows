@@ -21,10 +21,10 @@ function getParameterList() {
 }
 
 /**
- * Process the callback coming from the authorization endpoint with the authorization code (Web Server)
+ * Process the callback coming from the authorization endpoint with the access token (User-Agent)
  * @param {Map<String, String>} paramKeyValueMap 
  */
-function processAuthorizationCodeCallback(paramKeyValueMap) {
+function processUserAgentCallback(paramKeyValueMap) {
     var apiVersion = "v45.0";
     var accessToken = paramKeyValueMap['access_token'];
 
@@ -43,11 +43,11 @@ function processAuthorizationCodeCallback(paramKeyValueMap) {
 }
 
 /**
- * Process the callback coming from the authorization endpoint with the access token (User-Agent)
+ * Process the callback coming from the authorization endpoint with the authorization code (Web Server)
  * @param {Map<String, String>} paramKeyValueMap 
  */
-function processUserAgentCallback(paramKeyValueMap) {
-    var access_code = paramKeyValueMap['çode'];
+function processAuthorizationCodeCallback(paramKeyValueMap) {
+    var access_code = paramKeyValueMap['code'];
     var state = paramKeyValueMap['state'];
 
     if (state.includes("webServer")) {
@@ -67,9 +67,9 @@ function processCallback() {
     var paramKeyValueMap = getParameterList();
     console.log('Inside process callback'+paramKeyValueMap);
     if (window.location.hash) {
-        processAuthorizationCodeCallback(paramKeyValueMap);
-    } else if (paramKeyValueMap['çode']) {
         processUserAgentCallback(paramKeyValueMap);
+    } else if (paramKeyValueMap['code']) {
+        processAuthorizationCodeCallback(paramKeyValueMap);
     } else {
         $("#h2Message").html("No access token in query string");
     }

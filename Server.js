@@ -62,7 +62,7 @@ function extractAccessToken(err, remoteResponse, remoteBody,res){
  * @returns Cryptographically random code verifier
  */
 function generateCodeVerifier() {
-	return code_verifier = base64URL(CryptoJS.lib.WordArray.random(32));
+	return code_verifier = CryptoJS.lib.WordArray.random(32);
 }
 
 /**
@@ -71,7 +71,7 @@ function generateCodeVerifier() {
  * @returns Code challenge based on provided code_verifier
  */
 function generateCodeChallenge(code_verifier) {
-	return code_challenge = base64URL(CryptoJS.SHA256(code_verifier));
+	return code_challenge = CryptoJS.SHA256(code_verifier);
 }
 
 /**
@@ -79,7 +79,7 @@ function generateCodeChallenge(code_verifier) {
  * @param {String} string 
  */
 function base64URL(string) {
-	return string.toString(CryptoJS.enc.Base64).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
+	return encodeURI(string.toString(CryptoJS.enc.Base64));
 }
 
 app.all('/proxy',  function(req, res) {     
@@ -132,7 +132,9 @@ app.get('/webServer', function (req,res){
 								'&response_type=' + responseType +
 								'&state=' + state + 
 								'&scope=' + scope +
-								'&code_challenge=' + codeChallenge;
+								'&code_challenge=' + base64URL(codeChallenge);
+
+		console.log('Webserver step 1: ' + authorizationUrl);
 	
 	 request({url: authorizationUrl, method: 'GET'}).pipe(res);
 } );
@@ -149,7 +151,7 @@ app.get('/webServerStep2', function (req,res) {
 	var state = req.query.state;
 
 	if(state == 'webServerSandbox'){
-		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
+		sfdcURL = 'https://test.salesforce.com/services/oauth2/token';
 	}
 
 	var tokenUrl = sfdcURL +
@@ -159,9 +161,11 @@ app.get('/webServerStep2', function (req,res) {
 						'&grant_type=' + grantType +
 						'&code=' + code +
 						'&state=' + state + 
-						'&code_verifier=' + codeVerifier;
+						'&code_verifier=' + base64URL(codeVerifier);
+
+		console.log('Webserver step 2: ' + tokenUrl);
 		
-	 request({url: tokenUrl, method: 'POST'}, function(err, remoteResponse, remoteBody) {
+	 	request({url: tokenUrl, method: 'POST'}, function(err, remoteResponse, remoteBody) {
 				extractAccessToken(err, remoteResponse, remoteBody, res); 
 		} 
 	);

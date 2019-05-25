@@ -37,11 +37,25 @@
 				window.location = 'device?isSandbox=true';
 			});
 
-			$("#prodBtnWS").click(function () {
-				window.location = 'webServer?isSandbox=false';
+			$("#prodBtnWSsecret").click(function () {
+				window.location = 'webServer?isSandbox=false&type=secret';
 			});
-			$("#sandBtnWS").click(function () {
-				window.location = 'webServer?isSandbox=true';
+			$("#sandBtnWSsecret").click(function () {
+				window.location = 'webServer?isSandbox=true&type=secret';
+			});
+
+			$("#prodBtnWSassertion").click(function () {
+				window.location = 'webServer?isSandbox=false&type=assertion';
+			});
+			$("#prodBtnWSassertion").click(function () {
+				window.location = 'webServer?isSandbox=true&type=assertion';
+			});
+
+			$("#prodBtnWSnone").click(function () {
+				window.location = 'webServer?isSandbox=false&type=none';
+			});
+			$("#prodBtnWSnone").click(function () {
+				window.location = 'webServer?isSandbox=true&type=none';
 			});
 
 			$("#prodBtnR").click(function () {
@@ -209,17 +223,37 @@
 					<li>Main.html (Salesforce Query operations) </li>
 				</ol>
 			</div>
-			<a id="prodBtnWS" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
-			<a id="sandBtnWS" role="button" class="btn btn-primary btn-lg">Sandbox</a>
+			<a id="prodBtnWSsecret" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
+			<a id="sandBtnWSsecret" role="button" class="btn btn-primary btn-lg">Sandbox</a>
 		</div>
 		<div>
 			<h3>Web Server Flow with Client Assertion</h3>
-
+			<p> 
+				This section contains a JavaScript application that will use the <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5">OAuth 2.0 Web Server flow</a> with client assertion.
+			</p>
+			
 			<ol class="smallFont">
+				<li>Client application redirects to authorization endpoint at <code><%= baseURL %>/services/oauth2/authorize</code> using the GET method with the following parameters:
+					<ul>
+						<li><code>response_type=code</code></li>
+						<li><code>client_id=<%= clientId %></code> (client ID configured in Connected App)</li>
+						<li><code>redirect_uri=<%= callbackURL %></code></li>
+						<li><code>code_challenge=<%= codeChallenge %></code> (optional - prevent authorization code interception attack)</li>
+						<li><code>state=&lt;UniqueIdentifier&gt;</code> (optional - prevents CSRF - other websites sending on behalf of this one)</li>
+						<li><code>scope=&lt;Scope parameters&gt;</code> (optional - uses scope defined in Connected App if not specified)</li>
+					</ul>
+				</li>
+				<li>
+					Salesforce asks the user to authenticate and then authorize the application. If successful, it redirects to the redirect_uri passing along the following parameters
+					<ul>
+						<li><code>code</code> (the authorization code to be used in the second part of the request)</li>
+						<li><code>state</code> (if state was provided in original request)</li>
+					</ul>
+				</li>
 				<li> TBD - currently buttons just do WS with Client Secret </li>
 			</ol>
-			<a id="prodBtnWS" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
-			<a id="sandBtnWS" role="button" class="btn btn-primary btn-lg">Sandbox</a>
+			<a id="prodBtnWSassertion" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
+			<a id="sandBtnWSassertion" role="button" class="btn btn-primary btn-lg">Sandbox</a>
 		</div>
 		<div>
 			<h3>Web Server Flow without Client Secret or Assertion</h3>
@@ -227,8 +261,8 @@
 			<ol class="smallFont">
 				<li> TBD - currently buttons just do WS with Client Secret </li>
 			</ol>
-			<a id="prodBtnWS" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
-			<a id="sandBtnWS" role="button" class="btn btn-primary btn-lg">Sandbox</a>
+			<a id="prodBtnWSnone" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
+			<a id="sandBtnWSnone" role="button" class="btn btn-primary btn-lg">Sandbox</a>
 		</div>
 	</div>
 	
