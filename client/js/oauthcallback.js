@@ -5,9 +5,9 @@ function getParameterList() {
     var message;
 
     if (window.location.hash) {
-        message = decodeURIComponent(window.location.hash.substr(1));
+        message = window.location.hash.substr(1);
     } else {
-        message = decodeURIComponent(window.location.search.substr(1));
+        message = window.location.search.substr(1);
     }
 
     var params = message.split("&"), response = {};

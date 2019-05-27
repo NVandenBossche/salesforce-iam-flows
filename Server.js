@@ -11,6 +11,7 @@ var express = require('express'),
 	base64url = require('base64-url'), 
 	nJwt = require('njwt'),
 	CryptoJS = require('crypto-js'),
+	crypto = require('crypto'),
 	apiVersion = 'v45.0',
 	domainName='localhost:8081',
 	clientId = process.env.CLIENT_ID, 
@@ -62,16 +63,20 @@ function extractAccessToken(err, remoteResponse, remoteBody,res){
  * @returns Cryptographically random code verifier
  */
 function generateCodeVerifier() {
-	return code_verifier = CryptoJS.lib.WordArray.random(32);
+	var verifier = 'aaaaaaaabbbbbbbbcccccccc111111112222222233333333aaaaaaaabbbbbbbbcccccccc111111112222222233333333aaaaaaaabbbbbbbbcccccccc11111111';//crypto.randomBytes(128);
+	console.log('Code verifier: ' + verifier);
+	return verifier;
 }
 
 /**
  * Function that hashes the code verifier and encodes it into base64URL
- * @param {String} code_verifier
+ * @param {String} verifier
  * @returns Code challenge based on provided code_verifier
  */
-function generateCodeChallenge(code_verifier) {
-	return code_challenge = CryptoJS.SHA256(code_verifier);
+function generateCodeChallenge(verifier) {
+	var challenge = CryptoJS.SHA256(base64URL(verifier)).toString();
+	console.log('Code Challenge: ' + base64URL(challenge));
+	return challenge;
 }
 
 /**
@@ -79,7 +84,7 @@ function generateCodeChallenge(code_verifier) {
  * @param {String} string 
  */
 function base64URL(string) {
-	return encodeURI(string.toString(CryptoJS.enc.Base64));
+	return encodeURI(CryptoJS.enc.Utf8.parse(string).toString(CryptoJS.enc.Base64)).replace(/=/g, '%3D').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
 app.all('/proxy',  function(req, res) {     
@@ -128,13 +133,15 @@ app.get('/webServer', function (req,res){
 
 	var authorizationUrl = sfdcURL +
 								'?client_id=' + clientId +
-								'&redirect_uri=' + callbackURL +
+								'&redirect_uri=' + encodeURI(callbackURL) +
 								'&response_type=' + responseType +
 								'&state=' + state + 
 								'&scope=' + scope +
-								'&code_challenge=' + base64URL(codeChallenge);
+								'&code_challenge=HNC4MVxLbbXY4dfkJRrBaRE0srm9sLIdiJ6Wrnc7c_k';// + base64URL(codeChallenge);
 
-		console.log('Webserver step 1: ' + authorizationUrl);
+		console.log('Webserver step 1: ' + codeChallenge);
+		console.log('Webserver step 1: ' + base64URL(codeChallenge));
+		console.log('Webserver step 2: ' + authorizationUrl);
 	
 	 request({url: authorizationUrl, method: 'GET'}).pipe(res);
 } );
@@ -157,12 +164,14 @@ app.get('/webServerStep2', function (req,res) {
 	var tokenUrl = sfdcURL +
 						'?client_id=' + clientId +
 						'&client_secret=' + clientSecret +
-						'&redirect_uri=' + callbackURL +
+						'&redirect_uri=' + encodeURI(callbackURL) +
 						'&grant_type=' + grantType +
 						'&code=' + code +
 						'&state=' + state + 
-						'&code_verifier=' + base64URL(codeVerifier);
+						'&code_verifier=' + codeVerifier;
 
+		console.log('Webserver step 2: ' + codeVerifier);
+		console.log('Webserver step 2: ' + base64URL(codeVerifier));
 		console.log('Webserver step 2: ' + tokenUrl);
 		
 	 	request({url: tokenUrl, method: 'POST'}, function(err, remoteResponse, remoteBody) {
@@ -325,7 +334,7 @@ function getJWTSignedToken_nJWTLib(sfdcUserName){
 
 function encryptUsingPrivateKey_nJWTLib (claims) {
 	var absolutePath = path.resolve("key.pem"); 	
-    var cert = fs.readFileSync(absolutePath );	
+  var cert = fs.readFileSync(absolutePath );	
 	var jwt_token = nJwt.create(claims,cert,'RS256');	
 	console.log(jwt_token);	
 	var jwt_token_b64 = jwt_token.compact();
@@ -352,7 +361,7 @@ app.get('/oauthcallback', function(req,res) {
 } ); 
 
 app.get('/Main*', function(req,res) {
-    res.sendfile('views/Main.html');
+    res.render('queryresult');
 } );
   
 app.listen(app.get('port'), function () {
