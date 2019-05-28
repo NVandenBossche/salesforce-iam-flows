@@ -1,7 +1,7 @@
 var $apiEle = $("#apiCount"),
     proxyURL = "https://localhost:8081/proxy/";
 
-var client = new forcetk.Client("", "", proxyURL);
+var client = new forcetk.Client("", 'https://nicolasvandenbossche-dev-ed.my.salesforce.com', proxyURL);
 
 if ($.cookie("AccToken") && $.cookie("APIVer") && $.cookie("InstURL")) {
     client.setSessionToken(

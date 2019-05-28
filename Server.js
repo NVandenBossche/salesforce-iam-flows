@@ -1,61 +1,88 @@
 // Load Express and other dependencies
-var express = require('express'),
-    http = require('http'), 
-    request = require('request'),
-    bodyParser = require('body-parser'),
-	morgan = require('morgan'),
-    app = express(), 
-	path = require("path"),
-	https = require('https'), 
-	fs = require('fs'),  
-	base64url = require('base64-url'), 
-	nJwt = require('njwt'),
-	CryptoJS = require('crypto-js'),
-	crypto = require('crypto'),
-	apiVersion = 'v45.0',
-	domainName='localhost:8081',
-	clientId = process.env.CLIENT_ID, 
-	clientSecret=process.env.CLIENT_SECRET,
-	callbackURL = process.env.CALLBACK_URL,
-	baseURL = process.env.BASE_URL,
-	jwt_aud = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com';
+var express = require("express"),
+    http = require("http"),
+    request = require("request"),
+    bodyParser = require("body-parser"),
+    morgan = require("morgan"),
+    app = express(),
+    path = require("path"),
+    https = require("https"),
+    fs = require("fs"),
+    base64url = require("base64-url"),
+    nJwt = require("njwt"),
+    CryptoJS = require("crypto-js"),
+    crypto = require("crypto"),
+    apiVersion = "v45.0",
+    domainName = "localhost:8081",
+    clientId = process.env.CLIENT_ID,
+    clientSecret = process.env.CLIENT_SECRET,
+    callbackURL = process.env.CALLBACK_URL,
+    baseURL = process.env.BASE_URL,
+    jwt_aud = "https://nicolasvandenbossche-dev-ed.my.salesforce.com",
+    endpointUrl = "",
+    state = "",
+    refreshToken = "";
 
 // Set default view engine to ejs. This will be used when calling res.render()
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 
 // Let Express know where the client files are located
-app.use(express.static(__dirname + '/client')); 
+app.use(express.static(__dirname + "/client"));
 
 // Setting up of app
-app.use(morgan('dev'));
-app.use(bodyParser.json());  
-app.use(bodyParser.urlencoded({extended : true}));
+app.use(morgan("dev"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Set the port to use based on the environment variables
-app.set('port', process.env.PORT);
+app.set("port", process.env.PORT);
 
 /**
- * Extract Access token from POST response and redirect to page Main
+ * Extract Access token from POST response and redirect to page queryresult
  */
-function extractAccessToken(err, remoteResponse, remoteBody,res){
-	if (err) { 
-		return res.status(500).end('Error'); 
-	}
-	console.log(remoteBody) ;
-	var sfdcResponse = JSON.parse(remoteBody); 
-	
-	//success
-	if(sfdcResponse.access_token){				 
-		res.writeHead(302, {
-		  'Location': 'Main' ,
-		  'Set-Cookie': ['AccToken='+sfdcResponse.access_token,'APIVer='+apiVersion,'InstURL='+sfdcResponse.instance_url,'idURL='+sfdcResponse.id]
-		});
-	}else{
-		res.write('Some error occurred. Make sure connected app is approved previously if its JWT flow, Username and Password is correct if its Password flow. ');
-		res.write(' Salesforce Response : ');
-		res.write( remoteBody ); 
-	} 
-	res.end();
+function accessTokenCallback(err, remoteResponse, remoteBody, res) {
+    // Display error if error is returned to callback function
+    if (err) {
+        return res.status(500).end("Error");
+    }
+
+    console.log(remoteBody);
+
+    // Retrieve the response
+    var sfdcResponse = JSON.parse(remoteBody);
+
+    // Check the signature
+    var hash = CryptoJS.HmacSHA256(
+        sfdcResponse.id + sfdcResponse.issued_at,
+        clientSecret
+    );
+    var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+    if (hashInBase64 != sfdcResponse.signature) {
+        return res
+            .status(500)
+            .end("Signature not correct - Identity cannot be confirmed");
+    }
+
+    // In case no error and signature checks out, AND there is an access token present, store refresh token and redirect to query page
+    if (sfdcResponse.access_token) {
+        refreshToken = sfdcResponse.refresh_token;
+        res.writeHead(302, {
+            Location: "queryresult",
+            "Set-Cookie": [
+                "AccToken=" + sfdcResponse.access_token,
+                "APIVer=" + apiVersion,
+                "InstURL=" + sfdcResponse.instance_url,
+                "idURL=" + sfdcResponse.id
+            ]
+        });
+    } else {
+        res.write(
+            "Some error occurred. Make sure connected app is approved previously if its JWT flow, Username and Password is correct if its Password flow. "
+        );
+        res.write(" Salesforce Response : ");
+        res.write(remoteBody);
+    }
+    res.end();
 }
 
 /**
@@ -63,11 +90,12 @@ function extractAccessToken(err, remoteResponse, remoteBody,res){
  * @returns Cryptographically random code verifier
  */
 function generateCodeVerifier() {
-	//var verifier = 'aaaaaaaabbbbbbbbcccccccc111111112222222233333333aaaaaaaabbbbbbbbcccccccc111111112222222233333333aaaaaaaabbbbbbbbcccccccc11111111';//crypto.randomBytes(128);
-	var verifier = crypto.randomBytes(128).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-	//var verifier = '6XsR6LncuTRyaxtRbxwKng0LoJK3RfMnJ15Mt6nYxTQvODVjcPYktXKvXXnoxVnopgV/fFQAJNyizdNe';
-	console.log('Code verifier: ' + verifier);
-	return verifier;
+    return crypto
+        .randomBytes(128)
+        .toString("base64")
+        .replace(/=/g, "")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
 }
 
 /**
@@ -76,287 +104,339 @@ function generateCodeVerifier() {
  * @returns Code challenge based on provided verifier
  */
 function generateCodeChallenge(verifier) {
-	var challenge = CryptoJS.SHA256(verifier).toString(CryptoJS.enc.Base64).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-	console.log('Code Challenge: ' + challenge);
-	return challenge;
+    return CryptoJS.SHA256(verifier)
+        .toString(CryptoJS.enc.Base64)
+        .replace(/=/g, "")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_");
 }
 
-app.all('/proxy',  function(req, res) {     
-    var url = req.header('SalesforceProxy-Endpoint');  
-    request({ url: url, method: req.method, json: req.body, 
-                    headers: {'Authorization': req.header('X-Authorization'), 'Content-Type' : 'application/json'}, body:req.body }).pipe(res); 
+app.all("/proxy", function(req, res) {
+    var url = req.header("SalesforceProxy-Endpoint");
+    request({
+        url: url,
+        method: req.method,
+        json: req.body,
+        headers: {
+            Authorization: req.header("X-Authorization"),
+            "Content-Type": "application/json"
+        },
+        body: req.body
+    }).pipe(res);
 });
 
-app.get('/jwt', function (req,res){  
-	var isSandbox = req.query.isSandbox;
-	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/token' ;
-	if(isSandbox == 'true'){
-		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
-	}
-	var sfdcUserName = req.query.jwtUserName;
-	var token = getJWTSignedToken_nJWTLib(sfdcUserName); 
-	  
-	var paramBody = 'grant_type='+base64url.escape('urn:ietf:params:oauth:grant-type:jwt-bearer')+'&assertion='+token ;	
-	var req_sfdcOpts = { 	url : sfdcURL,  
-							method:'POST', 
-							headers: { 'Content-Type' : 'application/x-www-form-urlencoded'} ,
-							body:paramBody 
-						};
-				
-	request(req_sfdcOpts, 
-		function(err, remoteResponse, remoteBody) {
-			extractAccessToken(err, remoteResponse, remoteBody, res); 
-		} 
-	); 
-} );
+app.get("/jwt", function(req, res) {
+    var isSandbox = req.query.isSandbox;
+    var sfdcUserName = req.query.jwtUserName;
+    var token = getJWTSignedToken_nJWTLib(sfdcUserName);
+
+    if (isSandbox == "true") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
+    } else {
+        endpointUrl = baseURL + "/services/oauth2/token";
+    }
+
+    var paramBody =
+        "grant_type=" +
+        base64url.escape("urn:ietf:params:oauth:grant-type:jwt-bearer") +
+        "&assertion=" +
+        token;
+    var req_sfdcOpts = {
+        url: endpointUrl,
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: paramBody
+    };
+
+    request(req_sfdcOpts, function(err, remoteResponse, remoteBody) {
+        accessTokenCallback(err, remoteResponse, remoteBody, res);
+    });
+});
 
 /**
  * Step 1 Web Server Flow - Get Code
  */
-app.get('/webServer', function (req,res){	
-	// Set parameter values based on environment variables
-	var sfdcURL = baseURL + '/services/oauth2/authorize';
-	var state = 'webServerProd';
-	var responseType = 'code';
-	var scope = 'full%20refresh_token';
+app.get("/webServer", function(req, res) {
+    // Set parameter values based on environment variables
+    var responseType = "code";
+    var scope = "full%20refresh_token";
 
-	if(req.query.isSandbox == 'true'){
-		sfdcURL = 'https://test.salesforce.com/services/oauth2/authorize' ;
-		state = 'webServerSandbox';
-	}
+    if (req.query.isSandbox == "true") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/authorize";
+        state = "webServerSandbox";
+    } else {
+        endpointUrl = baseURL + "/services/oauth2/authorize";
+        state = "webServerProd";
+    }
 
-	var authorizationUrl = sfdcURL +
-								'?client_id=' + clientId +
-								'&redirect_uri=' + encodeURI(callbackURL) +
-								'&response_type=' + responseType +
-								'&state=' + state + 
-								'&scope=' + scope +
-								'&code_challenge=' + codeChallenge;
-	
-	 request({url: authorizationUrl, method: 'GET'}).pipe(res);
-} );
+    var authorizationUrl =
+        endpointUrl +
+        "?client_id=" +
+        clientId +
+        "&redirect_uri=" +
+        encodeURI(callbackURL) +
+        "&response_type=" +
+        responseType +
+        "&state=" +
+        state +
+        "&scope=" +
+        scope +
+        "&code_challenge=" +
+        codeChallenge;
 
-
+    request({ url: authorizationUrl, method: "GET" }).pipe(res);
+});
 
 /**
  * Step 2 Web Server Flow - Get token from Code
  */
-app.get('/webServerStep2', function (req,res) {  
-	var sfdcURL = baseURL + '/services/oauth2/token';
-	var grantType = 'authorization_code';
-	var code = req.query.code;
-	var state = req.query.state;
+app.get("/webServerStep2", function(req, res) {
+    var grantType = "authorization_code";
+    var code = req.query.code;
+    var state = req.query.state;
 
-	if(state == 'webServerSandbox'){
-		sfdcURL = 'https://test.salesforce.com/services/oauth2/token';
-	}
+    if (state == "webServerSandbox") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
+    } else {
+        endpointUrl = baseURL + "/services/oauth2/token";
+    }
 
-	var tokenUrl = sfdcURL +
-						'?client_id=' + clientId +
-						'&client_secret=' + clientSecret +
-						'&redirect_uri=' + encodeURI(callbackURL) +
-						'&grant_type=' + grantType +
-						'&code=' + code +
-						'&state=' + state + 
-						'&code_verifier=' + codeVerifier;
-		
-	 	request({url: tokenUrl, method: 'POST'}, function(err, remoteResponse, remoteBody) {
-				extractAccessToken(err, remoteResponse, remoteBody, res); 
-		} 
-	);
+    var tokenUrl =
+        endpointUrl +
+        "?client_id=" +
+        clientId +
+        "&client_secret=" +
+        clientSecret +
+        "&redirect_uri=" +
+        encodeURI(callbackURL) +
+        "&grant_type=" +
+        grantType +
+        "&code=" +
+        code +
+        "&code_verifier=" +
+        codeVerifier;
+
+    request({ url: tokenUrl, method: "POST" }, function(
+        err,
+        remoteResponse,
+        remoteBody
+    ) {
+        accessTokenCallback(err, remoteResponse, remoteBody, res);
+    });
 });
 
+/**
+ *	 User Agent oAuth Flow
+ */
+app.get("/uAgent", function(req, res) {
+    var isSandbox = req.query.isSandbox;
+
+    if (isSandbox == "true") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/authorize";
+    } else {
+        endpointUrl = baseURL + "/services/oauth2/authorize";
+    }
+
+    request({
+        url:
+            endpointUrl +
+            "?client_id=" +
+            process.env.CLIENT_ID +
+            "&redirect_uri=" +
+            process.env.CALLBACK_URL +
+            "&response_type=token",
+        method: "GET"
+    }).pipe(res);
+});
 
 /**
-*	 User Agent oAuth Flow
-*/
-app.get('/uAgent', function (req,res){  
-	var isSandbox = req.query.isSandbox;
-	var sfdcURL = baseURL + '/services/oauth2/authorize' ;
-	if(isSandbox == 'true'){
-		sfdcURL = 'https://test.salesforce.com/services/oauth2/authorize' ;
-	}
-	
-	 request({ 	url : sfdcURL+'?client_id='+process.env.CLIENT_ID+'&redirect_uri='+process.env.CALLBACK_URL+'&response_type=token',  
-				method:'GET' 
-			}).pipe(res); 
-	 
-} );
+ *	 Username Password oAuth Flow
+ */
+app.post("/uPwd", function(req, res) {
+    var instance = req.body.instance;
+    var uname = req.body.sfdcUsername;
+    var pwd = req.body.sfdcPassword;
+    var state = req.query.state;
 
-/**
-*	 Username Password oAuth Flow
-*/
-app.post('/uPwd', function (req,res){  
+    if (instance == "sand") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
+    } else {
+        endpointUrl = baseURL + "/services/oauth2/token";
+    }
 
-	var instance = req.body.instance;
-	var uname = req.body.sfdcUsername;
-	var pwd = req.body.sfdcPassword; 
+    var computedURL =
+        endpointUrl +
+        "?client_id=" +
+        clientId +
+        "&grant_type=password" +
+        "&client_secret=" +
+        clientSecret +
+        "&username=" +
+        uname +
+        "&password=" +
+        pwd;
 
-	var state = req.query.state;
-	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/token' ;
-	if(instance == 'sand'){
-		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
-	}
-	
-	var computedURL = sfdcURL+
-	'?client_id='+ clientId+
-	 '&grant_type=password'+
-	 '&client_secret='+clientSecret+
-	 '&username='+uname+
-	 '&password='+pwd ;
- 
-
-	 request({ 	url : computedURL,  
-				method:'POST' 
-			},
-			function(err, remoteResponse, remoteBody) {
-				extractAccessToken(err, remoteResponse, remoteBody, res); 
-			} 
-		);  
-} );
+    request({ url: computedURL, method: "POST" }, function(
+        err,
+        remoteResponse,
+        remoteBody
+    ) {
+        accessTokenCallback(err, remoteResponse, remoteBody, res);
+    });
+});
 
 /**
  * Device Authentication Flow
  */
-app.get('/device', function (req,res){  
+app.get("/device", function(req, res) {
+    if (req.query.isSandbox == "true") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
+    } else {
+        endpointUrl = baseURL + "/services/oauth2/token";
+    }
 
-	var isSandbox = req.query.isSandbox;
-	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/token' ;
-	if(isSandbox == 'true'){
-		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
-	}
-	
-	var computedURL = sfdcURL+
-	'?client_id='+ clientId+
-	 '&response_type=device_code' ;
- 
+    var computedURL =
+        endpointUrl + "?client_id=" + clientId + "&response_type=device_code";
 
-	 request({ 	url : computedURL,  
-				method:'POST' 
-			},
-			function(err, remoteResponse, remoteBody) {
-				if (err) { 
-					res.write(err);
-					res.end();
-					//return res.status(500).end('Error'); 
-					return  ;
-				}
-				console.log(remoteBody) ;
-				var sfdcResponse = JSON.parse(remoteBody); 
+    request({ url: computedURL, method: "POST" }, function(
+        err,
+        remoteResponse,
+        remoteBody
+    ) {
+        if (err) {
+            res.write(err);
+            res.end();
+            //return res.status(500).end('Error');
+            return;
+        }
+        console.log(remoteBody);
+        var sfdcResponse = JSON.parse(remoteBody);
 
-				if(sfdcResponse.verification_uri){
-					res.render('deviceOAuth',{
-						verification_uri : sfdcResponse.verification_uri,
-						user_code : sfdcResponse.user_code,
-						device_code : sfdcResponse.device_code,
-						isSandbox : isSandbox
-					}); 
-				}  
-			} 
-		);  
-} ); 
+        if (sfdcResponse.verification_uri) {
+            res.render("deviceOAuth", {
+                verification_uri: sfdcResponse.verification_uri,
+                user_code: sfdcResponse.user_code,
+                device_code: sfdcResponse.device_code,
+                isSandbox: isSandbox
+            });
+        }
+    });
+});
 
 /**
  *  Keep polling till device is verified using code
  */
+app.get("/devicePol", function(req, res) {
+    var verification_uri = req.query.verification_uri;
+    var user_code = req.query.user_code;
+    var device_code = req.query.device_code;
 
-app.get('/devicePol', function (req,res){  
+    if (req.query.isSandbox == "true") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
+    } else {
+        endpointUrl = baseURL + "/services/oauth2/token";
+    }
 
-	var isSandbox = req.query.isSandbox;
-	var verification_uri = req.query.verification_uri;
-	var user_code = req.query.user_code;
-	var device_code = req.query.device_code;
+    var computedURL =
+        endpointUrl +
+        "?client_id=" +
+        clientId +
+        "&grant_type=device" +
+        "&code=" +
+        device_code;
 
-	var sfdcURL = 'https://nicolasvandenbossche-dev-ed.my.salesforce.com/services/oauth2/token' ;
-	if(isSandbox == 'true'){
-		sfdcURL = 'https://test.salesforce.com/services/oauth2/token' ;
-	}
-	
-	var computedURL = sfdcURL+
-	'?client_id='+ clientId+
-	 '&grant_type=device'+
-	 '&code='+device_code ;
+    request({ url: computedURL, method: "POST" }, function(
+        err,
+        remoteResponse,
+        remoteBody
+    ) {
+        if (err) {
+            return res.status(500).end("Error");
+        }
+        console.log(remoteBody);
+        var sfdcResponse = JSON.parse(remoteBody);
 
-	 request({ 	url : computedURL,  
-			method:'POST' 
-		},
-		function(err, remoteResponse, remoteBody) {
-			if (err) { 
-				return res.status(500).end('Error'); 
-			}
-			console.log(remoteBody) ;
-			var sfdcResponse = JSON.parse(remoteBody); 
+        if (sfdcResponse.access_token) {
+            res.writeHead(302, {
+                Location: "queryresult",
+                "Set-Cookie": [
+                    "AccToken=" + sfdcResponse.access_token,
+                    "APIVer=" + apiVersion,
+                    "InstURL=" + sfdcResponse.instance_url,
+                    "idURL=" + sfdcResponse.id
+                ]
+            });
+            res.end();
+        } else {
+            res.render("deviceOAuth", {
+                verification_uri: verification_uri,
+                user_code: user_code,
+                device_code: device_code,
+                isSandbox: isSandbox
+            });
+        }
+    });
+});
 
-			if(sfdcResponse.access_token){ 
-				res.writeHead(302, {
-					'Location': 'Main' ,
-					'Set-Cookie': ['AccToken='+sfdcResponse.access_token,'APIVer='+apiVersion,'InstURL='+sfdcResponse.instance_url,'idURL='+sfdcResponse.id]
-				  });
-				  res.end();
-			} else{
-				res.render('deviceOAuth',{
-					verification_uri :  verification_uri,
-					user_code :  user_code,
-					device_code :  device_code,
-					isSandbox : isSandbox
-				});
-			}
-		} 
-	);  
-} ); 
+function getJWTSignedToken_nJWTLib(sfdcUserName) {
+    var claims = {
+        iss: clientId,
+        sub: sfdcUserName,
+        aud: jwt_aud,
+        exp: Math.floor(Date.now() / 1000) + 60 * 3
+    };
 
- 
-
-function getJWTSignedToken_nJWTLib(sfdcUserName){ 
-	var claims = {
-	  iss: clientId,   
-	  sub: sfdcUserName,     
-	  aud: jwt_aud,
-	  exp : (Math.floor(Date.now() / 1000) + (60*3))
-	}
-
-	return encryptUsingPrivateKey_nJWTLib(claims);
+    return encryptUsingPrivateKey_nJWTLib(claims);
 }
 
-function encryptUsingPrivateKey_nJWTLib (claims) {
-	var absolutePath = path.resolve("key.pem"); 	
-  var cert = fs.readFileSync(absolutePath );	
-	var jwt_token = nJwt.create(claims,cert,'RS256');	
-	console.log(jwt_token);	
-	var jwt_token_b64 = jwt_token.compact();
-	console.log(jwt_token_b64);
- 
-	return jwt_token_b64;     
-};
+function encryptUsingPrivateKey_nJWTLib(claims) {
+    var absolutePath = path.resolve("key.pem");
+    var cert = fs.readFileSync(absolutePath);
+    var jwt_token = nJwt.create(claims, cert, "RS256");
+    console.log(jwt_token);
+    var jwt_token_b64 = jwt_token.compact();
+    console.log(jwt_token_b64);
 
-app.route(/^\/(index.*)?$/).get(function(req,res) {
-	res.render('index',
-				{
-					callbackURL: callbackURL, 
-					baseURL: baseURL, 
-					clientId: clientId, 
-					clientSecret: clientSecret,
-					codeVerifier: codeVerifier,
-					codeChallenge: codeChallenge
-				}
-	);
-} ); 
- 
-app.get('/oauthcallback', function(req,res) {
-    res.render('oauthcallback');
-} ); 
+    return jwt_token_b64;
+}
 
-app.get('/Main*', function(req,res) {
+app.route(/^\/(index.*)?$/).get(function(req, res) {
+    res.render("index", {
+        callbackURL: callbackURL,
+        baseURL: baseURL,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        codeVerifier: codeVerifier,
+        codeChallenge: codeChallenge
+    });
+});
+
+app.get("/oauthcallback", function(req, res) {
+    var code = req.query.code;
+    var returnedState = req.query.state;
+
+    res.render("oauthcallback", {
+        code: code,
+        returnedState: returnedState,
+        originalState: state
+    });
+});
+
+/*app.get('/Main*', function(req,res) {
     res.render('queryresult');
-} );
-  
-app.listen(app.get('port'), function () {
-    console.log('Express server listening on port ' + app.get('port'));
+} );*/
+
+app.get("/queryresult", function(req, res) {
+    res.render("queryresult");
+});
+
+app.listen(app.get("port"), function() {
+    console.log("Express server listening on port " + app.get("port"));
 });
 
 var options = {
-  key: fs.readFileSync('./key.pem', 'utf8'),
-  cert: fs.readFileSync('./server.crt', 'utf8')
+    key: fs.readFileSync("./key.pem", "utf8"),
+    cert: fs.readFileSync("./server.crt", "utf8")
 };
 
 // Define code verifier and code challenge

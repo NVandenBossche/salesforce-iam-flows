@@ -26,17 +26,19 @@ function getParameterList() {
  */
 function processUserAgentCallback(paramKeyValueMap) {
     var apiVersion = "v45.0";
-    var accessToken = paramKeyValueMap['access_token'];
+    var accessToken = decodeURIComponent(paramKeyValueMap['access_token']);
+    var instanceUrl = decodeURIComponent(paramKeyValueMap['instance_url']);
+    var idUrl = decodeURIComponent(paramKeyValueMap['id']);
 
     if (accessToken) {
         $.cookie("AccToken", accessToken);
         $.cookie("APIVer", apiVersion);
-        $.cookie("InstURL", paramKeyValueMap['instance_url']);
-        $.cookie("idURL", paramKeyValueMap['id']);
+        $.cookie("InstURL", instanceUrl);
+        $.cookie("idURL", idUrl);
 
         strngBrks = paramKeyValueMap['id'].split("/");
         $.cookie("LoggeduserId", strngBrks[strngBrks.length - 1]);
-        window.location = "Main";
+        window.location = "queryresult";
     } else {
         $("#h2Message").html("AuthenticationError: No Token");
     }
@@ -47,16 +49,17 @@ function processUserAgentCallback(paramKeyValueMap) {
  * @param {Map<String, String>} paramKeyValueMap 
  */
 function processAuthorizationCodeCallback(paramKeyValueMap) {
-    var access_code = paramKeyValueMap['code'];
-    var state = paramKeyValueMap['state'];
-
-    if (state.includes("webServer")) {
-        //Its webserver flow so extract Token
-        $("#h2Message").html("I am Webserver Flow");
-        window.location = "webServerStep2?code=" + access_code + "&state=" + state;
+    if(returnedState == originalState) {
+        if (returnedState.includes("webServer")) {
+            //Its webserver flow so extract Token
+            $("#h2Message").html("I am Webserver Flow");
+            window.location = "webServerStep2?code=" + code;
+        } else {
+            $.cookie("AccToken", access_code);
+            window.location = "queryresult";
+        }
     } else {
-        $.cookie("AccToken", access_code);
-        window.location = "Main";
+        $("#h2Message").html("State changed --> Cross App / Site Request Forgery detected!");
     }
 }
 
@@ -65,7 +68,6 @@ function processAuthorizationCodeCallback(paramKeyValueMap) {
  */
 function processCallback() {
     var paramKeyValueMap = getParameterList();
-    console.log('Inside process callback'+paramKeyValueMap);
     if (window.location.hash) {
         processUserAgentCallback(paramKeyValueMap);
     } else if (paramKeyValueMap['code']) {

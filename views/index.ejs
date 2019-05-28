@@ -217,10 +217,31 @@
 							<li><code>state</code> (if state was provided in original request)</li>
 						</ul>
 					</li>
-					<li> Salesforce
-						<b>token</b> URL, grant_type
-						<b>authorization_code</b>, POST request </li>
-					<li>Main.html (Salesforce Query operations) </li>
+					<li> 
+						Callback page checks if the state remained the same to make sure that no other application initiated the request. 
+						If OK, authorization code is sent to the token endpoint at <code><%= baseURL %>/services/oauth2/token</code> using the POST method with the following parameters:
+						<ul>
+							<li><code>grant_type=authorization_code</code></li>
+							<li><code>client_id=<%= clientId %></code></li>
+							<li><code>client_secret=<%= clientSecret %></code></li>
+							<li><code>redirect_uri=<%= callbackURL %></code></li>
+							<li><code>code=...</code> (Authorization code from second step)</li>
+							<li><code>code_verifier=...</code> (128 bit random string, base64 and URL encoded)</li>
+						</ul>
+					</li>
+					<li>After successful authorization, Salesforce redirects to the callback URL (<%= callbackURL %>), passing along the Access Token.</li>
+					<li> The callback page parses the returned data
+						<ul>
+								<li><code>access_token=00D...</code></li>
+								<li><code>token_type=Bearer</code></li>
+								<li><code>id_token=...</code> (contains information about the user's identity - only when specifying <code>openid</code> scope</li>
+								<li><code>refresh_token=...</code></li>
+								<li><code>instance_url=<%= baseURL %></code></li>
+								<li><code>id=&lt;Identity URL&gt;</code></li>
+								<li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
+								<li><code>signature=...</code> (client_secret key applied to id:issued_at - optional)</li>
+						</ul>
+					</li>
 				</ol>
 			</div>
 			<a id="prodBtnWSsecret" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
