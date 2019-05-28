@@ -1,0 +1,16 @@
+#result{
+    margin-left : 15px;
+    margin-right : 15px;
+    margin-top : 30px;
+}
+.info{
+    display: block;
+    clear: both;
+    padding-left: 20%;
+    font-style: italic;
+    color: #888;
+    font-size: 1.2rem;
+}
+.headingText{
+    font-size: 1.2rem;
+}

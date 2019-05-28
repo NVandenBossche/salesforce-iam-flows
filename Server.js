@@ -63,7 +63,9 @@ function extractAccessToken(err, remoteResponse, remoteBody,res){
  * @returns Cryptographically random code verifier
  */
 function generateCodeVerifier() {
-	var verifier = 'aaaaaaaabbbbbbbbcccccccc111111112222222233333333aaaaaaaabbbbbbbbcccccccc111111112222222233333333aaaaaaaabbbbbbbbcccccccc11111111';//crypto.randomBytes(128);
+	//var verifier = 'aaaaaaaabbbbbbbbcccccccc111111112222222233333333aaaaaaaabbbbbbbbcccccccc111111112222222233333333aaaaaaaabbbbbbbbcccccccc11111111';//crypto.randomBytes(128);
+	var verifier = crypto.randomBytes(128).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+	//var verifier = '6XsR6LncuTRyaxtRbxwKng0LoJK3RfMnJ15Mt6nYxTQvODVjcPYktXKvXXnoxVnopgV/fFQAJNyizdNe';
 	console.log('Code verifier: ' + verifier);
 	return verifier;
 }
@@ -71,20 +73,12 @@ function generateCodeVerifier() {
 /**
  * Function that hashes the code verifier and encodes it into base64URL
  * @param {String} verifier
- * @returns Code challenge based on provided code_verifier
+ * @returns Code challenge based on provided verifier
  */
 function generateCodeChallenge(verifier) {
-	var challenge = CryptoJS.SHA256(base64URL(verifier)).toString();
-	console.log('Code Challenge: ' + base64URL(challenge));
+	var challenge = CryptoJS.SHA256(verifier).toString(CryptoJS.enc.Base64).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+	console.log('Code Challenge: ' + challenge);
 	return challenge;
-}
-
-/**
- * Base64URL encode the given string
- * @param {String} string 
- */
-function base64URL(string) {
-	return encodeURI(CryptoJS.enc.Utf8.parse(string).toString(CryptoJS.enc.Base64)).replace(/=/g, '%3D').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
 app.all('/proxy',  function(req, res) {     
@@ -137,11 +131,7 @@ app.get('/webServer', function (req,res){
 								'&response_type=' + responseType +
 								'&state=' + state + 
 								'&scope=' + scope +
-								'&code_challenge=HNC4MVxLbbXY4dfkJRrBaRE0srm9sLIdiJ6Wrnc7c_k';// + base64URL(codeChallenge);
-
-		console.log('Webserver step 1: ' + codeChallenge);
-		console.log('Webserver step 1: ' + base64URL(codeChallenge));
-		console.log('Webserver step 2: ' + authorizationUrl);
+								'&code_challenge=' + codeChallenge;
 	
 	 request({url: authorizationUrl, method: 'GET'}).pipe(res);
 } );
@@ -169,10 +159,6 @@ app.get('/webServerStep2', function (req,res) {
 						'&code=' + code +
 						'&state=' + state + 
 						'&code_verifier=' + codeVerifier;
-
-		console.log('Webserver step 2: ' + codeVerifier);
-		console.log('Webserver step 2: ' + base64URL(codeVerifier));
-		console.log('Webserver step 2: ' + tokenUrl);
 		
 	 	request({url: tokenUrl, method: 'POST'}, function(err, remoteResponse, remoteBody) {
 				extractAccessToken(err, remoteResponse, remoteBody, res); 
