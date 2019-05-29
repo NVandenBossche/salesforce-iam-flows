@@ -55,8 +55,8 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
 		var identityUrl = sfdcResponse.id;
 		var issuedAt = sfdcResponse.issued_at;
 		
+		// Check the signature
 		if (identityUrl && issuedAt) {
-			// Check the signature
 			var hash = CryptoJS.HmacSHA256(
 				identityUrl + issuedAt,
 					clientSecret
@@ -379,7 +379,7 @@ app.get("/device", function(req, res) {
                 verification_uri: sfdcResponse.verification_uri,
                 user_code: sfdcResponse.user_code,
                 device_code: sfdcResponse.device_code,
-                isSandbox: isSandbox
+                isSandbox: req.query.isSandbox
             });
         }
     });
@@ -434,7 +434,7 @@ app.get("/devicePol", function(req, res) {
                 verification_uri: verification_uri,
                 user_code: user_code,
                 device_code: device_code,
-                isSandbox: isSandbox
+                isSandbox: req.query.isSandbox
             });
         }
     });
@@ -443,7 +443,8 @@ app.get("/devicePol", function(req, res) {
 app.route(/^\/(index.*)?$/).get(function(req, res) {
 	res.render("index", {
 			callbackURL: callbackURL,
-			baseURL: baseURL,
+            baseURL: baseURL,
+            username: username,
 			clientId: clientId,
 			clientSecret: clientSecret,
 			codeVerifier: codeVerifier,

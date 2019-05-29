@@ -362,23 +362,38 @@
 	<div class="jumbotron" id="jwt">
 		<p>
 			<h2> JWT Bearer Assertion OAuth 2.0 Flow </h2>
-			<p>
-				<i class="note">
-					<a href="https://jwt.io/"> Use this tool to debug JSON token generated in Node.js application. </a>
-				</i>
-			</p>
+			<button type="button" style="margin-right:40px" class="btn btn-info" data-toggle="collapse" data-target="#jwtCollapse">Show/Hide</button>
 
-			<ol class="smallFont">
-				<li> This page (Index.html) </li>
-				<li> Salesforce
-					<b>token</b> URL, grant type
-					<b>jwt-bearer</b> , POST request </li>
-				<li> Main.html (Salesforce Query operations) </li>
-			</ol>
+			<div id="jwtCollapse" class="collapse">
+				<p>
+					<i class="note">
+						<a href="https://jwt.io/"> Use this tool to debug JSON token generated in Node.js application. </a>
+					</i>
+				</p>
 
-			<div class="form-group">
-				<label for="jwtUserName">Salesforce username previously validated Connected App </label>
-				<input class="form-control" id="jwtUserName" type="text" value="n.vanden.bossche@accenture.com" />
+				<ol class="smallFont">
+					<li>
+						This page contains a JavaScript application that will use the <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_jwt_flow.htm&type=5"> OAuth 2.0 JWT Bearer Token flow</a>
+					</li>
+					<li> Upon clicking the button, the system is generating a JWT token (containing iss, aud, sub, exp) and POSTs is to the token endpoint using the following parameters:
+						<ul>
+							<li><code>grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer</code></li>
+							<li><code>assertion=...</code> base64url(header.body.signature) - signature by private key is authentication</li>
+							<li><code>scope=&lt;Scope parameters&gt;</code> (optional - uses scope defined in Connected App if not specified)</li>
+						</ul>
+					</li>
+					<li> Salesforce checks the signature and assertion (containing user ID). Then checks previous authorizations before granting access token. </li>
+					<li> 
+						Access token gets returned and callback function processes and stores access token for use. Following parameters are returned:
+						<ul>
+							<li><code>access_token=...</code></li>
+							<li><code>token_type=Bearer</code></li>
+							<li><code>id=...</code> (identity URL)</li>
+							<li><code>id_token=...</code> (identity token - OpenID)</li>
+						</ul>
+					</li>
+					<li> Access token is used to query Salesforce. </li>
+				</ol>
 			</div>
 
 			<a id="prodBtnR" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
@@ -388,22 +403,43 @@
 
 	</div>
 
+	<!-- Username / Password Flow -->
 	<div class="jumbotron" id="usernamePassword">
 		<p>
-			<h2>Username - Password OAuth Flow </h2>
+			<h2>OAuth 2.0 Username-Password Flow </h2>
+			<button type="button" style="margin-right:40px" class="btn btn-info" data-toggle="collapse" data-target="#upCollapse">Show/Hide</button>
 
-			<ol class="smallFont">
-				<li> This page (Index.html) </li>
-				<li> Salesforce
-					<b>token</b> URL, grant type
-					<b>password</b> , POST request </li>
-				<li> Main.html (Salesforce Query operations) </li>
-			</ol>
+			<div id="upCollapse" class="collapse">
+				<ol class="smallFont">
+					<li> Enter username and password in the below form. Attention: This is not secure! Don't use critical credentials, instead use a Trailhead Playground! </li>
+					<li> Upon clicking the button, username and password are sent to the token endpoint via POST method, using the following parameters:
+						<ul>
+							<li><code>grant_type=password</code></li>
+							<li><code>username=<%= username %></code></li>
+							<li><code>password=password</code></li>
+							<li><code>client_id=<%= clientId %></code></li>
+							<li><code>client_secret=<%= clientSecret %></code></li>
+						</ul>
+					<li> Salesforce checks the username, password, client ID and client secret. </li>
+					<li> 
+						Access token gets returned and callback function processes and stores access token for use. Following parameters are returned:
+						<ul>
+							<li><code>access_token=...</code></li>
+							<li><code>token_type=Bearer</code></li>
+							<li><code>instance_url=<%= baseURL %></code></li>
+							<li><code>id=&lt;Identity URL&gt;</code></li>
+							<li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
+							<li><code>signature=...</code> (client_secret key applied to id:issued_at - optional)</li>
+						</ul>
+					</li>
+					<li> Access token is used to query Salesforce. </li>
+				</ol>
+			</div>
 
 			<form action="/uPwd" method="POST" name="usernamepasswordFlow">
 				<div class="form-group">
 					<label for="sfdcUsername">Salesforce Username </label>
-					<input class="form-control" name="sfdcUsername"  id="sfdcUsername" type="text" value="ilovenagpur@gmail.com" />
+					<input class="form-control" name="sfdcUsername"  id="sfdcUsername" type="text" value="<%= username %>" />
 
 					<label for="sfdcPassword">Salesforce Password </label>
 					<input class="form-control"  name="sfdcPassword" id="sfdcPassword" type="password" value="" />
@@ -415,22 +451,58 @@
 		</p>  
 	</div>
 
+	<!-- Device Flow -->
 	<div class="jumbotron" id="deviceFlow">
 			<p>
-				<h2> Device Authentication Flow</h2>
+				<h2> OAuth 2.0 Device Authentication Flow</h2>
+				<button type="button" style="margin-right:40px" class="btn btn-info" data-toggle="collapse" data-target="#deviceCollapse">Show/Hide</button>
 	
-				<ol class="smallFont">
-					<li> Make sure Device Authentication flow is enabled in Connected App</li>
-					<li> This page (Index.html) </li>
-					<li> Salesforce
-						<b>token</b> URL, response type
-						<b>device_code, POST request</b>
-					</li>
-					<li>Validate device by navigating URL and providing code</li>
-					<li>Meanwhile, keep polling <b>token</b> URL with device code and grant type <b>device</b></li> 
-					<li>extract <b>access_token</b></li>
-					<li> Main.html (Salesforce Query operations) </li>
-				</ol>
+				<div id="deviceCollapse" class="collapse">
+					<ol class="smallFont">
+						<li>Make sure Device Authentication flow is enabled in Connected App</li>
+						<li>
+							Retrieve a device code from the token endpoint using POST method and the following parameters:
+							<ul>
+								<li><code>response_type=device_code</code></li>
+								<li><code>client_id=<%= clientId %></code></li>
+								<li><code>scope=&lt;Scope parameters&gt;</code> (optional - uses scope defined in Connected App if not specified)</li>
+							</ul>
+						</li>
+						<li>
+							Process the response via the callback function, containing the following parameters:
+							<ul>
+								<li><code>user_code=...</code> (code to enter on the verification URI)</li>
+								<li><code>verification_uri=...</code> (URL that the user needs to open in another browser)</li>
+								<li><code>device_code=...</code> (device code to identify device)</li>
+								<li><code>interval=...</code> (number of seconds to wait between polls)</li>
+							</ul>
+						</li>
+						<li>Display the user code and authorization URL to the end user on the device</li>
+						<li>
+							Start polling the token endpoint with the device code. This is a POST with the following parameters:
+							<ul>
+								<li><code>grant_type=device</code></li>
+								<li><code>code=...</code> (code from response)</li>
+								<li><code>client_id=<%= clientId %></code></li>
+							</ul>
+						</li>
+						<li>User enters the user code in a browser by navigating to the authorization URL</li>
+						<li>
+							Polling returns access_token. Following output parameters:
+							<ul>
+								<li><code>access_token=...</code></li>								
+								<li><code>refresh_token=...</code></li>
+								<li><code>token_type=Bearer</code></li>
+								<li><code>scope=&lt;Scope parameters&gt;</code> (optional - uses scope defined in Connected App if not specified)</li>
+								<li><code>instance_url=<%= baseURL %></code></li>
+								<li><code>id=&lt;Identity URL&gt;</code></li>
+								<li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
+								<li><code>signature=...</code> (client_secret key applied to id:issued_at - optional)</li>
+							</ul>
+						</li>
+						<li>Access token is used to query Salesforce</li>
+					</ol>
+				</div>
 	
 				<a id="prodBtnDvc" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
 				<a id="sandBtnDvc" role="button" class="btn btn-primary btn-lg">Sandbox</a>
