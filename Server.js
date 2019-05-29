@@ -17,8 +17,9 @@ var express = require("express"),
     clientId = process.env.CLIENT_ID,
     clientSecret = process.env.CLIENT_SECRET,
     callbackURL = process.env.CALLBACK_URL,
-    baseURL = process.env.BASE_URL,
-    jwt_aud = "https://nicolasvandenbossche-dev-ed.my.salesforce.com",
+		baseURL = process.env.BASE_URL,
+		username = process.env.USERNAME,
+    jwt_aud = "https://login.salesforce.com",
     endpointUrl = "",
     state = "",
     refreshToken = "",
@@ -52,11 +53,12 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
     // Retrieve the response
     var sfdcResponse = JSON.parse(remoteBody);
 		var identityUrl = sfdcResponse.id;
+		var issuedAt = sfdcResponse.issued_at;
 		
-		if (identityUrl) {
+		if (identityUrl && issuedAt) {
 			// Check the signature
 			var hash = CryptoJS.HmacSHA256(
-				identityUrl + sfdcResponse.issued_at,
+				identityUrl + issuedAt,
 					clientSecret
 			);
 			var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
@@ -142,6 +144,29 @@ function generateCodeChallenge(verifier) {
         .replace(/\//g, "_");
 }
 
+function getJWTSignedToken_nJWTLib(sfdcUserName) {
+	var claims = {
+			iss: clientId,
+			sub: sfdcUserName,
+			aud: jwt_aud,
+			exp: Math.floor(Date.now() / 1000) + 60 * 3
+	};
+
+	return encryptUsingPrivateKey_nJWTLib(claims);
+}
+
+function encryptUsingPrivateKey_nJWTLib(claims) {
+	var absolutePath = path.resolve("key.pem");
+	var cert = fs.readFileSync(absolutePath);
+	
+	var jwt_token = nJwt.create(claims, cert, "RS256");
+	var jwt_token_b64 = jwt_token.compact();
+
+	console.log('JWT Token: ' + jwt_token);
+	
+	return jwt_token_b64;
+}
+
 app.all("/proxy", function(req, res) {
     var url = req.header("SalesforceProxy-Endpoint");
     request({
@@ -157,11 +182,9 @@ app.all("/proxy", function(req, res) {
 });
 
 app.get("/jwt", function(req, res) {
-    var isSandbox = req.query.isSandbox;
-    var sfdcUserName = req.query.jwtUserName;
-    var token = getJWTSignedToken_nJWTLib(sfdcUserName);
+    var token = getJWTSignedToken_nJWTLib(username);
 
-    if (isSandbox == "true") {
+    if (req.query.isSandbox == "true") {
         endpointUrl = "https://test.salesforce.com/services/oauth2/token";
     } else {
         endpointUrl = baseURL + "/services/oauth2/token";
@@ -417,63 +440,37 @@ app.get("/devicePol", function(req, res) {
     });
 });
 
-function getJWTSignedToken_nJWTLib(sfdcUserName) {
-    var claims = {
-        iss: clientId,
-        sub: sfdcUserName,
-        aud: jwt_aud,
-        exp: Math.floor(Date.now() / 1000) + 60 * 3
-    };
-
-    return encryptUsingPrivateKey_nJWTLib(claims);
-}
-
-function encryptUsingPrivateKey_nJWTLib(claims) {
-    var absolutePath = path.resolve("key.pem");
-		var cert = fs.readFileSync(absolutePath);
-		
-    var jwt_token = nJwt.create(claims, cert, "RS256");
-    var jwt_token_b64 = jwt_token.compact();
-
-		console.log('JWT Token: ' + jwt_token);
-		
-    return jwt_token_b64;
-}
-
 app.route(/^\/(index.*)?$/).get(function(req, res) {
-    res.render("index", {
-        callbackURL: callbackURL,
-        baseURL: baseURL,
-        clientId: clientId,
-        clientSecret: clientSecret,
-        codeVerifier: codeVerifier,
-        codeChallenge: codeChallenge
-    });
+	res.render("index", {
+			callbackURL: callbackURL,
+			baseURL: baseURL,
+			clientId: clientId,
+			clientSecret: clientSecret,
+			codeVerifier: codeVerifier,
+			codeChallenge: codeChallenge
+	});
 });
 
 app.get("/oauthcallback", function(req, res) {
-    var code = req.query.code;
-    var returnedState = req.query.state;
+	var code = req.query.code;
+	var returnedState = req.query.state;
 
-    res.render("oauthcallback", {
-        code: code,
-        returnedState: returnedState,
-        originalState: state
-    });
+	res.render("oauthcallback", {
+			code: code,
+			returnedState: returnedState,
+			originalState: state
+	});
 });
 
-/*app.get('/Main*', function(req,res) {
-    res.render('queryresult');
-} );*/
-
 app.get("/queryresult", function(req, res) {
-    res.render("queryresult");
+	res.render("queryresult");
 });
 
 app.listen(app.get("port"), function() {
-    console.log("Express server listening on port " + app.get("port"));
+	console.log("Express server listening on port " + app.get("port"));
 });
 
+// Load files with keys and options
 var options = {
     key: fs.readFileSync("./key.pem", "utf8"),
     cert: fs.readFileSync("./server.crt", "utf8")
@@ -483,5 +480,6 @@ var options = {
 var codeVerifier = generateCodeVerifier();
 var codeChallenge = generateCodeChallenge(codeVerifier);
 
+// Create the server and log that it's up and running
 https.createServer(options, app).listen(8081);
 console.log("Server listening for HTTPS connections on port ", 8081);
