@@ -21,7 +21,8 @@ var express = require("express"),
     jwt_aud = "https://nicolasvandenbossche-dev-ed.my.salesforce.com",
     endpointUrl = "",
     state = "",
-    refreshToken = "";
+    refreshToken = "",
+    webserverType = "";
 
 // Set default view engine to ejs. This will be used when calling res.render()
 app.set("view engine", "ejs");
@@ -46,22 +47,37 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
         return res.status(500).end("Error");
     }
 
-    console.log(remoteBody);
+    console.log('Access token response:' + remoteBody);
 
     // Retrieve the response
     var sfdcResponse = JSON.parse(remoteBody);
+		var identityUrl = sfdcResponse.id;
+		
+		if (identityUrl) {
+			// Check the signature
+			var hash = CryptoJS.HmacSHA256(
+				identityUrl + sfdcResponse.issued_at,
+					clientSecret
+			);
+			var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+			if (hashInBase64 != sfdcResponse.signature) {
+					return res
+							.status(500)
+							.end("Signature not correct - Identity cannot be confirmed");
+			}
+		}
 
-    // Check the signature
-    var hash = CryptoJS.HmacSHA256(
-        sfdcResponse.id + sfdcResponse.issued_at,
-        clientSecret
-    );
-    var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-    if (hashInBase64 != sfdcResponse.signature) {
-        return res
-            .status(500)
-            .end("Signature not correct - Identity cannot be confirmed");
-    }
+		if(sfdcResponse.id_token) {
+			// Decode ID token
+			var idToken = sfdcResponse.id_token;
+			
+			var tokenSplit = idToken.split('.');
+			var header = CryptoJS.enc.Base64.parse(tokenSplit[0]);
+			var body = CryptoJS.enc.Base64.parse(tokenSplit[1]);
+
+			console.log('ID Token header: ' + header.toString(CryptoJS.enc.Utf8));
+			console.log('ID Token body: ' + body.toString(CryptoJS.enc.Utf8));
+		}
 
     // In case no error and signature checks out, AND there is an access token present, store refresh token and redirect to query page
     if (sfdcResponse.access_token) {
@@ -83,6 +99,21 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
         res.write(remoteBody);
     }
     res.end();
+}
+
+/**
+ * Create a JWT client assertion
+ * @returns JWT client assertion
+ */
+function createClientAssertion() {
+	var assertionData = {
+		iss: clientId,
+		sub: clientId,
+		aud: baseURL + '/services/oauth2/token',
+		exp: Math.floor(new Date() / 1000) + 60*3
+	};
+
+	return encryptUsingPrivateKey_nJWTLib(assertionData);
 }
 
 /**
@@ -160,6 +191,7 @@ app.get("/webServer", function(req, res) {
     // Set parameter values based on environment variables
     var responseType = "code";
     var scope = "full%20refresh_token";
+    webserverType = req.query.type;
 
     if (req.query.isSandbox == "true") {
         endpointUrl = "https://test.salesforce.com/services/oauth2/authorize";
@@ -205,8 +237,6 @@ app.get("/webServerStep2", function(req, res) {
         endpointUrl +
         "?client_id=" +
         clientId +
-        "&client_secret=" +
-        clientSecret +
         "&redirect_uri=" +
         encodeURI(callbackURL) +
         "&grant_type=" +
@@ -215,6 +245,15 @@ app.get("/webServerStep2", function(req, res) {
         code +
         "&code_verifier=" +
         codeVerifier;
+
+		if (webserverType == "secret") {
+			tokenUrl += "&client_secret=" + clientSecret;
+		}
+
+    if (webserverType == "assertion") {
+			tokenUrl += "&client_assertion=" + createClientAssertion();
+			tokenUrl += "&client_assertion_type=" + "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+    }
 
     request({ url: tokenUrl, method: "POST" }, function(
         err,
@@ -391,12 +430,13 @@ function getJWTSignedToken_nJWTLib(sfdcUserName) {
 
 function encryptUsingPrivateKey_nJWTLib(claims) {
     var absolutePath = path.resolve("key.pem");
-    var cert = fs.readFileSync(absolutePath);
+		var cert = fs.readFileSync(absolutePath);
+		
     var jwt_token = nJwt.create(claims, cert, "RS256");
-    console.log(jwt_token);
     var jwt_token_b64 = jwt_token.compact();
-    console.log(jwt_token_b64);
 
+		console.log('JWT Token: ' + jwt_token);
+		
     return jwt_token_b64;
 }
 
