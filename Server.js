@@ -83,7 +83,9 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
 
     // In case no error and signature checks out, AND there is an access token present, store refresh token and redirect to query page
     if (sfdcResponse.access_token) {
+        console.log("Access Token: " + sfdcResponse.access_token);
         refreshToken = sfdcResponse.refresh_token;
+        
         res.writeHead(302, {
             Location: "queryresult",
             "Set-Cookie": [
@@ -181,6 +183,9 @@ app.all("/proxy", function(req, res) {
     }).pipe(res);
 });
 
+/**
+ * JWT Bearer Assertion Flow
+ */
 app.get("/jwt", function(req, res) {
     var token = getJWTSignedToken_nJWTLib(username);
 
@@ -203,6 +208,36 @@ app.get("/jwt", function(req, res) {
     };
 
     request(req_sfdcOpts, function(err, remoteResponse, remoteBody) {
+        accessTokenCallback(err, remoteResponse, remoteBody, res);
+    });
+});
+
+app.get("/refresh", function(req, res) {
+
+    if (req.query.isSandbox == "true") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
+    } else {
+        endpointUrl = baseURL + "/services/oauth2/token";
+    }
+
+    console.log("Refresh Token: " + refreshToken);
+
+    var paramBody =
+        "grant_type=" +
+        base64url.escape("refresh_token") +
+        "&refresh_token=" +
+        refreshToken + 
+        "&client_id=" +
+        clientId;
+
+    var refreshRequest = {
+        url: endpointUrl,
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: paramBody
+    };
+
+    request(refreshRequest, function(err, remoteResponse, remoteBody) {
         accessTokenCallback(err, remoteResponse, remoteBody, res);
     });
 });

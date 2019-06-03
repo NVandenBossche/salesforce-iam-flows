@@ -64,6 +64,13 @@
 			$("#sandBtnR").click(function () {
 				window.location = 'jwt?isSandbox=true&jwtUserName=' + $("#jwtUserName").val();
 			});
+
+			$("#prodBtnRef").click(function () {
+				window.location = 'refresh?isSandbox=false';
+			});
+			$("#sandBtnRef").click(function () {
+				window.location = 'refresh?isSandbox=true';
+			});
 		}
 		
 		function onload() {
@@ -546,6 +553,9 @@
 				</ol>
 			</div>
 			<p><i><b> To be Implemented </b></i></p>
+	
+			<a id="prodBtnRef" role="button" style="margin-right:40px" class="btn btn-primary btn-lg">Production</a>
+			<a id="sandBtnRef" role="button" class="btn btn-primary btn-lg">Sandbox</a>
 		</p>
 	</div>
 
