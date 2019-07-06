@@ -386,7 +386,18 @@
 						<ul>
 							<li><code>grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer</code></li>
 							<li><code>assertion=...</code> base64url(header.body.signature) - signature by private key is authentication</li>
-							<li><code>scope=&lt;Scope parameters&gt;</code> (optional - uses scope defined in Connected App if not specified)</li>
+							<li><code>scope=&lt;Scope parameters&gt;</code> - optional or sometimes not taken into account
+								<ul>
+									<li>
+										If admins pre-authorize (using profile / permission set), scope parameter is optional. If not specified, all scopes defined in the 
+										connected app are granted.
+									</li>
+									<li>
+										If users can self-authorize, scope is not taken into account. You need to first use another flow (like User-Agent or Web-Server) to 
+										grant explicit authorization for the scopes you need. This flow needs to return a refresh token. The scope returned by the JWT flow 
+										is the combination of all previously granted scopes where a refresh token was returned.
+									</li>
+								</ul>(optional - uses scope defined in Connected App if not specified)</li>
 						</ul>
 					</li>
 					<li> Salesforce checks the signature and assertion (containing user ID). Then checks previous authorizations before granting access token. </li>
