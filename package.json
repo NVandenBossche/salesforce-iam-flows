@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "description": "Salesforce JWT OAuth Demo",
   "main": "Server.js",
+  "prettier": {
+    "jsxBracketSameLine": true,
+    "tabWidth": 4
+  },
   "scripts": {
     "start": "node Server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
