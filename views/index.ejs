@@ -67,6 +67,12 @@
                 $("#sandBtnRef").click(function() {
                     window.location = "refresh?isSandbox=true";
                 });
+                $("#prodBtnSamlAssert").click(function() {
+                    window.location = "samlAssert?isSandbox=false";
+                });
+                $("#sandBtnSamlAssert").click(function() {
+                    window.location = "samlAssert?isSandbox=true";
+                });
             }
 
             function onload() {
@@ -286,7 +292,6 @@
                 <h3>Web Server Flow with Client Secret</h3>
                 <button
                     type="button"
-                    style="margin-right:40px"
                     class="btn btn-info"
                     data-toggle="collapse"
                     data-target="#wsclientsecret"
@@ -421,7 +426,6 @@
                 <a
                     id="prodBtnWSsecret"
                     role="button"
-                    style="margin-right:40px"
                     class="btn btn-primary btn-lg"
                     >Production</a
                 >
@@ -436,7 +440,6 @@
                 <h3>Web Server Flow with Client Assertion</h3>
                 <button
                     type="button"
-                    style="margin-right:40px"
                     class="btn btn-info"
                     data-toggle="collapse"
                     data-target="#wsclientassertion"
@@ -582,7 +585,6 @@
                 <a
                     id="prodBtnWSassertion"
                     role="button"
-                    style="margin-right:40px"
                     class="btn btn-primary btn-lg"
                     >Production</a
                 >
@@ -597,7 +599,6 @@
                 <h3>Web Server Flow without Client Secret or Assertion</h3>
                 <button
                     type="button"
-                    style="margin-right:40px"
                     class="btn btn-info"
                     data-toggle="collapse"
                     data-target="#wsnone"
@@ -739,7 +740,6 @@
                 <a
                     id="prodBtnWSnone"
                     role="button"
-                    style="margin-right:40px"
                     class="btn btn-primary btn-lg"
                     >Production</a
                 >
@@ -758,7 +758,6 @@
                 <h2>JWT Bearer Assertion OAuth 2.0 Flow</h2>
                 <button
                     type="button"
-                    style="margin-right:40px"
                     class="btn btn-info"
                     data-toggle="collapse"
                     data-target="#jwtCollapse"
@@ -856,11 +855,7 @@
                     </ol>
                 </div>
 
-                <a
-                    id="prodBtnR"
-                    role="button"
-                    style="margin-right:40px"
-                    class="btn btn-primary btn-lg"
+                <a id="prodBtnR" role="button" class="btn btn-primary btn-lg"
                     >Production</a
                 >
                 <a id="sandBtnR" role="button" class="btn btn-primary btn-lg"
@@ -875,7 +870,6 @@
                 <h2>OAuth 2.0 Username-Password Flow</h2>
                 <button
                     type="button"
-                    style="margin-right:40px"
                     class="btn btn-info"
                     data-toggle="collapse"
                     data-target="#upCollapse"
@@ -992,7 +986,6 @@
                 <h2>OAuth 2.0 Device Authentication Flow</h2>
                 <button
                     type="button"
-                    style="margin-right:40px"
                     class="btn btn-info"
                     data-toggle="collapse"
                     data-target="#deviceCollapse"
@@ -1090,11 +1083,7 @@
                     </ol>
                 </div>
 
-                <a
-                    id="prodBtnDvc"
-                    role="button"
-                    style="margin-right:40px"
-                    class="btn btn-primary btn-lg"
+                <a id="prodBtnDvc" role="button" class="btn btn-primary btn-lg"
                     >Production</a
                 >
                 <a id="sandBtnDvc" role="button" class="btn btn-primary btn-lg"
@@ -1109,7 +1098,6 @@
                 <h2>OAuth 2.0 Refresh Token Flow</h2>
                 <button
                     type="button"
-                    style="margin-right:40px"
                     class="btn btn-info"
                     data-toggle="collapse"
                     data-target="#refreshCollapse"
@@ -1125,8 +1113,9 @@
                             <a
                                 href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_refresh_token_flow.htm&type=5"
                             >
-                                OAuth 2.0 Refresh Token flow</a
-                            >. Refresh Token flow can only be implemented for
+                                OAuth 2.0 Refresh Token flow
+                            </a>
+                            . Refresh Token flow can only be implemented for
                             OAuth which asks users confirmation to validate
                             connected app like Web Server flow and User Agent
                             Flow.
@@ -1153,9 +1142,9 @@
                                     <code>client_assertion=...</code> (optional)
                                 </li>
                                 <li>
-                                    <code
-                                        >client_assertion_type=...jwt-bearer</code
-                                    >
+                                    <code>
+                                        client_assertion_type=...jwt-bearer
+                                    </code>
                                     (optional)
                                 </li>
                             </ul>
@@ -1183,30 +1172,59 @@
                         </li>
                     </ol>
                 </div>
-                <p>
-                    <i><b> To be Implemented </b></i>
-                </p>
-
-                <a
-                    id="prodBtnRef"
-                    role="button"
-                    style="margin-right:40px"
-                    class="btn btn-primary btn-lg"
-                    >Production</a
-                >
-                <a id="sandBtnRef" role="button" class="btn btn-primary btn-lg"
-                    >Sandbox</a
-                >
+                <a id="prodBtnRef" role="button" class="btn btn-primary btn-lg">
+                    Production
+                </a>
+                <a id="sandBtnRef" role="button" class="btn btn-primary btn-lg">
+                    Sandbox
+                </a>
             </div>
         </div>
 
         <!-- SAML Assertion Flow -->
         <div class="jumbotron" id="samlAssertion">
             <div>
-                <h2>SAML Assertion Flow</h2>
-                <div>
-                    <i><b> To be Implemented </b></i>
+                <h2>SAML Assertion Flow - to be implemented</h2>
+                <button
+                    type="button"
+                    class="btn btn-info"
+                    data-toggle="collapse"
+                    data-target="#samlAssertCollapse"
+                >
+                    Show/Hide
+                </button>
+                <div id="samlAssertCollapse" class="collapse">
+                    <ol class="smallFont">
+                        <li>
+                            This page contains a JavaScript application that
+                            will use the
+                            <a
+                                href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_sso_flow.htm&type=5"
+                            >
+                                SAML Assertion Flow
+                            </a>
+                            .
+                        </li>
+                        <li>
+                            Upon clicking the button, ...
+                            <!-- TODO: Complete -->. It sends a POST message to
+                            the token endpoint with the following parameters:
+                            <ul>
+                                <li>
+                                    <code>grant_type=...</code>
+                                </li>
+                            </ul>
+                        </li>
+                    </ol>
                 </div>
+
+                <!-- Buttons to launch flow -->
+                <a id="prodBtnSamlAssert" role="button" class="btn btn-primary btn-lg">
+                    Production
+                </a>
+                <a id="sandBtnSamlAssert" role="button" class="btn btn-primary btn-lg">
+                    Sandbox
+                </a>
             </div>
         </div>
 

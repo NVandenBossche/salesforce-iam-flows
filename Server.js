@@ -81,6 +81,7 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
     // In case no error and signature checks out, AND there is an access token present, store refresh token and redirect to query page
     if (sfdcResponse.access_token) {
         console.log("Access Token: " + sfdcResponse.access_token);
+        console.log("Refresh Token: " + sfdcResponse.refresh_token);
         refreshToken = sfdcResponse.refresh_token;
 
         res.writeHead(302, {
@@ -194,64 +195,27 @@ app.all("/proxy", function(req, res) {
 });
 
 /**
- * JWT Bearer Assertion Flow
+ *	 User Agent oAuth Flow
  */
-app.get("/jwt", function(req, res) {
-    var token = getSignedJWT(username);
+app.get("/uAgent", function(req, res) {
+    var isSandbox = req.query.isSandbox;
 
-    if (req.query.isSandbox == "true") {
-        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
+    if (isSandbox == "true") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/authorize";
     } else {
-        endpointUrl = baseURL + "/services/oauth2/token";
+        endpointUrl = baseURL + "/services/oauth2/authorize";
     }
 
-    var paramBody =
-        "grant_type=" +
-        base64url.escape("urn:ietf:params:oauth:grant-type:jwt-bearer") +
-        "&assertion=" +
-        token;
-    var req_sfdcOpts = {
-        url: endpointUrl,
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: paramBody
-    };
-
-    request(req_sfdcOpts, function(err, remoteResponse, remoteBody) {
-        accessTokenCallback(err, remoteResponse, remoteBody, res);
-    });
-});
-
-/**
- * Refresh Token Flow
- */
-app.get("/refresh", function(req, res) {
-    if (req.query.isSandbox == "true") {
-        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
-    } else {
-        endpointUrl = baseURL + "/services/oauth2/token";
-    }
-
-    console.log("Refresh Token: " + refreshToken);
-
-    var paramBody =
-        "grant_type=" +
-        base64url.escape("refresh_token") +
-        "&refresh_token=" +
-        refreshToken +
-        "&client_id=" +
-        clientId;
-
-    var refreshRequest = {
-        url: endpointUrl,
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: paramBody
-    };
-
-    request(refreshRequest, function(err, remoteResponse, remoteBody) {
-        accessTokenCallback(err, remoteResponse, remoteBody, res);
-    });
+    request({
+        url:
+            endpointUrl +
+            "?client_id=" +
+            process.env.CLIENT_ID +
+            "&redirect_uri=" +
+            process.env.CALLBACK_URL +
+            "&response_type=token",
+        method: "GET"
+    }).pipe(res);
 });
 
 /**
@@ -337,27 +301,32 @@ app.get("/webServerStep2", function(req, res) {
 });
 
 /**
- *	 User Agent oAuth Flow
+ * JWT Bearer Assertion Flow
  */
-app.get("/uAgent", function(req, res) {
-    var isSandbox = req.query.isSandbox;
+app.get("/jwt", function(req, res) {
+    var token = getSignedJWT(username);
 
-    if (isSandbox == "true") {
-        endpointUrl = "https://test.salesforce.com/services/oauth2/authorize";
+    if (req.query.isSandbox == "true") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
     } else {
-        endpointUrl = baseURL + "/services/oauth2/authorize";
+        endpointUrl = baseURL + "/services/oauth2/token";
     }
 
-    request({
-        url:
-            endpointUrl +
-            "?client_id=" +
-            process.env.CLIENT_ID +
-            "&redirect_uri=" +
-            process.env.CALLBACK_URL +
-            "&response_type=token",
-        method: "GET"
-    }).pipe(res);
+    var paramBody =
+        "grant_type=" +
+        base64url.escape("urn:ietf:params:oauth:grant-type:jwt-bearer") +
+        "&assertion=" +
+        token;
+    var req_sfdcOpts = {
+        url: endpointUrl,
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: paramBody
+    };
+
+    request(req_sfdcOpts, function(err, remoteResponse, remoteBody) {
+        accessTokenCallback(err, remoteResponse, remoteBody, res);
+    });
 });
 
 /**
@@ -489,6 +458,38 @@ app.get("/devicePol", function(req, res) {
     });
 });
 
+/**
+ * Refresh Token Flow
+ */
+app.get("/refresh", function(req, res) {
+    if (req.query.isSandbox == "true") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
+    } else {
+        endpointUrl = baseURL + "/services/oauth2/token";
+    }
+
+    console.log("Refresh Token: " + refreshToken);
+
+    var paramBody =
+        "grant_type=" +
+        base64url.escape("refresh_token") +
+        "&refresh_token=" +
+        refreshToken +
+        "&client_id=" +
+        clientId;
+
+    var refreshRequest = {
+        url: endpointUrl,
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: paramBody
+    };
+
+    request(refreshRequest, function(err, remoteResponse, remoteBody) {
+        accessTokenCallback(err, remoteResponse, remoteBody, res);
+    });
+});
+
 app.route(/^\/(index.*)?$/).get(function(req, res) {
     res.render("index", {
         callbackURL: callbackURL,
@@ -501,6 +502,10 @@ app.route(/^\/(index.*)?$/).get(function(req, res) {
     });
 });
 
+/**
+ * Handle OAuth callback from Salesforce and parse the result.
+ * Result is parsed in oauthcallback.ejs.
+ */
 app.get("/oauthcallback", function(req, res) {
     var code = req.query.code;
     var returnedState = req.query.state;
@@ -512,6 +517,9 @@ app.get("/oauthcallback", function(req, res) {
     });
 });
 
+/**
+ * Use the access token to execute a query using Salesforce REST API.
+ */
 app.get("/queryresult", function(req, res) {
     res.render("queryresult");
 });
