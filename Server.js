@@ -17,8 +17,8 @@ var express = require("express"),
     clientId = process.env.CLIENT_ID,
     clientSecret = process.env.CLIENT_SECRET,
     callbackURL = process.env.CALLBACK_URL,
-		baseURL = process.env.BASE_URL,
-		username = process.env.USERNAME,
+    baseURL = process.env.BASE_URL,
+    username = process.env.USERNAME,
     jwt_aud = "https://login.salesforce.com",
     endpointUrl = "",
     state = "",
@@ -48,44 +48,41 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
         return res.status(500).end("Error");
     }
 
-    console.log('Access token response:' + remoteBody);
+    console.log("Access token response:" + remoteBody);
 
     // Retrieve the response
     var sfdcResponse = JSON.parse(remoteBody);
-		var identityUrl = sfdcResponse.id;
-		var issuedAt = sfdcResponse.issued_at;
-		
-		// Check the signature
-		if (identityUrl && issuedAt) {
-			var hash = CryptoJS.HmacSHA256(
-				identityUrl + issuedAt,
-					clientSecret
-			);
-			var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-			if (hashInBase64 != sfdcResponse.signature) {
-					return res
-							.status(500)
-							.end("Signature not correct - Identity cannot be confirmed");
-			}
-		}
+    var identityUrl = sfdcResponse.id;
+    var issuedAt = sfdcResponse.issued_at;
 
-		if(sfdcResponse.id_token) {
-			// Decode ID token
-			var idToken = sfdcResponse.id_token;
-			
-			var tokenSplit = idToken.split('.');
-			var header = CryptoJS.enc.Base64.parse(tokenSplit[0]);
-			var body = CryptoJS.enc.Base64.parse(tokenSplit[1]);
+    // Check the signature
+    if (identityUrl && issuedAt) {
+        var hash = CryptoJS.HmacSHA256(identityUrl + issuedAt, clientSecret);
+        var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+        if (hashInBase64 != sfdcResponse.signature) {
+            return res
+                .status(500)
+                .end("Signature not correct - Identity cannot be confirmed");
+        }
+    }
 
-			console.log('ID Token header: ' + header.toString(CryptoJS.enc.Utf8));
-			console.log('ID Token body: ' + body.toString(CryptoJS.enc.Utf8));
-		}
+    if (sfdcResponse.id_token) {
+        // Decode ID token
+        var idToken = sfdcResponse.id_token;
+
+        var tokenSplit = idToken.split(".");
+        var header = CryptoJS.enc.Base64.parse(tokenSplit[0]);
+        var body = CryptoJS.enc.Base64.parse(tokenSplit[1]);
+
+        console.log("ID Token header: " + header.toString(CryptoJS.enc.Utf8));
+        console.log("ID Token body: " + body.toString(CryptoJS.enc.Utf8));
+    }
 
     // In case no error and signature checks out, AND there is an access token present, store refresh token and redirect to query page
     if (sfdcResponse.access_token) {
         console.log("Access Token: " + sfdcResponse.access_token);
         refreshToken = sfdcResponse.refresh_token;
-        
+
         res.writeHead(302, {
             Location: "queryresult",
             "Set-Cookie": [
@@ -110,14 +107,14 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
  * @returns JWT client assertion
  */
 function createClientAssertion() {
-	var assertionData = {
-		iss: clientId,
-		sub: clientId,
-		aud: baseURL + '/services/oauth2/token',
-		exp: Math.floor(new Date() / 1000) + 60*3
-	};
+    var assertionData = {
+        iss: clientId,
+        sub: clientId,
+        aud: baseURL + "/services/oauth2/token",
+        exp: Math.floor(new Date() / 1000) + 60 * 3
+    };
 
-	return encryptUsingPrivateKey_nJWTLib(assertionData);
+    return signJWTClaims(assertionData);
 }
 
 /**
@@ -135,7 +132,7 @@ function generateCodeVerifier() {
 
 /**
  * Function that hashes the code verifier and encodes it into base64URL
- * @param {String} verifier
+ * @param {String} verifier The code verifier string. This string should be long enough to be secure.
  * @returns Code challenge based on provided verifier
  */
 function generateCodeChallenge(verifier) {
@@ -146,27 +143,40 @@ function generateCodeChallenge(verifier) {
         .replace(/\//g, "_");
 }
 
-function getJWTSignedToken_nJWTLib(sfdcUserName) {
-	var claims = {
-			iss: clientId,
-			sub: sfdcUserName,
-			aud: jwt_aud,
-			exp: Math.floor(Date.now() / 1000) + 60 * 3
-	};
+/**
+ * Create a JSON Web Token that is signed using the private key stored in 'key.pem'.
+ * It first creates the Claims JSON and passes it to the
+ * @param {String} sfdcUserName
+ */
+function getSignedJWT(sfdcUserName) {
+    var claims = {
+        iss: clientId,
+        sub: sfdcUserName,
+        aud: jwt_aud,
+        exp: Math.floor(Date.now() / 1000) + 60 * 3
+    };
 
-	return encryptUsingPrivateKey_nJWTLib(claims);
+    return signJWTClaims(claims);
 }
 
-function encryptUsingPrivateKey_nJWTLib(claims) {
-	var absolutePath = path.resolve("key.pem");
-	var cert = fs.readFileSync(absolutePath);
-	
-	var jwt_token = nJwt.create(claims, cert, "RS256");
-	var jwt_token_b64 = jwt_token.compact();
+/**
+ * Takes JSON formatted claims, creates a header for them, signs it with the 
+ * private key stored in 'key.pem' and base64 encodes the concatenation 
+ * "header.claims.signature".
+ * @param {String} claims A JSON representation of the JWT claims containing 
+ *  issuer (client ID), subject (Salesforce username), audience (login/test) 
+ *  and expiration.
+ */
+function signJWTClaims(claims) {
+    var absolutePath = path.resolve("key.pem");
+    var privateKey = fs.readFileSync(absolutePath);
 
-	console.log('JWT Token: ' + jwt_token);
-	
-	return jwt_token_b64;
+    var jwt_token = nJwt.create(claims, privateKey, "RS256");
+    var jwt_token_b64 = jwt_token.compact();
+
+    console.log("JWT Token: " + jwt_token);
+
+    return jwt_token_b64;
 }
 
 app.all("/proxy", function(req, res) {
@@ -187,7 +197,7 @@ app.all("/proxy", function(req, res) {
  * JWT Bearer Assertion Flow
  */
 app.get("/jwt", function(req, res) {
-    var token = getJWTSignedToken_nJWTLib(username);
+    var token = getSignedJWT(username);
 
     if (req.query.isSandbox == "true") {
         endpointUrl = "https://test.salesforce.com/services/oauth2/token";
@@ -212,8 +222,10 @@ app.get("/jwt", function(req, res) {
     });
 });
 
+/**
+ * Refresh Token Flow
+ */
 app.get("/refresh", function(req, res) {
-
     if (req.query.isSandbox == "true") {
         endpointUrl = "https://test.salesforce.com/services/oauth2/token";
     } else {
@@ -226,7 +238,7 @@ app.get("/refresh", function(req, res) {
         "grant_type=" +
         base64url.escape("refresh_token") +
         "&refresh_token=" +
-        refreshToken + 
+        refreshToken +
         "&client_id=" +
         clientId;
 
@@ -304,13 +316,15 @@ app.get("/webServerStep2", function(req, res) {
         "&code_verifier=" +
         codeVerifier;
 
-		if (webserverType == "secret") {
-			tokenUrl += "&client_secret=" + clientSecret;
-		}
+    if (webserverType == "secret") {
+        tokenUrl += "&client_secret=" + clientSecret;
+    }
 
     if (webserverType == "assertion") {
-			tokenUrl += "&client_assertion=" + createClientAssertion();
-			tokenUrl += "&client_assertion_type=" + "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+        tokenUrl += "&client_assertion=" + createClientAssertion();
+        tokenUrl +=
+            "&client_assertion_type=" +
+            "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
     }
 
     request({ url: tokenUrl, method: "POST" }, function(
@@ -476,34 +490,34 @@ app.get("/devicePol", function(req, res) {
 });
 
 app.route(/^\/(index.*)?$/).get(function(req, res) {
-	res.render("index", {
-			callbackURL: callbackURL,
-            baseURL: baseURL,
-            username: username,
-			clientId: clientId,
-			clientSecret: clientSecret,
-			codeVerifier: codeVerifier,
-			codeChallenge: codeChallenge
-	});
+    res.render("index", {
+        callbackURL: callbackURL,
+        baseURL: baseURL,
+        username: username,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        codeVerifier: codeVerifier,
+        codeChallenge: codeChallenge
+    });
 });
 
 app.get("/oauthcallback", function(req, res) {
-	var code = req.query.code;
-	var returnedState = req.query.state;
+    var code = req.query.code;
+    var returnedState = req.query.state;
 
-	res.render("oauthcallback", {
-			code: code,
-			returnedState: returnedState,
-			originalState: state
-	});
+    res.render("oauthcallback", {
+        code: code,
+        returnedState: returnedState,
+        originalState: state
+    });
 });
 
 app.get("/queryresult", function(req, res) {
-	res.render("queryresult");
+    res.render("queryresult");
 });
 
 app.listen(app.get("port"), function() {
-	console.log("Express server listening on port " + app.get("port"));
+    console.log("Express server listening on port " + app.get("port"));
 });
 
 // Load files with keys and options
