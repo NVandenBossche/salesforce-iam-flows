@@ -13,7 +13,6 @@ var express = require("express"),
     CryptoJS = require("crypto-js"),
     crypto = require("crypto"),
     apiVersion = "v45.0",
-    domainName = "localhost:8081",
     clientId = process.env.CLIENT_ID,
     clientSecret = process.env.CLIENT_SECRET,
     callbackURL = process.env.CALLBACK_URL,
@@ -90,8 +89,8 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
                 "AccToken=" + sfdcResponse.access_token,
                 "APIVer=" + apiVersion,
                 "InstURL=" + sfdcResponse.instance_url,
-                "idURL=" + sfdcResponse.id
-            ]
+                "idURL=" + sfdcResponse.id,
+            ],
         });
     } else {
         res.write(
@@ -112,7 +111,7 @@ function createClientAssertion() {
         iss: clientId,
         sub: clientId,
         aud: baseURL + "/services/oauth2/token",
-        exp: Math.floor(new Date() / 1000) + 60 * 3
+        exp: Math.floor(new Date() / 1000) + 60 * 3,
     };
 
     return signJWTClaims(assertionData);
@@ -154,18 +153,18 @@ function getSignedJWT(sfdcUserName) {
         iss: clientId,
         sub: sfdcUserName,
         aud: jwt_aud,
-        exp: Math.floor(Date.now() / 1000) + 60 * 3
+        exp: Math.floor(Date.now() / 1000) + 60 * 3,
     };
 
     return signJWTClaims(claims);
 }
 
 /**
- * Takes JSON formatted claims, creates a header for them, signs it with the 
- * private key stored in 'key.pem' and base64 encodes the concatenation 
+ * Takes JSON formatted claims, creates a header for them, signs it with the
+ * private key stored in 'key.pem' and base64 encodes the concatenation
  * "header.claims.signature".
- * @param {String} claims A JSON representation of the JWT claims containing 
- *  issuer (client ID), subject (Salesforce username), audience (login/test) 
+ * @param {String} claims A JSON representation of the JWT claims containing
+ *  issuer (client ID), subject (Salesforce username), audience (login/test)
  *  and expiration.
  */
 function signJWTClaims(claims) {
@@ -180,7 +179,7 @@ function signJWTClaims(claims) {
     return jwt_token_b64;
 }
 
-app.all("/proxy", function(req, res) {
+app.all("/proxy", function (req, res) {
     var url = req.header("SalesforceProxy-Endpoint");
     request({
         url: url,
@@ -188,16 +187,16 @@ app.all("/proxy", function(req, res) {
         json: req.body,
         headers: {
             Authorization: req.header("X-Authorization"),
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         },
-        body: req.body
+        body: req.body,
     }).pipe(res);
 });
 
 /**
  *	 User Agent oAuth Flow
  */
-app.get("/uAgent", function(req, res) {
+app.get("/uAgent", function (req, res) {
     var isSandbox = req.query.isSandbox;
 
     if (isSandbox == "true") {
@@ -214,14 +213,14 @@ app.get("/uAgent", function(req, res) {
             "&redirect_uri=" +
             process.env.CALLBACK_URL +
             "&response_type=token",
-        method: "GET"
+        method: "GET",
     }).pipe(res);
 });
 
 /**
  * Step 1 Web Server Flow - Get Code
  */
-app.get("/webServer", function(req, res) {
+app.get("/webServer", function (req, res) {
     // Set parameter values based on environment variables
     var responseType = "code";
     var scope = "full%20refresh_token";
@@ -256,7 +255,7 @@ app.get("/webServer", function(req, res) {
 /**
  * Step 2 Web Server Flow - Get token from Code
  */
-app.get("/webServerStep2", function(req, res) {
+app.get("/webServerStep2", function (req, res) {
     var grantType = "authorization_code";
     var code = req.query.code;
     var state = req.query.state;
@@ -291,7 +290,7 @@ app.get("/webServerStep2", function(req, res) {
             "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
     }
 
-    request({ url: tokenUrl, method: "POST" }, function(
+    request({ url: tokenUrl, method: "POST" }, function (
         err,
         remoteResponse,
         remoteBody
@@ -303,7 +302,7 @@ app.get("/webServerStep2", function(req, res) {
 /**
  * JWT Bearer Assertion Flow
  */
-app.get("/jwt", function(req, res) {
+app.get("/jwt", function (req, res) {
     var token = getSignedJWT(username);
 
     if (req.query.isSandbox == "true") {
@@ -321,10 +320,10 @@ app.get("/jwt", function(req, res) {
         url: endpointUrl,
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: paramBody
+        body: paramBody,
     };
 
-    request(req_sfdcOpts, function(err, remoteResponse, remoteBody) {
+    request(req_sfdcOpts, function (err, remoteResponse, remoteBody) {
         accessTokenCallback(err, remoteResponse, remoteBody, res);
     });
 });
@@ -332,7 +331,7 @@ app.get("/jwt", function(req, res) {
 /**
  *	 Username Password oAuth Flow
  */
-app.post("/uPwd", function(req, res) {
+app.post("/uPwd", function (req, res) {
     var instance = req.body.instance;
     var uname = req.body.sfdcUsername;
     var pwd = req.body.sfdcPassword;
@@ -356,7 +355,7 @@ app.post("/uPwd", function(req, res) {
         "&password=" +
         pwd;
 
-    request({ url: computedURL, method: "POST" }, function(
+    request({ url: computedURL, method: "POST" }, function (
         err,
         remoteResponse,
         remoteBody
@@ -368,7 +367,7 @@ app.post("/uPwd", function(req, res) {
 /**
  * Device Authentication Flow
  */
-app.get("/device", function(req, res) {
+app.get("/device", function (req, res) {
     if (req.query.isSandbox == "true") {
         endpointUrl = "https://test.salesforce.com/services/oauth2/token";
     } else {
@@ -378,7 +377,7 @@ app.get("/device", function(req, res) {
     var computedURL =
         endpointUrl + "?client_id=" + clientId + "&response_type=device_code";
 
-    request({ url: computedURL, method: "POST" }, function(
+    request({ url: computedURL, method: "POST" }, function (
         err,
         remoteResponse,
         remoteBody
@@ -397,7 +396,7 @@ app.get("/device", function(req, res) {
                 verification_uri: sfdcResponse.verification_uri,
                 user_code: sfdcResponse.user_code,
                 device_code: sfdcResponse.device_code,
-                isSandbox: req.query.isSandbox
+                isSandbox: req.query.isSandbox,
             });
         }
     });
@@ -406,7 +405,7 @@ app.get("/device", function(req, res) {
 /**
  *  Keep polling till device is verified using code
  */
-app.get("/devicePol", function(req, res) {
+app.get("/devicePol", function (req, res) {
     var verification_uri = req.query.verification_uri;
     var user_code = req.query.user_code;
     var device_code = req.query.device_code;
@@ -425,7 +424,7 @@ app.get("/devicePol", function(req, res) {
         "&code=" +
         device_code;
 
-    request({ url: computedURL, method: "POST" }, function(
+    request({ url: computedURL, method: "POST" }, function (
         err,
         remoteResponse,
         remoteBody
@@ -443,8 +442,8 @@ app.get("/devicePol", function(req, res) {
                     "AccToken=" + sfdcResponse.access_token,
                     "APIVer=" + apiVersion,
                     "InstURL=" + sfdcResponse.instance_url,
-                    "idURL=" + sfdcResponse.id
-                ]
+                    "idURL=" + sfdcResponse.id,
+                ],
             });
             res.end();
         } else {
@@ -452,7 +451,7 @@ app.get("/devicePol", function(req, res) {
                 verification_uri: verification_uri,
                 user_code: user_code,
                 device_code: device_code,
-                isSandbox: req.query.isSandbox
+                isSandbox: req.query.isSandbox,
             });
         }
     });
@@ -461,7 +460,7 @@ app.get("/devicePol", function(req, res) {
 /**
  * Refresh Token Flow
  */
-app.get("/refresh", function(req, res) {
+app.get("/refresh", function (req, res) {
     if (req.query.isSandbox == "true") {
         endpointUrl = "https://test.salesforce.com/services/oauth2/token";
     } else {
@@ -482,15 +481,74 @@ app.get("/refresh", function(req, res) {
         url: endpointUrl,
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: paramBody
+        body: paramBody,
     };
 
-    request(refreshRequest, function(err, remoteResponse, remoteBody) {
+    request(refreshRequest, function (err, remoteResponse, remoteBody) {
         accessTokenCallback(err, remoteResponse, remoteBody, res);
     });
 });
 
-app.route(/^\/(index.*)?$/).get(function(req, res) {
+/**
+ * SAML assertion flow using Axiom SSO
+ */
+app.get("/samlAssert", function (req, res) {
+    // Set parameters for the SAML request body
+    const assertionType = "urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser";
+    var assertion = "";
+    var assertionXml =
+        '<?xml version="1.0" encoding="UTF-8"?><saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xs="http://www.w3.org/2001/XMLSchema" Destination="https://nicolasvandenbossche-dev-ed.my.salesforce.com" ID="_2f4b41d7-38000a63" IssueInstant="2020-07-28T11:51:16.855Z" Version="2.0"><saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">https://axiomsso.herokuapp.com</saml2:Issuer><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/><ds:Reference URI="#_2f4b41d7-38000a63"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"><ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="xs"/></ds:Transform></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><ds:DigestValue>hb27ygb+F6LYXCdWQMOoG8yZTLA=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>WZEQEotJMJN7OAgk+GYlApjU3j0xehncsGSis5L2TVdmEZDMbPMYrQ==</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIID0zCCA5GgAwIBAgIEF/uFITALBgcqhkjOOAQDBQAwgboxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNU2FuIEZyYW5jaXNjbzESMBAGA1UEChMJQXhpb20gU1NPMVEwTwYDVQQLE0hGT1IgREVNT05TVFJBVElPTiBQVVJQT1NFUyBPTkxZLiBETyBOT1QgVVNFIEZPUiBQUk9EVUNUSU9OIEVOVklST05NRU5UUy4xHzAdBgNVBAMTFkF4aW9tIERlbW8gQ2VydGlmaWNhdGUwHhcNMTQwNjIwMDQzMDI3WhcNNDExMTA1MDQzMDI3WjCBujELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1TYW4gRnJhbmNpc2NvMRIwEAYDVQQKEwlBeGlvbSBTU08xUTBPBgNVBAsTSEZPUiBERU1PTlNUUkFUSU9OIFBVUlBPU0VTIE9OTFkuIERPIE5PVCBVU0UgRk9SIFBST0RVQ1RJT04gRU5WSVJPTk1FTlRTLjEfMB0GA1UEAxMWQXhpb20gRGVtbyBDZXJ0aWZpY2F0ZTCCAbgwggEsBgcqhkjOOAQBMIIBHwKBgQD9f1OBHXUSKVLfSpwu7OTn9hG3UjzvRADDHj+AtlEmaUVdQCJR+1k9jVj6v8X1ujD2y5tVbNeBO4AdNG/yZmC3a5lQpaSfn+gEexAiwk+7qdf+t8Yb+DtX58aophUPBPuD9tPFHsMCNVQTWhaRMvZ1864rYdcq7/IiAxmd0UgBxwIVAJdgUI8VIwvMspK5gqLrhAvwWBz1AoGBAPfhoIXWmz3ey7yrXDa4V7l5lK+7+jrqgvlXTAs9B4JnUVlXjrrUWU/mcQcQgYC0SRZxI+hMKBYTt88JMozIpuE8FnqLVHyNKOCjrh4rs6Z1kW6jfwv6ITVi8ftiegEkO8yk8b6oUZCJqIPf4VrlnwaSi2ZegHtVJWQBTDv+z0kqA4GFAAKBgQCXr1mp4UvByY6dGbDOyq3wMs6O7MCxmEkU2x32AkEp6s7Xfiy3MYwKwZQ4sL4BmQYzZ7QOXPP8dKgrKDQKLk9tXWOgvIoOCiNAdQDYlRm2sYgrI2SUcyM1bKDqLwDD8Z5OoLeuQAtgMfAq/f1C6nREWrQudPxOwaoNdHkYcR+066MhMB8wHQYDVR0OBBYEFE2JAc97wfHK5b42nKbANn4SMcqcMAsGByqGSM44BAMFAAMvADAsAhR+Cjvp8UwNgKHfx2PWJoRi0/1q8AIUNhTXWlGzJ3SdBlgRsdFgKyFtcxE=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></ds:Signature><saml2p:Status><saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/></saml2p:Status><saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" ID="_173cade-4b34f691" IssueInstant="2020-07-28T11:51:16.855Z" Version="2.0"><saml2:Issuer>https://axiomsso.herokuapp.com</saml2:Issuer><saml2:Subject><saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">13371337</saml2:NameID><saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"><saml2:SubjectConfirmationData NotOnOrAfter="2020-07-28T11:52:16.855Z" Recipient="https://nicolasvandenbossche-dev-ed.my.salesforce.com"/></saml2:SubjectConfirmation></saml2:Subject><saml2:Conditions NotBefore="2020-07-28T11:51:16.855Z" NotOnOrAfter="2020-07-28T11:52:16.855Z"><saml2:AudienceRestriction><saml2:Audience>https://saml.salesforce.com</saml2:Audience></saml2:AudienceRestriction></saml2:Conditions><saml2:AuthnStatement AuthnInstant="2020-07-28T11:51:16.855Z"><saml2:AuthnContext><saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml2:AuthnContextClassRef></saml2:AuthnContext></saml2:AuthnStatement><saml2:AttributeStatement><saml2:Attribute Name="ssoStartPage" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified"><saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">https://axiomsso.herokuapp.com/RequestSamlResponse.action</saml2:AttributeValue></saml2:Attribute><saml2:Attribute Name="logoutURL" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified"><saml2:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string"/></saml2:Attribute></saml2:AttributeStatement></saml2:Assertion></saml2p:Response>';
+
+    // Determine the endpoint URL depending on whether this needs to be executed on sandbox or production
+    if (req.query.isSandbox == "true") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
+    } else {
+        endpointUrl = baseURL + "/services/oauth2/token";
+    }
+
+    // Construct the request body containing grant type, assertion type and assertion. All should be URL encoded.
+    var samlParamBody =
+        "grant_type=" +
+        encodeURIComponent("assertion") +
+        "&assertion_type=" +
+        encodeURIComponent(assertionType) +
+        "&assertion=" +
+        encodeURIComponent(Buffer.from(assertionXml).toString("base64"));
+
+    // Launch the POST request with the constructured body to the defined endpoint.
+    request(
+        {
+            url: endpointUrl,
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: samlParamBody,
+        },
+        function (err, remoteResponse, remoteBody) {
+            // Process error
+            if (err) {
+                return res.status(500).end("Error");
+            }
+
+            // Process success by storing the access token in the browser's cookies.
+            var sfdcResponse = JSON.parse(remoteBody);
+
+            if (sfdcResponse.access_token) {
+                res.writeHead(302, {
+                    Location: "queryresult",
+                    "Set-Cookie": [
+                        "AccToken=" + sfdcResponse.access_token,
+                        "APIVer=" + apiVersion,
+                        "InstURL=" + sfdcResponse.instance_url,
+                        "idURL=" + sfdcResponse.id,
+                    ],
+                });
+                res.end();
+            }
+        }
+    );
+});
+
+app.route(/^\/(index.*)?$/).get(function (req, res) {
     res.render("index", {
         callbackURL: callbackURL,
         baseURL: baseURL,
@@ -498,7 +556,7 @@ app.route(/^\/(index.*)?$/).get(function(req, res) {
         clientId: clientId,
         clientSecret: clientSecret,
         codeVerifier: codeVerifier,
-        codeChallenge: codeChallenge
+        codeChallenge: codeChallenge,
     });
 });
 
@@ -506,32 +564,32 @@ app.route(/^\/(index.*)?$/).get(function(req, res) {
  * Handle OAuth callback from Salesforce and parse the result.
  * Result is parsed in oauthcallback.ejs.
  */
-app.get("/oauthcallback", function(req, res) {
+app.get("/oauthcallback", function (req, res) {
     var code = req.query.code;
     var returnedState = req.query.state;
 
     res.render("oauthcallback", {
         code: code,
         returnedState: returnedState,
-        originalState: state
+        originalState: state,
     });
 });
 
 /**
  * Use the access token to execute a query using Salesforce REST API.
  */
-app.get("/queryresult", function(req, res) {
+app.get("/queryresult", function (req, res) {
     res.render("queryresult");
 });
 
-app.listen(app.get("port"), function() {
+app.listen(app.get("port"), function () {
     console.log("Express server listening on port " + app.get("port"));
 });
 
 // Load files with keys and options
 var options = {
     key: fs.readFileSync("./key.pem", "utf8"),
-    cert: fs.readFileSync("./server.crt", "utf8")
+    cert: fs.readFileSync("./server.crt", "utf8"),
 };
 
 // Define code verifier and code challenge
