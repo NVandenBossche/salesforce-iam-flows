@@ -2,3 +2,4 @@ node_modules/
 .env
 *.pem
 .DS_Store
+data/
