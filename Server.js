@@ -498,6 +498,7 @@ app.get("/samlAssert", function (req, res) {
 
     // Read assertion XML from file located at 'data/axiomSamlAssertion.xml'. Alternatively, copy-paste XML string below and assign to variable.
     var assertionXml = fs.readFileSync('data/axiomSamlAssertion.xml','utf8');
+    var base64AssertionXml = Buffer.from(assertionXml).toString("base64");
 
     // Determine the endpoint URL depending on whether this needs to be executed on sandbox or production
     if (req.query.isSandbox == "true") {
@@ -513,7 +514,7 @@ app.get("/samlAssert", function (req, res) {
         "&assertion_type=" +
         encodeURIComponent(assertionType) +
         "&assertion=" +
-        encodeURIComponent(Buffer.from(assertionXml).toString("base64"));
+        encodeURIComponent(base64AssertionXml);
 
     // Launch the POST request with the constructured body to the defined endpoint.
     request(
