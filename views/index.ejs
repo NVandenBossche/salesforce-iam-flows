@@ -11,6 +11,7 @@
         <script type="text/javascript" src="lib/bootstrap.min.js"></script>
 
         <script>
+            // Clear all cookies upon the loading of the page
             function clearAllCookies() {
                 $.cookie("AccToken", "");
                 $.cookie("APIVer", "");
@@ -19,25 +20,33 @@
                 $.cookie("LoggeduserId", "");
             }
 
+            // Initializes the redirects that will happen when clicking the production / sandbox buttons on each of the flows.
             function initialiseButtons() {
+                // Redirect for User Agent flow
                 $("#prodBtn").click(function () {
                     window.location = "uAgent?isSandbox=false";
                 });
                 $("#sandBtn").click(function () {
                     window.location = "uAgent?isSandbox=true";
                 });
+
+                // Redirect for Device Authentication flow
                 $("#prodBtnDvc").click(function () {
                     window.location = "device?isSandbox=false";
                 });
                 $("#sandBtnDvc").click(function () {
                     window.location = "device?isSandbox=true";
                 });
+
+                // Redirect for Web Server flow using a client secret
                 $("#prodBtnWSsecret").click(function () {
                     window.location = "webServer?isSandbox=false&type=secret";
                 });
                 $("#sandBtnWSsecret").click(function () {
                     window.location = "webServer?isSandbox=true&type=secret";
                 });
+
+                // Redirect for Web Server flow using a client assertion
                 $("#prodBtnWSassertion").click(function () {
                     window.location =
                         "webServer?isSandbox=false&type=assertion";
@@ -45,12 +54,16 @@
                 $("#sandBtnWSassertion").click(function () {
                     window.location = "webServer?isSandbox=true&type=assertion";
                 });
+
+                // Redirect for Web Server flow without client secret or assertion
                 $("#prodBtnWSnone").click(function () {
                     window.location = "webServer?isSandbox=false&type=none";
                 });
                 $("#sandBtnWSnone").click(function () {
                     window.location = "webServer?isSandbox=true&type=none";
                 });
+
+                // Redirect for JWT Bearer Assertion flow
                 $("#prodBtnR").click(function () {
                     window.location =
                         "jwt?isSandbox=false&jwtUserName=" +
@@ -61,17 +74,29 @@
                         "jwt?isSandbox=true&jwtUserName=" +
                         $("#jwtUserName").val();
                 });
+
+                // Redirect for Refresh Token flow
                 $("#prodBtnRef").click(function () {
                     window.location = "refresh?isSandbox=false";
                 });
                 $("#sandBtnRef").click(function () {
                     window.location = "refresh?isSandbox=true";
                 });
+
+                // Redirect for SAML Assertion flow
                 $("#prodBtnSamlAssert").click(function () {
                     window.location = "samlAssert?isSandbox=false";
                 });
                 $("#sandBtnSamlAssert").click(function () {
                     window.location = "samlAssert?isSandbox=true";
+                });
+
+                // Redirect for SAML Bearer Assertion flow
+                $("#prodBtnSamlBearer").click(function () {
+                    window.location = "samlBearer?isSandbox=false";
+                });
+                $("#sandBtnSamlBearer").click(function () {
+                    window.location = "samlBearer?isSandbox=true";
                 });
             }
 
@@ -1325,6 +1350,22 @@
                 <div>
                     <i><b> To be Implemented </b></i>
                 </div>
+
+                <!-- Buttons to launch flow -->
+                <a
+                    id="prodBtnSamlBearer"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                >
+                    Production
+                </a>
+                <a
+                    id="sandBtnSamlBearer"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                >
+                    Sandbox
+                </a>
             </div>
         </div>
     </body>
