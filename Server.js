@@ -10,6 +10,7 @@ var express = require("express"),
     fs = require("fs"),
     base64url = require("base64-url"),
     nJwt = require("njwt"),
+    saml = require("saml").Saml20,
     CryptoJS = require("crypto-js"),
     crypto = require("crypto"),
     apiVersion = "v45.0",
@@ -19,6 +20,7 @@ var express = require("express"),
     baseURL = process.env.BASE_URL,
     username = process.env.USERNAME,
     jwt_aud = "https://login.salesforce.com",
+    saml_aud = "https://login.salesforce.com/services/oauth2/token",
     endpointUrl = "",
     state = "",
     refreshToken = "",
@@ -179,6 +181,26 @@ function signJWTClaims(claims) {
     return jwt_token_b64;
 }
 
+function getSignedSamlToken() {
+    let signedSamlToken;
+    let privateKey = fs.readFileSync(__dirname + '/key.pem');
+    let publicCert = fs.readFileSync(__dirname + '/server.crt');
+    
+    let samlClaims = {
+        cert: publicCert,
+        key: privateKey,
+        issuer: clientId,
+        lifetimeInSeconds: 600,
+        audiences: saml_aud,
+        nameIdentifier: username
+    };
+       
+    signedSamlToken = saml.create(samlClaims);
+    fs.writeFileSync(__dirname + '/samlBearer.xml', signedSamlToken);
+
+    return signedSamlToken;
+}
+
 app.all("/proxy", function (req, res) {
     var url = req.header("SalesforceProxy-Endpoint");
     request({
@@ -314,6 +336,44 @@ app.get("/jwt", function (req, res) {
     var paramBody =
         "grant_type=" +
         base64url.escape("urn:ietf:params:oauth:grant-type:jwt-bearer") +
+        "&assertion=" +
+        token;
+    var req_sfdcOpts = {
+        url: endpointUrl,
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: paramBody,
+    };
+
+    request(req_sfdcOpts, function (err, remoteResponse, remoteBody) {
+        accessTokenCallback(err, remoteResponse, remoteBody, res);
+    });
+});
+
+/**
+ * SAML assertion flow using Axiom SSO
+ */
+app.get("/samlBearer", function (req, res) {
+    // Set parameters for the SAML request body
+    const assertionType = "urn:ietf:params:oauth:grant-type:saml2-bearer";
+    let token = getSignedSamlToken();
+    token = base64url.encode(token);
+    // token = base64url.escape(base64url.encode(token));
+
+    fs.writeFileSync(__dirname + '/samlBase64.txt', token);
+
+    console.log('Token:' + token);
+
+    // Determine the endpoint URL depending on whether this needs to be executed on sandbox or production
+    if (req.query.isSandbox == "true") {
+        endpointUrl = "https://test.salesforce.com/services/oauth2/token";
+    } else {
+        endpointUrl = baseURL + "/services/oauth2/token";
+    }
+
+    var paramBody =
+        "grant_type=" +
+        base64url.escape(assertionType) +
         "&assertion=" +
         token;
     var req_sfdcOpts = {
