@@ -19,6 +19,7 @@ var express = require("express"),
     callbackURL = process.env.CALLBACK_URL,
     baseURL = process.env.BASE_URL,
     username = process.env.USERNAME,
+    persistTokensToFile = process.env.PERSIST,
     jwt_aud = "https://login.salesforce.com",
     saml_aud = "https://login.salesforce.com/services/oauth2/token",
     endpointUrl = "",
@@ -183,9 +184,12 @@ function signJWTClaims(claims) {
 
 function getSignedSamlToken() {
     let signedSamlToken;
+
+    // Retrieve private key and server certificate
     let privateKey = fs.readFileSync(__dirname + '/key.pem');
     let publicCert = fs.readFileSync(__dirname + '/server.crt');
     
+    // Set claims / options for SAML Bearer token. All of these are required for Salesforce.
     let samlClaims = {
         cert: publicCert,
         key: privateKey,
@@ -195,8 +199,8 @@ function getSignedSamlToken() {
         nameIdentifier: username
     };
        
+    // Create the SAML token which is signed with the private key (not encrypted)
     signedSamlToken = saml.create(samlClaims);
-    fs.writeFileSync(__dirname + '/samlBearer.xml', signedSamlToken);
 
     return signedSamlToken;
 }
@@ -356,13 +360,14 @@ app.get("/jwt", function (req, res) {
 app.get("/samlBearer", function (req, res) {
     // Set parameters for the SAML request body
     const assertionType = "urn:ietf:params:oauth:grant-type:saml2-bearer";
-    let token = getSignedSamlToken();
-    token = base64url.encode(token);
-    // token = base64url.escape(base64url.encode(token));
-
-    fs.writeFileSync(__dirname + '/samlBase64.txt', token);
-
-    console.log('Token:' + token);
+    let signedSamlToken = getSignedSamlToken();
+    let base64SignedSamlToken = base64url.encode(signedSamlToken);
+    
+    // If persist option is set to true, persist to file
+    if(persistTokensToFile) {
+        fs.writeFile(__dirname + '/data/samlBearer.xml', signedSamlToken);
+        fs.writeFile(__dirname + '/data/samlBase64.txt', base64SignedSamlToken);
+    }
 
     // Determine the endpoint URL depending on whether this needs to be executed on sandbox or production
     if (req.query.isSandbox == "true") {
@@ -371,19 +376,23 @@ app.get("/samlBearer", function (req, res) {
         endpointUrl = baseURL + "/services/oauth2/token";
     }
 
-    var paramBody =
+    // Set the body of the POST request by defining the grant_type and assertion parameters
+    let paramBody =
         "grant_type=" +
-        base64url.escape(assertionType) +
+        assertionType +
         "&assertion=" +
-        token;
-    var req_sfdcOpts = {
+        base64SignedSamlToken;
+
+    // Set the request parameters for the token endpoint
+    let postRequest = {
         url: endpointUrl,
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: paramBody,
     };
 
-    request(req_sfdcOpts, function (err, remoteResponse, remoteBody) {
+    // Launch the request and handle the response using accessTokenCallback
+    request(postRequest, function (err, remoteResponse, remoteBody) {
         accessTokenCallback(err, remoteResponse, remoteBody, res);
     });
 });
