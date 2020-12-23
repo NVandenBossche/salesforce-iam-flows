@@ -412,9 +412,8 @@ app.post("/uPwd", function (req, res) {
         endpointUrl = baseURL + "/services/oauth2/token";
     }
 
-    var computedURL =
-        endpointUrl +
-        "?client_id=" +
+    let paramBody =
+        "client_id=" +
         clientId +
         "&grant_type=password" +
         "&client_secret=" +
@@ -422,13 +421,17 @@ app.post("/uPwd", function (req, res) {
         "&username=" +
         uname +
         "&password=" +
-        pwd;
+        encodeURIComponent(pwd);
 
-    request({ url: computedURL, method: "POST" }, function (
-        err,
-        remoteResponse,
-        remoteBody
-    ) {
+    // Set the request parameters for the token endpoint
+    let postRequest = {
+        url: endpointUrl,
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: paramBody
+    };
+
+    request(postRequest, function (err, remoteResponse, remoteBody) {
         accessTokenCallback(err, remoteResponse, remoteBody, res);
     });
 });
