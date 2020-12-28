@@ -21,7 +21,7 @@ var express = require("express"),
     username = process.env.USERNAME,
     persistTokensToFile = process.env.PERSIST,
     jwt_aud = "https://login.salesforce.com",
-    saml_aud = "https://login.salesforce.com/services/oauth2/token",
+    saml_aud = "https://login.salesforce.com",
     endpointUrl = "",
     state = "",
     refreshToken = "",
@@ -62,9 +62,7 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
         var hash = CryptoJS.HmacSHA256(identityUrl + issuedAt, clientSecret);
         var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
         if (hashInBase64 != sfdcResponse.signature) {
-            return res
-                .status(500)
-                .end("Signature not correct - Identity cannot be confirmed");
+            return res.status(500).end("Signature not correct - Identity cannot be confirmed");
         }
     }
 
@@ -125,12 +123,7 @@ function createClientAssertion() {
  * @returns Cryptographically random code verifier
  */
 function generateCodeVerifier() {
-    return crypto
-        .randomBytes(128)
-        .toString("base64")
-        .replace(/=/g, "")
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_");
+    return crypto.randomBytes(128).toString("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
 }
 
 /**
@@ -186,9 +179,9 @@ function getSignedSamlToken() {
     let signedSamlToken;
 
     // Retrieve private key and server certificate
-    let privateKey = fs.readFileSync(__dirname + '/key.pem');
-    let publicCert = fs.readFileSync(__dirname + '/server.crt');
-    
+    let privateKey = fs.readFileSync(__dirname + "/key.pem");
+    let publicCert = fs.readFileSync(__dirname + "/server.crt");
+
     // Set claims / options for SAML Bearer token. All of these are required for Salesforce.
     let samlClaims = {
         cert: publicCert,
@@ -196,9 +189,9 @@ function getSignedSamlToken() {
         issuer: clientId,
         lifetimeInSeconds: 600,
         audiences: saml_aud,
-        nameIdentifier: username
+        nameIdentifier: username,
     };
-       
+
     // Create the SAML token which is signed with the private key (not encrypted)
     signedSamlToken = saml.create(samlClaims);
 
@@ -311,16 +304,10 @@ app.get("/webServerStep2", function (req, res) {
 
     if (webserverType == "assertion") {
         tokenUrl += "&client_assertion=" + createClientAssertion();
-        tokenUrl +=
-            "&client_assertion_type=" +
-            "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+        tokenUrl += "&client_assertion_type=" + "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
     }
 
-    request({ url: tokenUrl, method: "POST" }, function (
-        err,
-        remoteResponse,
-        remoteBody
-    ) {
+    request({ url: tokenUrl, method: "POST" }, function (err, remoteResponse, remoteBody) {
         accessTokenCallback(err, remoteResponse, remoteBody, res);
     });
 });
@@ -338,10 +325,7 @@ app.get("/jwt", function (req, res) {
     }
 
     var paramBody =
-        "grant_type=" +
-        base64url.escape("urn:ietf:params:oauth:grant-type:jwt-bearer") +
-        "&assertion=" +
-        token;
+        "grant_type=" + base64url.escape("urn:ietf:params:oauth:grant-type:jwt-bearer") + "&assertion=" + token;
     var req_sfdcOpts = {
         url: endpointUrl,
         method: "POST",
@@ -360,13 +344,13 @@ app.get("/jwt", function (req, res) {
 app.get("/samlBearer", function (req, res) {
     // Set parameters for the SAML request body
     const assertionType = "urn:ietf:params:oauth:grant-type:saml2-bearer";
-    let signedSamlToken = getSignedSamlToken();
-    let base64SignedSamlToken = base64url.encode(signedSamlToken);
-    
+    let token = getSignedSamlToken();
+    let base64SignedSamlToken = base64url.encode(token);
+
     // If persist option is set to true, persist to file
-    if(persistTokensToFile) {
-        fs.writeFile(__dirname + '/data/samlBearer.xml', signedSamlToken);
-        fs.writeFile(__dirname + '/data/samlBase64.txt', base64SignedSamlToken);
+    if (persistTokensToFile) {
+        fs.writeFile(__dirname + "/data/samlBearer.xml", token);
+        fs.writeFile(__dirname + "/data/samlBase64.txt", base64SignedSamlToken);
     }
 
     // Determine the endpoint URL depending on whether this needs to be executed on sandbox or production
@@ -377,11 +361,7 @@ app.get("/samlBearer", function (req, res) {
     }
 
     // Set the body of the POST request by defining the grant_type and assertion parameters
-    let paramBody =
-        "grant_type=" +
-        assertionType +
-        "&assertion=" +
-        base64SignedSamlToken;
+    let paramBody = "grant_type=" + assertionType + "&assertion=" + base64SignedSamlToken;
 
     // Set the request parameters for the token endpoint
     let postRequest = {
@@ -428,7 +408,7 @@ app.post("/uPwd", function (req, res) {
         url: endpointUrl,
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: paramBody
+        body: paramBody,
     };
 
     request(postRequest, function (err, remoteResponse, remoteBody) {
@@ -446,14 +426,9 @@ app.get("/device", function (req, res) {
         endpointUrl = baseURL + "/services/oauth2/token";
     }
 
-    var computedURL =
-        endpointUrl + "?client_id=" + clientId + "&response_type=device_code";
+    var computedURL = endpointUrl + "?client_id=" + clientId + "&response_type=device_code";
 
-    request({ url: computedURL, method: "POST" }, function (
-        err,
-        remoteResponse,
-        remoteBody
-    ) {
+    request({ url: computedURL, method: "POST" }, function (err, remoteResponse, remoteBody) {
         if (err) {
             res.write(err);
             res.end();
@@ -488,19 +463,9 @@ app.get("/devicePol", function (req, res) {
         endpointUrl = baseURL + "/services/oauth2/token";
     }
 
-    var computedURL =
-        endpointUrl +
-        "?client_id=" +
-        clientId +
-        "&grant_type=device" +
-        "&code=" +
-        device_code;
+    var computedURL = endpointUrl + "?client_id=" + clientId + "&grant_type=device" + "&code=" + device_code;
 
-    request({ url: computedURL, method: "POST" }, function (
-        err,
-        remoteResponse,
-        remoteBody
-    ) {
+    request({ url: computedURL, method: "POST" }, function (err, remoteResponse, remoteBody) {
         if (err) {
             return res.status(500).end("Error");
         }
@@ -542,12 +507,7 @@ app.get("/refresh", function (req, res) {
     console.log("Refresh Token: " + refreshToken);
 
     var paramBody =
-        "grant_type=" +
-        base64url.escape("refresh_token") +
-        "&refresh_token=" +
-        refreshToken +
-        "&client_id=" +
-        clientId;
+        "grant_type=" + base64url.escape("refresh_token") + "&refresh_token=" + refreshToken + "&client_id=" + clientId;
 
     var refreshRequest = {
         url: endpointUrl,
@@ -569,7 +529,7 @@ app.get("/samlAssert", function (req, res) {
     const assertionType = "urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser";
 
     // Read assertion XML from file located at 'data/axiomSamlAssertion.xml'. Alternatively, copy-paste XML string below and assign to variable.
-    var assertionXml = fs.readFileSync('data/axiomSamlAssertion.xml','utf8');
+    var assertionXml = fs.readFileSync("data/axiomSamlAssertion.xml", "utf8");
     var base64AssertionXml = Buffer.from(assertionXml).toString("base64");
 
     // Determine the endpoint URL depending on whether this needs to be executed on sandbox or production

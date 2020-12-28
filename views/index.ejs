@@ -48,8 +48,7 @@
 
                 // Redirect for Web Server flow using a client assertion
                 $("#prodBtnWSassertion").click(function () {
-                    window.location =
-                        "webServer?isSandbox=false&type=assertion";
+                    window.location = "webServer?isSandbox=false&type=assertion";
                 });
                 $("#sandBtnWSassertion").click(function () {
                     window.location = "webServer?isSandbox=true&type=assertion";
@@ -65,14 +64,10 @@
 
                 // Redirect for JWT Bearer Assertion flow
                 $("#prodBtnR").click(function () {
-                    window.location =
-                        "jwt?isSandbox=false&jwtUserName=" +
-                        $("#jwtUserName").val();
+                    window.location = "jwt?isSandbox=false&jwtUserName=" + $("#jwtUserName").val();
                 });
                 $("#sandBtnR").click(function () {
-                    window.location =
-                        "jwt?isSandbox=true&jwtUserName=" +
-                        $("#jwtUserName").val();
+                    window.location = "jwt?isSandbox=true&jwtUserName=" + $("#jwtUserName").val();
                 });
 
                 // Redirect for Refresh Token flow
@@ -111,15 +106,9 @@
 
     <body class="container" style="padding-top: 50px" onload="onload()">
         <!-- Navigation pane on top of page -->
-        <nav
-            role="navigation"
-            class="navbar navbar-default navbar-fixed-top navbar-inverse"
-        >
+        <nav role="navigation" class="navbar navbar-default navbar-fixed-top navbar-inverse">
             <div class="container">
-                <div
-                    class="collapse navbar-collapse"
-                    id="bs-example-navbar-collapse-1"
-                >
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">
                         <li>
                             <a href="#divHome">Home</a>
@@ -137,9 +126,7 @@
                             <a href="#usernamePassword">Username Password</a>
                         </li>
                         <li>
-                            <a href="#deviceFlow"
-                                >Device Authentication Flow
-                            </a>
+                            <a href="#deviceFlow">Device Authentication Flow </a>
                         </li>
                         <li>
                             <a href="#refreshToken">Refresh Token</a>
@@ -161,9 +148,8 @@
                     <b> Salesforce - Node.js app for testing OAuth Flows</b>
                     <br />
                     by
-                    <a href="https://www.linkedin.com/in/nicolas-vanden-bossche"
-                        >Nicolas Vanden Bossche</a
-                    >, based on template by Jitendra Zaa.
+                    <a href="https://www.linkedin.com/in/nicolas-vanden-bossche">Nicolas Vanden Bossche</a>, based on
+                    template by Jitendra Zaa.
                 </div>
                 <div style="width: 20%; float: right">
                     <img style="height: inherit" src="Salesforce.png" />
@@ -187,8 +173,7 @@
             <div id="userAgentCollapse" class="collapse">
                 <ol class="smallFont">
                     <li>
-                        This page contains a JavaScript application that will
-                        use the
+                        This page contains a JavaScript application that will use the
                         <a
                             href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_user_agent_flow.htm&type=5&sfdcIFrameOrigin=null"
                         >
@@ -196,32 +181,26 @@
                         >
                     </li>
                     <li>
-                        Upon clicking the button, the user is redirected to
-                        Salesforce to the Authorization Endpoint using GET
-                        method with the following parameters:
+                        Upon clicking the button, the user is redirected to Salesforce to the Authorization Endpoint
+                        using GET method with the following parameters:
                         <ul>
                             <li>
                                 <code>response_type=token</code> OR
                                 <code>response_type=token%20id_token</code>
                             </li>
                             <li>
-                                <code
-                                    >client_id=&lt;Connected App
-                                    client_id&gt;</code
-                                >
+                                <code>client_id=&lt;Connected App client_id&gt;</code>
                             </li>
                             <li>
                                 <code>redirect_uri=<%= callbackURL %></code>
                             </li>
                             <li>
                                 <code>scope=&lt;Scope parameters&gt;</code>
-                                (optional - uses scope defined in Connected App
-                                if not specified)
+                                (optional - uses scope defined in Connected App if not specified)
                             </li>
                             <li>
                                 <code>state=&lt;UniqueIdentifier&gt;</code>
-                                (prevents CSRF - other websites sending on
-                                behalf of this one)
+                                (prevents CSRF - other websites sending on behalf of this one)
                             </li>
                             <li>
                                 <code>nonce=&lt;highEntropyCode&gt;</code>
@@ -230,13 +209,12 @@
                         </ul>
                     </li>
                     <li>
-                        Salesforce requests the user to log in and authorize the
-                        Connected App (this Node.js application)
+                        Salesforce requests the user to log in and authorize the Connected App (this Node.js
+                        application)
                     </li>
                     <li>
-                        After successful authorization, Salesforce redirects to
-                        the callback URL (<%= callbackURL %>), passing along the
-                        Access Token.
+                        After successful authorization, Salesforce redirects to the callback URL (<%= callbackURL %>),
+                        passing along the Access Token.
                     </li>
                     <li>
                         The callback page parses the returned data
@@ -244,31 +222,19 @@
                             <li><code>access_token=00D...</code></li>
                             <li><code>token_type=Bearer</code></li>
                             <li>
-                                <code>id_token=...</code> (contains information
-                                about the user's identity - only when specifying
-                                <code>openid</code> scope
+                                <code>id_token=...</code> (contains information about the user's identity - only when
+                                specifying <code>openid</code> scope
                             </li>
                             <li><code>refresh_token=...</code></li>
                             <li><code>instance_url=<%= baseURL %></code></li>
                             <li><code>id=&lt;Identity URL&gt;</code></li>
-                            <li>
-                                <code>signature=...</code> (client_secret key
-                                applied to id:issued_at - optional)
-                            </li>
+                            <li><code>signature=...</code> (client_secret key applied to id:issued_at - optional)</li>
                         </ul>
                     </li>
                 </ol>
             </div>
-            <a
-                id="prodBtn"
-                role="button"
-                style="margin-right: 40px"
-                class="btn btn-primary btn-lg"
-                >Production</a
-            >
-            <a id="sandBtn" role="button" class="btn btn-primary btn-lg"
-                >Sandbox</a
-            >
+            <a id="prodBtn" role="button" style="margin-right: 40px" class="btn btn-primary btn-lg">Production</a>
+            <a id="sandBtn" role="button" class="btn btn-primary btn-lg">Sandbox</a>
         </div>
 
         <!-- Web Server Flow -->
@@ -286,10 +252,8 @@
 
             <div id="wsintro" class="collapse">
                 <div>
-                    This section contains a JavaScript application that will use
-                    the
-                    <a
-                        href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
+                    This section contains a JavaScript application that will use the
+                    <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
                         >OAuth 2.0 Web Server flow</a
                     >.
                 </div>
@@ -297,37 +261,29 @@
                     Three scenarios are covered:
                     <ol>
                         <li>
-                            Web Server flow with a client secret: when using a
-                            secure web server that can store a client secret
+                            Web Server flow with a client secret: when using a secure web server that can store a client
+                            secret
                         </li>
                         <li>
-                            Web Server flow with a client assertion: when using
-                            a secure web server that has a private key to sign
-                            the message
+                            Web Server flow with a client assertion: when using a secure web server that has a private
+                            key to sign the message
                         </li>
                         <li>
-                            Web Server flow without client secret or assertion:
-                            when using a client application (browser / mobile
-                            app) that uses an external browser for auth
+                            Web Server flow without client secret or assertion: when using a client application (browser
+                            / mobile app) that uses an external browser for auth
                         </li>
                     </ol>
                 </div>
             </div>
             <div>
                 <h3>Web Server Flow with Client Secret</h3>
-                <button
-                    type="button"
-                    class="btn btn-info"
-                    data-toggle="collapse"
-                    data-target="#wsclientsecret"
-                >
+                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsclientsecret">
                     Show/Hide
                 </button>
 
                 <div id="wsclientsecret" class="collapse">
                     <p>
-                        This section contains a JavaScript application that will
-                        use the
+                        This section contains a JavaScript application that will use the
                         <a
                             href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
                             >OAuth 2.0 Web Server flow</a
@@ -336,11 +292,8 @@
                     </p>
                     <ol class="smallFont">
                         <li>
-                            Client application redirects to authorization
-                            endpoint at
-                            <code
-                                ><%= baseURL %>/services/oauth2/authorize</code
-                            >
+                            Client application redirects to authorization endpoint at
+                            <code><%= baseURL %>/services/oauth2/authorize</code>
                             using the GET method with the following parameters:
                             <ul>
                                 <li><code>response_type=code</code></li>
@@ -352,46 +305,33 @@
                                     <code>redirect_uri=<%= callbackURL %></code>
                                 </li>
                                 <li>
-                                    <code
-                                        >code_challenge=<%= codeChallenge
-                                        %></code
-                                    >
-                                    (optional - prevent authorization code
-                                    interception attack)
+                                    <code>code_challenge=<%= codeChallenge %></code>
+                                    (optional - prevent authorization code interception attack)
                                 </li>
                                 <li>
                                     <code>state=&lt;UniqueIdentifier&gt;</code>
-                                    (optional - prevents CSRF - other websites
-                                    sending on behalf of this one)
+                                    (optional - prevents CSRF - other websites sending on behalf of this one)
                                 </li>
                                 <li>
                                     <code>scope=&lt;Scope parameters&gt;</code>
-                                    (optional - uses scope defined in Connected
-                                    App if not specified)
+                                    (optional - uses scope defined in Connected App if not specified)
                                 </li>
                             </ul>
                         </li>
                         <li>
-                            Salesforce asks the user to authenticate and then
-                            authorize the application. If successful, it
-                            redirects to the redirect_uri passing along the
-                            following parameters
+                            Salesforce asks the user to authenticate and then authorize the application. If successful,
+                            it redirects to the redirect_uri passing along the following parameters
                             <ul>
                                 <li>
-                                    <code>code</code> (the authorization code to
-                                    be used in the second part of the request)
+                                    <code>code</code> (the authorization code to be used in the second part of the
+                                    request)
                                 </li>
-                                <li>
-                                    <code>state</code> (if state was provided in
-                                    original request)
-                                </li>
+                                <li><code>state</code> (if state was provided in original request)</li>
                             </ul>
                         </li>
                         <li>
-                            Callback page checks if the state remained the same
-                            to make sure that no other application initiated the
-                            request. If OK, authorization code is sent to the
-                            token endpoint at
+                            Callback page checks if the state remained the same to make sure that no other application
+                            initiated the request. If OK, authorization code is sent to the token endpoint at
                             <code><%= baseURL %>/services/oauth2/token</code>
                             using the POST method with the following parameters:
                             <ul>
@@ -400,26 +340,17 @@
                                 </li>
                                 <li><code>client_id=<%= clientId %></code></li>
                                 <li>
-                                    <code
-                                        >client_secret=<%= clientSecret %></code
-                                    >
+                                    <code>client_secret=<%= clientSecret %></code>
                                 </li>
                                 <li>
                                     <code>redirect_uri=<%= callbackURL %></code>
                                 </li>
-                                <li>
-                                    <code>code=...</code> (Authorization code
-                                    from second step)
-                                </li>
-                                <li>
-                                    <code>code_verifier=...</code> (128 bit
-                                    random string, base64 and URL encoded)
-                                </li>
+                                <li><code>code=...</code> (Authorization code from second step)</li>
+                                <li><code>code_verifier=...</code> (128 bit random string, base64 and URL encoded)</li>
                             </ul>
                         </li>
                         <li>
-                            After successful authorization, returns the Access
-                            Token as a response to the POST messsage.
+                            After successful authorization, returns the Access Token as a response to the POST messsage.
                         </li>
                         <li>
                             The callback function parses the returned data
@@ -427,8 +358,7 @@
                                 <li><code>access_token=00D...</code></li>
                                 <li><code>token_type=Bearer</code></li>
                                 <li>
-                                    <code>id_token=...</code> (contains
-                                    information about the user's identity - only
+                                    <code>id_token=...</code> (contains information about the user's identity - only
                                     when specifying <code>openid</code> scope
                                 </li>
                                 <li><code>refresh_token=...</code></li>
@@ -436,46 +366,26 @@
                                     <code>instance_url=<%= baseURL %></code>
                                 </li>
                                 <li><code>id=&lt;Identity URL&gt;</code></li>
+                                <li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
                                 <li>
-                                    <code>issued_at=...</code> (datetime at
-                                    which the access token was issued)
-                                </li>
-                                <li>
-                                    <code>signature=...</code> (client_secret
-                                    key applied to id:issued_at - optional)
+                                    <code>signature=...</code> (client_secret key applied to id:issued_at - optional)
                                 </li>
                             </ul>
                         </li>
                     </ol>
                 </div>
-                <a
-                    id="prodBtnWSsecret"
-                    role="button"
-                    class="btn btn-primary btn-lg"
-                    >Production</a
-                >
-                <a
-                    id="sandBtnWSsecret"
-                    role="button"
-                    class="btn btn-primary btn-lg"
-                    >Sandbox</a
-                >
+                <a id="prodBtnWSsecret" role="button" class="btn btn-primary btn-lg">Production</a>
+                <a id="sandBtnWSsecret" role="button" class="btn btn-primary btn-lg">Sandbox</a>
             </div>
             <div>
                 <h3>Web Server Flow with Client Assertion</h3>
-                <button
-                    type="button"
-                    class="btn btn-info"
-                    data-toggle="collapse"
-                    data-target="#wsclientassertion"
-                >
+                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsclientassertion">
                     Show/Hide
                 </button>
 
                 <div id="wsclientassertion" class="collapse">
                     <p>
-                        This section contains a JavaScript application that will
-                        use the
+                        This section contains a JavaScript application that will use the
                         <a
                             href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
                             >OAuth 2.0 Web Server flow</a
@@ -485,11 +395,8 @@
 
                     <ol class="smallFont">
                         <li>
-                            Client application redirects to authorization
-                            endpoint at
-                            <code
-                                ><%= baseURL %>/services/oauth2/authorize</code
-                            >
+                            Client application redirects to authorization endpoint at
+                            <code><%= baseURL %>/services/oauth2/authorize</code>
                             using the GET method with the following parameters:
                             <ul>
                                 <li><code>response_type=code</code></li>
@@ -501,46 +408,33 @@
                                     <code>redirect_uri=<%= callbackURL %></code>
                                 </li>
                                 <li>
-                                    <code
-                                        >code_challenge=<%= codeChallenge
-                                        %></code
-                                    >
-                                    (optional - prevent authorization code
-                                    interception attack)
+                                    <code>code_challenge=<%= codeChallenge %></code>
+                                    (optional - prevent authorization code interception attack)
                                 </li>
                                 <li>
                                     <code>state=&lt;UniqueIdentifier&gt;</code>
-                                    (optional - prevents CSRF - other websites
-                                    sending on behalf of this one)
+                                    (optional - prevents CSRF - other websites sending on behalf of this one)
                                 </li>
                                 <li>
                                     <code>scope=&lt;Scope parameters&gt;</code>
-                                    (optional - uses scope defined in Connected
-                                    App if not specified)
+                                    (optional - uses scope defined in Connected App if not specified)
                                 </li>
                             </ul>
                         </li>
                         <li>
-                            Salesforce asks the user to authenticate and then
-                            authorize the application. If successful, it
-                            redirects to the redirect_uri passing along the
-                            following parameters
+                            Salesforce asks the user to authenticate and then authorize the application. If successful,
+                            it redirects to the redirect_uri passing along the following parameters
                             <ul>
                                 <li>
-                                    <code>code</code> (the authorization code to
-                                    be used in the second part of the request)
+                                    <code>code</code> (the authorization code to be used in the second part of the
+                                    request)
                                 </li>
-                                <li>
-                                    <code>state</code> (if state was provided in
-                                    original request)
-                                </li>
+                                <li><code>state</code> (if state was provided in original request)</li>
                             </ul>
                         </li>
                         <li>
-                            Callback page checks if the state remained the same
-                            to make sure that no other application initiated the
-                            request. If OK, authorization code is sent to the
-                            token endpoint at
+                            Callback page checks if the state remained the same to make sure that no other application
+                            initiated the request. If OK, authorization code is sent to the token endpoint at
                             <code><%= baseURL %>/services/oauth2/token</code>
                             using the POST method with the following parameters:
                             <ul>
@@ -549,25 +443,16 @@
                                 </li>
                                 <li><code>client_id=<%= clientId %></code></li>
                                 <li>
-                                    <code
-                                        >client_secret=<%= clientSecret %></code
-                                    >
+                                    <code>client_secret=<%= clientSecret %></code>
                                 </li>
                                 <li>
                                     <code>redirect_uri=<%= callbackURL %></code>
                                 </li>
+                                <li><code>code=...</code> (Authorization code from second step)</li>
+                                <li><code>code_verifier=...</code> (128 bit random string, base64 and URL encoded)</li>
                                 <li>
-                                    <code>code=...</code> (Authorization code
-                                    from second step)
-                                </li>
-                                <li>
-                                    <code>code_verifier=...</code> (128 bit
-                                    random string, base64 and URL encoded)
-                                </li>
-                                <li>
-                                    <code>client_assertion=...</code> (JWT token
-                                    containing information about the client,
-                                    signed with private key)
+                                    <code>client_assertion=...</code> (JWT token containing information about the
+                                    client, signed with private key)
                                 </li>
                                 <li>
                                     <code
@@ -577,8 +462,7 @@
                             </ul>
                         </li>
                         <li>
-                            After successful authorization, returns the Access
-                            Token as a response to the POST messsage.
+                            After successful authorization, returns the Access Token as a response to the POST messsage.
                         </li>
                         <li>
                             The callback function parses the returned data
@@ -586,8 +470,7 @@
                                 <li><code>access_token=00D...</code></li>
                                 <li><code>token_type=Bearer</code></li>
                                 <li>
-                                    <code>id_token=...</code> (contains
-                                    information about the user's identity - only
+                                    <code>id_token=...</code> (contains information about the user's identity - only
                                     when specifying <code>openid</code> scope
                                 </li>
                                 <li><code>refresh_token=...</code></li>
@@ -595,67 +478,39 @@
                                     <code>instance_url=<%= baseURL %></code>
                                 </li>
                                 <li><code>id=&lt;Identity URL&gt;</code></li>
+                                <li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
                                 <li>
-                                    <code>issued_at=...</code> (datetime at
-                                    which the access token was issued)
-                                </li>
-                                <li>
-                                    <code>signature=...</code> (client_secret
-                                    key applied to id:issued_at - optional)
+                                    <code>signature=...</code> (client_secret key applied to id:issued_at - optional)
                                 </li>
                             </ul>
                         </li>
                     </ol>
                 </div>
-                <a
-                    id="prodBtnWSassertion"
-                    role="button"
-                    class="btn btn-primary btn-lg"
-                    >Production</a
-                >
-                <a
-                    id="sandBtnWSassertion"
-                    role="button"
-                    class="btn btn-primary btn-lg"
-                    >Sandbox</a
-                >
+                <a id="prodBtnWSassertion" role="button" class="btn btn-primary btn-lg">Production</a>
+                <a id="sandBtnWSassertion" role="button" class="btn btn-primary btn-lg">Sandbox</a>
             </div>
             <div>
                 <h3>Web Server Flow without Client Secret or Assertion</h3>
-                <button
-                    type="button"
-                    class="btn btn-info"
-                    data-toggle="collapse"
-                    data-target="#wsnone"
-                >
+                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsnone">
                     Show/Hide
                 </button>
 
                 <div id="wsnone" class="collapse">
                     <p>
-                        This section contains a JavaScript application that will
-                        use the
+                        This section contains a JavaScript application that will use the
                         <a
                             href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
                             >OAuth 2.0 Web Server flow</a
                         >
-                        without client secret client assertion. A use case of
-                        this flow can be part of a mobile authentication flow
-                        where the native mobile browser is used rather than an
-                        embedded browser. A good explanation of this flow can be
-                        found
-                        <a
-                            href="https://auth0.com/blog/oauth-2-best-practices-for-native-apps/"
-                            >here</a
-                        >.
+                        without client secret client assertion. A use case of this flow can be part of a mobile
+                        authentication flow where the native mobile browser is used rather than an embedded browser. A
+                        good explanation of this flow can be found
+                        <a href="https://auth0.com/blog/oauth-2-best-practices-for-native-apps/">here</a>.
                     </p>
                     <ol class="smallFont">
                         <li>
-                            Client application redirects to authorization
-                            endpoint at
-                            <code
-                                ><%= baseURL %>/services/oauth2/authorize</code
-                            >
+                            Client application redirects to authorization endpoint at
+                            <code><%= baseURL %>/services/oauth2/authorize</code>
                             using the GET method with the following parameters:
                             <ul>
                                 <li><code>response_type=code</code></li>
@@ -667,48 +522,35 @@
                                     <code>redirect_uri=<%= callbackURL %></code>
                                 </li>
                                 <li>
-                                    <code
-                                        >code_challenge=<%= codeChallenge
-                                        %></code
-                                    >
-                                    (optional - prevent authorization code
-                                    interception attack)
+                                    <code>code_challenge=<%= codeChallenge %></code>
+                                    (optional - prevent authorization code interception attack)
                                 </li>
                                 <li>
                                     <code>state=&lt;UniqueIdentifier&gt;</code>
-                                    (optional - prevents CSRF - other websites
-                                    sending on behalf of this one)
+                                    (optional - prevents CSRF - other websites sending on behalf of this one)
                                 </li>
                                 <li>
                                     <code>scope=&lt;Scope parameters&gt;</code>
-                                    (optional - uses scope defined in Connected
-                                    App if not specified)
+                                    (optional - uses scope defined in Connected App if not specified)
                                 </li>
                             </ul>
                         </li>
                         <li>
-                            Salesforce asks the user to authenticate and then
-                            authorize the application. If successful, it
-                            redirects to the redirect_uri passing along the
-                            following parameters
+                            Salesforce asks the user to authenticate and then authorize the application. If successful,
+                            it redirects to the redirect_uri passing along the following parameters
                             <ul>
                                 <li>
-                                    <code>code</code> (the authorization code to
-                                    be used in the second part of the request)
+                                    <code>code</code> (the authorization code to be used in the second part of the
+                                    request)
                                 </li>
-                                <li>
-                                    <code>state</code> (if state was provided in
-                                    original request)
-                                </li>
+                                <li><code>state</code> (if state was provided in original request)</li>
                             </ul>
                         </li>
                         <li>
-                            Callback page checks if the state remained the same
-                            to make sure that no other application initiated the
-                            request. For this flow, the code challenge and
-                            verifier are required to avoid interception of the
-                            authorization code! If OK, authorization code is
-                            sent to the token endpoint at
+                            Callback page checks if the state remained the same to make sure that no other application
+                            initiated the request. For this flow, the code challenge and verifier are required to avoid
+                            interception of the authorization code! If OK, authorization code is sent to the token
+                            endpoint at
                             <code><%= baseURL %>/services/oauth2/token</code>
                             using the POST method with the following parameters:
                             <ul>
@@ -719,20 +561,13 @@
                                 <li>
                                     <code>redirect_uri=<%= callbackURL %></code>
                                 </li>
-                                <li>
-                                    <code>code=...</code> (Authorization code
-                                    from second step)
-                                </li>
-                                <li>
-                                    <code>code_verifier=...</code> (128 bit
-                                    random string, base64 and URL encoded)
-                                </li>
+                                <li><code>code=...</code> (Authorization code from second step)</li>
+                                <li><code>code_verifier=...</code> (128 bit random string, base64 and URL encoded)</li>
                                 <li>No client secret or client assertion!</li>
                             </ul>
                         </li>
                         <li>
-                            After successful authorization, returns the Access
-                            Token as a response to the POST messsage.
+                            After successful authorization, returns the Access Token as a response to the POST messsage.
                         </li>
                         <li>
                             The callback function parses the returned data
@@ -740,8 +575,7 @@
                                 <li><code>access_token=00D...</code></li>
                                 <li><code>token_type=Bearer</code></li>
                                 <li>
-                                    <code>id_token=...</code> (contains
-                                    information about the user's identity - only
+                                    <code>id_token=...</code> (contains information about the user's identity - only
                                     when specifying <code>openid</code> scope
                                 </li>
                                 <li><code>refresh_token=...</code></li>
@@ -749,31 +583,17 @@
                                     <code>instance_url=<%= baseURL %></code>
                                 </li>
                                 <li><code>id=&lt;Identity URL&gt;</code></li>
+                                <li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
                                 <li>
-                                    <code>issued_at=...</code> (datetime at
-                                    which the access token was issued)
-                                </li>
-                                <li>
-                                    <code>signature=...</code> (client_secret
-                                    key applied to id:issued_at - optional)
+                                    <code>signature=...</code> (client_secret key applied to id:issued_at - optional)
                                 </li>
                             </ul>
                         </li>
                     </ol>
                 </div>
 
-                <a
-                    id="prodBtnWSnone"
-                    role="button"
-                    class="btn btn-primary btn-lg"
-                    >Production</a
-                >
-                <a
-                    id="sandBtnWSnone"
-                    role="button"
-                    class="btn btn-primary btn-lg"
-                    >Sandbox</a
-                >
+                <a id="prodBtnWSnone" role="button" class="btn btn-primary btn-lg">Production</a>
+                <a id="sandBtnWSnone" role="button" class="btn btn-primary btn-lg">Sandbox</a>
             </div>
         </div>
 
@@ -781,12 +601,7 @@
         <div class="jumbotron" id="jwt">
             <div>
                 <h2>JWT Bearer Assertion OAuth 2.0 Flow</h2>
-                <button
-                    type="button"
-                    class="btn btn-info"
-                    data-toggle="collapse"
-                    data-target="#jwtCollapse"
-                >
+                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#jwtCollapse">
                     Show/Hide
                 </button>
 
@@ -794,98 +609,70 @@
                     <p>
                         <i class="note">
                             <a href="https://jwt.io/">
-                                Use this tool to debug JSON token generated in
-                                Node.js application.
+                                Use this tool to debug JSON token generated in Node.js application.
                             </a>
                         </i>
                     </p>
 
                     <ol class="smallFont">
                         <li>
-                            This page contains a JavaScript application that
-                            will use the
-                            <a
-                                href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_jwt_flow.htm&type=5"
-                            >
+                            This page contains a JavaScript application that will use the
+                            <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_jwt_flow.htm&type=5">
                                 OAuth 2.0 JWT Bearer Token flow</a
                             >
                         </li>
                         <li>
-                            Upon clicking the button, the system is generating a
-                            JWT token (containing iss, aud, sub, exp) and POSTs
-                            is to the token endpoint using the following
-                            parameters:
+                            Upon clicking the button, the system is generating a JWT token (containing iss, aud, sub,
+                            exp) and POSTs is to the token endpoint using the following parameters:
                             <ul>
                                 <li>
-                                    <code
-                                        >grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer</code
-                                    >
+                                    <code>grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer</code>
                                 </li>
                                 <li>
                                     <code>assertion=...</code>
-                                    base64url(header.body.signature) - signature
-                                    by private key is authentication
+                                    base64url(header.body.signature) - signature by private key is authentication
                                 </li>
                                 <li>
                                     <code>scope=&lt;Scope parameters&gt;</code>
-                                    - optional or sometimes not taken into
-                                    account
+                                    - optional or sometimes not taken into account
                                     <ul>
                                         <li>
-                                            If admins pre-authorize (using
-                                            profile / permission set), scope
-                                            parameter is optional. If not
-                                            specified, all scopes defined in the
-                                            connected app are granted.
+                                            If admins pre-authorize (using profile / permission set), scope parameter is
+                                            optional. If not specified, all scopes defined in the connected app are
+                                            granted.
                                         </li>
                                         <li>
-                                            If users can self-authorize, scope
-                                            is not taken into account. You need
-                                            to first use another flow (like
-                                            User-Agent or Web-Server) to grant
-                                            explicit authorization for the
-                                            scopes you need. This flow needs to
-                                            return a refresh token. The scope
-                                            returned by the JWT flow is the
-                                            combination of all previously
-                                            granted scopes where a refresh token
-                                            was returned.
+                                            If users can self-authorize, scope is not taken into account. You need to
+                                            first use another flow (like User-Agent or Web-Server) to grant explicit
+                                            authorization for the scopes you need. This flow needs to return a refresh
+                                            token. The scope returned by the JWT flow is the combination of all
+                                            previously granted scopes where a refresh token was returned.
                                         </li>
                                     </ul>
-                                    (optional - uses scope defined in Connected
-                                    App if not specified)
+                                    (optional - uses scope defined in Connected App if not specified)
                                 </li>
                             </ul>
                         </li>
                         <li>
-                            Salesforce checks the signature and assertion
-                            (containing user ID). Then checks previous
+                            Salesforce checks the signature and assertion (containing user ID). Then checks previous
                             authorizations before granting access token.
                         </li>
                         <li>
-                            Access token gets returned and callback function
-                            processes and stores access token for use. Following
-                            parameters are returned:
+                            Access token gets returned and callback function processes and stores access token for use.
+                            Following parameters are returned:
                             <ul>
                                 <li><code>access_token=...</code></li>
                                 <li><code>token_type=Bearer</code></li>
                                 <li><code>id=...</code> (identity URL)</li>
-                                <li>
-                                    <code>id_token=...</code> (identity token -
-                                    OpenID)
-                                </li>
+                                <li><code>id_token=...</code> (identity token - OpenID)</li>
                             </ul>
                         </li>
                         <li>Access token is used to query Salesforce.</li>
                     </ol>
                 </div>
 
-                <a id="prodBtnR" role="button" class="btn btn-primary btn-lg"
-                    >Production</a
-                >
-                <a id="sandBtnR" role="button" class="btn btn-primary btn-lg"
-                    >Sandbox</a
-                >
+                <a id="prodBtnR" role="button" class="btn btn-primary btn-lg">Production</a>
+                <a id="sandBtnR" role="button" class="btn btn-primary btn-lg">Sandbox</a>
             </div>
         </div>
 
@@ -893,20 +680,14 @@
         <div class="jumbotron" id="usernamePassword">
             <div>
                 <h2>OAuth 2.0 Username-Password Flow</h2>
-                <button
-                    type="button"
-                    class="btn btn-info"
-                    data-toggle="collapse"
-                    data-target="#upCollapse"
-                >
+                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#upCollapse">
                     Show/Hide
                 </button>
 
                 <div id="upCollapse" class="collapse">
                     <ol class="smallFont">
                         <li>
-                            This page contains a JavaScript application that
-                            will use the
+                            This page contains a JavaScript application that will use the
                             <a
                                 href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_username_password_flow.htm&type=5"
                             >
@@ -914,35 +695,27 @@
                             </a>
                         </li>
                         <li>
-                            Enter username and password in the below form.
-                            Attention: This is not secure! Don't use critical
-                            credentials, instead use a Trailhead Playground!
+                            Enter username and password in the below form. Attention: This is not secure! Don't use
+                            critical credentials, instead use a Trailhead Playground!
                         </li>
                         <li>
-                            Upon clicking the button, username and password are
-                            sent to the token endpoint via POST method, using
-                            the following parameters:
+                            Upon clicking the button, username and password are sent to the token endpoint via POST
+                            method, using the following parameters:
                             <ul>
                                 <li><code>grant_type=password</code></li>
                                 <li><code>username=<%= username %></code></li>
                                 <li><code>password=password</code></li>
                                 <li><code>client_id=<%= clientId %></code></li>
                                 <li>
-                                    <code
-                                        >client_secret=<%= clientSecret %></code
-                                    >
+                                    <code>client_secret=<%= clientSecret %></code>
                                 </li>
                             </ul>
                         </li>
 
+                        <li>Salesforce checks the username, password, client ID and client secret.</li>
                         <li>
-                            Salesforce checks the username, password, client ID
-                            and client secret.
-                        </li>
-                        <li>
-                            Access token gets returned and callback function
-                            processes and stores access token for use. Following
-                            parameters are returned:
+                            Access token gets returned and callback function processes and stores access token for use.
+                            Following parameters are returned:
                             <ul>
                                 <li><code>access_token=...</code></li>
                                 <li><code>token_type=Bearer</code></li>
@@ -950,13 +723,9 @@
                                     <code>instance_url=<%= baseURL %></code>
                                 </li>
                                 <li><code>id=&lt;Identity URL&gt;</code></li>
+                                <li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
                                 <li>
-                                    <code>issued_at=...</code> (datetime at
-                                    which the access token was issued)
-                                </li>
-                                <li>
-                                    <code>signature=...</code> (client_secret
-                                    key applied to id:issued_at - optional)
+                                    <code>signature=...</code> (client_secret key applied to id:issued_at - optional)
                                 </li>
                             </ul>
                         </li>
@@ -976,28 +745,12 @@
                         />
 
                         <label for="sfdcPassword">Salesforce Password </label>
-                        <input
-                            class="form-control"
-                            name="sfdcPassword"
-                            id="sfdcPassword"
-                            type="password"
-                            value=""
-                        />
+                        <input class="form-control" name="sfdcPassword" id="sfdcPassword" type="password" value="" />
                         <br />
-                        <button
-                            class="btn btn-primary btn-lg"
-                            type="submit"
-                            name="instance"
-                            value="prod"
-                        >
+                        <button class="btn btn-primary btn-lg" type="submit" name="instance" value="prod">
                             Production
                         </button>
-                        <button
-                            class="btn btn-primary btn-lg"
-                            type="submit"
-                            name="instance"
-                            value="sand"
-                        >
+                        <button class="btn btn-primary btn-lg" type="submit" name="instance" value="sand">
                             Sandbox
                         </button>
                     </div>
@@ -1009,98 +762,65 @@
         <div class="jumbotron" id="deviceFlow">
             <div>
                 <h2>OAuth 2.0 Device Authentication Flow</h2>
-                <button
-                    type="button"
-                    class="btn btn-info"
-                    data-toggle="collapse"
-                    data-target="#deviceCollapse"
-                >
+                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#deviceCollapse">
                     Show/Hide
                 </button>
 
                 <div id="deviceCollapse" class="collapse">
                     <ol class="smallFont">
+                        <li>Make sure Device Authentication flow is enabled in Connected App</li>
                         <li>
-                            Make sure Device Authentication flow is enabled in
-                            Connected App
-                        </li>
-                        <li>
-                            Retrieve a device code from the token endpoint using
-                            POST method and the following parameters:
+                            Retrieve a device code from the token endpoint using POST method and the following
+                            parameters:
                             <ul>
                                 <li><code>response_type=device_code</code></li>
                                 <li><code>client_id=<%= clientId %></code></li>
                                 <li>
                                     <code>scope=&lt;Scope parameters&gt;</code>
-                                    (optional - uses scope defined in Connected
-                                    App if not specified)
+                                    (optional - uses scope defined in Connected App if not specified)
                                 </li>
                             </ul>
                         </li>
                         <li>
-                            Process the response via the callback function,
-                            containing the following parameters:
+                            Process the response via the callback function, containing the following parameters:
                             <ul>
+                                <li><code>user_code=...</code> (code to enter on the verification URI)</li>
                                 <li>
-                                    <code>user_code=...</code> (code to enter on
-                                    the verification URI)
+                                    <code>verification_uri=...</code> (URL that the user needs to open in another
+                                    browser)
                                 </li>
-                                <li>
-                                    <code>verification_uri=...</code> (URL that
-                                    the user needs to open in another browser)
-                                </li>
-                                <li>
-                                    <code>device_code=...</code> (device code to
-                                    identify device)
-                                </li>
-                                <li>
-                                    <code>interval=...</code> (number of seconds
-                                    to wait between polls)
-                                </li>
+                                <li><code>device_code=...</code> (device code to identify device)</li>
+                                <li><code>interval=...</code> (number of seconds to wait between polls)</li>
                             </ul>
                         </li>
+                        <li>Display the user code and authorization URL to the end user on the device</li>
                         <li>
-                            Display the user code and authorization URL to the
-                            end user on the device
-                        </li>
-                        <li>
-                            Start polling the token endpoint with the device
-                            code. This is a POST with the following parameters:
+                            Start polling the token endpoint with the device code. This is a POST with the following
+                            parameters:
                             <ul>
                                 <li><code>grant_type=device</code></li>
-                                <li>
-                                    <code>code=...</code> (code from response)
-                                </li>
+                                <li><code>code=...</code> (code from response)</li>
                                 <li><code>client_id=<%= clientId %></code></li>
                             </ul>
                         </li>
+                        <li>User enters the user code in a browser by navigating to the authorization URL</li>
                         <li>
-                            User enters the user code in a browser by navigating
-                            to the authorization URL
-                        </li>
-                        <li>
-                            Polling returns access_token. Following output
-                            parameters:
+                            Polling returns access_token. Following output parameters:
                             <ul>
                                 <li><code>access_token=...</code></li>
                                 <li><code>refresh_token=...</code></li>
                                 <li><code>token_type=Bearer</code></li>
                                 <li>
                                     <code>scope=&lt;Scope parameters&gt;</code>
-                                    (optional - uses scope defined in Connected
-                                    App if not specified)
+                                    (optional - uses scope defined in Connected App if not specified)
                                 </li>
                                 <li>
                                     <code>instance_url=<%= baseURL %></code>
                                 </li>
                                 <li><code>id=&lt;Identity URL&gt;</code></li>
+                                <li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
                                 <li>
-                                    <code>issued_at=...</code> (datetime at
-                                    which the access token was issued)
-                                </li>
-                                <li>
-                                    <code>signature=...</code> (client_secret
-                                    key applied to id:issued_at - optional)
+                                    <code>signature=...</code> (client_secret key applied to id:issued_at - optional)
                                 </li>
                             </ul>
                         </li>
@@ -1108,12 +828,8 @@
                     </ol>
                 </div>
 
-                <a id="prodBtnDvc" role="button" class="btn btn-primary btn-lg"
-                    >Production</a
-                >
-                <a id="sandBtnDvc" role="button" class="btn btn-primary btn-lg"
-                    >Sandbox</a
-                >
+                <a id="prodBtnDvc" role="button" class="btn btn-primary btn-lg">Production</a>
+                <a id="sandBtnDvc" role="button" class="btn btn-primary btn-lg">Sandbox</a>
             </div>
         </div>
 
@@ -1121,88 +837,53 @@
         <div class="jumbotron" id="refreshToken">
             <div>
                 <h2>OAuth 2.0 Refresh Token Flow</h2>
-                <button
-                    type="button"
-                    class="btn btn-info"
-                    data-toggle="collapse"
-                    data-target="#refreshCollapse"
-                >
+                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#refreshCollapse">
                     Show/Hide
                 </button>
 
                 <div id="refreshCollapse" class="collapse">
                     <ol class="smallFont">
                         <li>
-                            This page contains a JavaScript application that
-                            will use the
+                            This page contains a JavaScript application that will use the
                             <a
                                 href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_refresh_token_flow.htm&type=5"
                             >
                                 OAuth 2.0 Refresh Token flow
                             </a>
-                            . Refresh Token flow can only be implemented for
-                            OAuth which asks users confirmation to validate
-                            connected app like Web Server flow and User Agent
-                            Flow.
+                            . Refresh Token flow can only be implemented for OAuth which asks users confirmation to
+                            validate connected app like Web Server flow and User Agent Flow.
                         </li>
                         <li>
-                            Upon clicking the button, the system is using the
-                            refresh token (stored on the server) to retrieve a
-                            new access token. It sends a POST message to the
-                            token endpoint with the following parameters:
+                            Upon clicking the button, the system is using the refresh token (stored on the server) to
+                            retrieve a new access token. It sends a POST message to the token endpoint with the
+                            following parameters:
                             <ul>
                                 <li><code>grant_type=refresh_token</code></li>
+                                <li><code>client_id=...</code> (client ID of the connected app)</li>
+                                <li><code>refresh_token=...</code> (refresh token stored on server)</li>
+                                <li><code>client_secret=...</code> (optional)</li>
+                                <li><code>client_assertion=...</code> (optional)</li>
                                 <li>
-                                    <code>client_id=...</code> (client ID of the
-                                    connected app)
-                                </li>
-                                <li>
-                                    <code>refresh_token=...</code> (refresh
-                                    token stored on server)
-                                </li>
-                                <li>
-                                    <code>client_secret=...</code> (optional)
-                                </li>
-                                <li>
-                                    <code>client_assertion=...</code> (optional)
-                                </li>
-                                <li>
-                                    <code>
-                                        client_assertion_type=...jwt-bearer
-                                    </code>
+                                    <code> client_assertion_type=...jwt-bearer </code>
                                     (optional)
                                 </li>
                             </ul>
                         </li>
                         <li>
-                            Salesforce checks the refresh token and replies to
-                            the POST message with an access token:
+                            Salesforce checks the refresh token and replies to the POST message with an access token:
                             <ul>
                                 <li><code>token_type=Bearer</code></li>
-                                <li>
-                                    <code>access_token=...</code> (a new access
-                                    token)
-                                </li>
+                                <li><code>access_token=...</code> (a new access token)</li>
                                 <li><code>id=...</code> (identity URL)</li>
-                                <li>
-                                    <code>issued_at=...</code> (time since
-                                    epoch)
-                                </li>
-                                <li>
-                                    <code>signature=...</code> (only if client
-                                    secret is specified)
-                                </li>
+                                <li><code>issued_at=...</code> (time since epoch)</li>
+                                <li><code>signature=...</code> (only if client secret is specified)</li>
                                 <li><code>scope=...</code> (granted scope)</li>
                             </ul>
                         </li>
                     </ol>
                 </div>
-                <a id="prodBtnRef" role="button" class="btn btn-primary btn-lg">
-                    Production
-                </a>
-                <a id="sandBtnRef" role="button" class="btn btn-primary btn-lg">
-                    Sandbox
-                </a>
+                <a id="prodBtnRef" role="button" class="btn btn-primary btn-lg"> Production </a>
+                <a id="sandBtnRef" role="button" class="btn btn-primary btn-lg"> Sandbox </a>
             </div>
         </div>
 
@@ -1210,114 +891,85 @@
         <div class="jumbotron" id="samlAssertion">
             <div>
                 <h2>SAML Assertion Flow</h2>
-                <button
-                    type="button"
-                    class="btn btn-info"
-                    data-toggle="collapse"
-                    data-target="#samlAssertCollapse"
-                >
+                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#samlAssertCollapse">
                     Show/Hide
                 </button>
                 <div id="samlAssertCollapse" class="collapse">
                     <ol class="smallFont">
                         <li>
-                            This page contains a JavaScript application that
-                            will use the
+                            This page contains a JavaScript application that will use the
                             <a
                                 href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_sso_flow.htm&type=5"
                             >
                                 SAML Assertion Flow </a
-                            >. This flow relies on the trustworthiness of the
-                            Identity Provider that is used for SAML SSO in the
-                            Salesforce org.
+                            >. This flow relies on the trustworthiness of the Identity Provider that is used for SAML
+                            SSO in the Salesforce org.
                         </li>
                         <li>
-                            To prepare for this flow, we first need to generate
-                            a SAML response and store it locally. To do this,
-                            take the following actions:
+                            To prepare for this flow, we first need to generate a SAML response and store it locally. To
+                            do this, take the following actions:
                             <ol>
                                 <li>
                                     Navigate to
-                                    <a
-                                        href="https://axiomsso.herokuapp.com/RequestSamlResponse.action"
+                                    <a href="https://axiomsso.herokuapp.com/RequestSamlResponse.action"
                                         >Axiom SSO SAML Response Requester</a
-                                    >. Make sure that the data entered here is
-                                    an exact match with your Single Sign-On
-                                    (SSO) setup in Salesforce and generate the
-                                    response.
+                                    >. Make sure that the data entered here is an exact match with your Single Sign-On
+                                    (SSO) setup in Salesforce and generate the response.
                                 </li>
                                 <li>
-                                    Copy the plain text SAML response and paste
-                                    it in a file under
-                                    './data/axiomSamlAssertion.xml'. Remove any
-                                    newlines from the file before saving (e.g.
-                                    using find-replace).
+                                    Copy the plain text SAML response and paste it in a file under
+                                    './data/axiomSamlAssertion.xml'. Remove any newlines from the file before saving
+                                    (e.g. using find-replace).
                                 </li>
                                 <li>
-                                    Note: a SAML assertion is only valid once
-                                    and only for a limited amount of time. Using
-                                    Axiom, there's 60 seconds before your
-                                    assertion is no longer valid.
+                                    Note: a SAML assertion is only valid once and only for a limited amount of time.
+                                    Using Axiom, there's 60 seconds before your assertion is no longer valid.
                                 </li>
                             </ol>
                         </li>
                         <li>
-                            Upon clicking the button, the application will take
-                            a locally stored SAML response and encode it for
-                            sending to Salesforce. It sends a POST message to
-                            the token endpoint with the following parameters:
+                            Upon clicking the button, the application will take a locally stored SAML response and
+                            encode it for sending to Salesforce. It sends a POST message to the token endpoint with the
+                            following parameters:
                             <ul>
                                 <li>
                                     <code>grant_type=assertion</code>
                                 </li>
                                 <li>
-                                    <code
-                                        >assertion_type=urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser</code
-                                    >
+                                    <code>assertion_type=urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser</code>
                                 </li>
                                 <li>
                                     <code
-                                        >assertion=&lt;XML SAML response, first
-                                        base64 encoded, then URL
+                                        >assertion=&lt;XML SAML response, first base64 encoded, then URL
                                         encoded&gt;</code
                                     >
                                 </li>
                             </ul>
-                            Note that in a real-world application, the SAML
-                            response would be requested to the Identity Provider
-                            at the moment of the user action rather than stored
-                            locally. Especially because SAML responses are only
-                            valid for a limited amount of time.
+                            Note that in a real-world application, the SAML response would be requested to the Identity
+                            Provider at the moment of the user action rather than stored locally. Especially because
+                            SAML responses are only valid for a limited amount of time.
                         </li>
                         <li>
-                            Salesforce decodes the assertion and checks the SAML
-                            response. The validity of the response can be
-                            checked manually with the
-                            <a
-                                href="https://help.salesforce.com/articleView?id=sso_saml_validation.htm&type=5"
+                            Salesforce decodes the assertion and checks the SAML response. The validity of the response
+                            can be checked manually with the
+                            <a href="https://help.salesforce.com/articleView?id=sso_saml_validation.htm&type=5"
                                 >SAML validator</a
                             >
-                            in the Single Sign-On setting of the Salesforce
-                            setup. The key parameters that are checked:
+                            in the Single Sign-On setting of the Salesforce setup. The key parameters that are checked:
                             <ul>
                                 <li>
-                                    Username or Federation ID is checked against
-                                    the User object. If there is no match, the
-                                    authorization fails except if JIT
-                                    provisioning was enabled.
+                                    Username or Federation ID is checked against the User object. If there is no match,
+                                    the authorization fails except if JIT provisioning was enabled.
                                 </li>
                                 <li>
-                                    Issuer (Identity Provider) and Entity ID
-                                    (Audience) should be matching with the SSO
+                                    Issuer (Identity Provider) and Entity ID (Audience) should be matching with the SSO
                                     setup inside Salesforce.
                                 </li>
                                 <li>
-                                    Recipient should match the My Domain name of
-                                    the Salesforce instance if present.
+                                    Recipient should match the My Domain name of the Salesforce instance if present.
                                 </li>
                                 <li>
-                                    Signature of the SAML response should be
-                                    signed with the certificate provided in the
+                                    Signature of the SAML response should be signed with the certificate provided in the
                                     SSO setup of Salesforce.
                                 </li>
                             </ul>
@@ -1326,46 +978,86 @@
                 </div>
 
                 <!-- Buttons to launch flow -->
-                <a
-                    id="prodBtnSamlAssert"
-                    role="button"
-                    class="btn btn-primary btn-lg"
-                >
-                    Production
-                </a>
-                <a
-                    id="sandBtnSamlAssert"
-                    role="button"
-                    class="btn btn-primary btn-lg"
-                >
-                    Sandbox
-                </a>
+                <a id="prodBtnSamlAssert" role="button" class="btn btn-primary btn-lg"> Production </a>
+                <a id="sandBtnSamlAssert" role="button" class="btn btn-primary btn-lg"> Sandbox </a>
             </div>
         </div>
 
         <!-- SAML Bearer Assertion Flow -->
         <div class="jumbotron" id="samlBearerAssertion">
             <div>
-                <h2>SAML Bearer Assertion Flow</h2>
-                <div>
-                    <i><b> To be Implemented </b></i>
+                <h2>OAuth 2.0 SAML Bearer Assertion Flow</h2>
+                <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#samlBearerCollapse">
+                    Show/Hide
+                </button>
+
+                <div id="samlBearerCollapse" class="collapse">
+                    <ol class="smallfont">
+                        <li>
+                            This page contains a JavaScript application that will use the
+                            <a
+                                href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_SAML_bearer_flow.htm&type=5"
+                            >
+                                OAuth 2.0 SAML Bearer Assertion Flow </a
+                            >. This flow relies on the digital signature for authentication and leverages previous
+                            authorizations.
+                        </li>
+                        <li>
+                            Upon clicking the button, the system is generating a SAML bearer token (containing client
+                            id, audience, name identifier) and POSTs is to the token endpoint using the following
+                            parameters:
+                            <ul>
+                                <li>
+                                    <code> grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer </code>
+                                </li>
+                                <li>
+                                    <code> assertion=&lt;base64url(SAML bearer Token)&gt; </code> - signed with private
+                                    key corresponding to the certificate uploaded in the Connected App.
+                                </li>
+                                <li>
+                                    Scope can't be specified, it's always determined in the following way:
+                                    <ul>
+                                        <li>
+                                            If admins pre-authorize (using profile / permission set), scope parameter is
+                                            optional. If not specified, all scopes defined in the connected app are
+                                            granted.
+                                        </li>
+                                        <li>
+                                            If users can self-authorize, scope is not taken into account. You need to
+                                            first use another flow (like User-Agent or Web-Server) to grant explicit
+                                            authorization for the scopes you need. This flow needs to return a refresh
+                                            token. The scope returned by the JWT flow is the combination of all
+                                            previously granted scopes where a refresh token was returned.
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            Salesforce checks the signature and assertion (containing user ID). Then checks previous
+                            authorizations before granting access token.
+                        </li>
+                        <li>
+                            Access token gets returned and callback function processes and stores access token for use.
+                            Following parameters are returned:
+                            <ul>
+                                <li>
+                                    <code> access_token=... </code>
+                                </li>
+                                <li>
+                                    <code> token_type=Bearer </code>
+                                </li>
+                                <li><code> id=... </code> (identity URL)</li>
+                                <li><code> id_token=... </code> (identity token - OpenID)</li>
+                            </ul>
+                        </li>
+                        <li>Access token is used to query Salesforce.</li>
+                    </ol>
                 </div>
 
                 <!-- Buttons to launch flow -->
-                <a
-                    id="prodBtnSamlBearer"
-                    role="button"
-                    class="btn btn-primary btn-lg"
-                >
-                    Production
-                </a>
-                <a
-                    id="sandBtnSamlBearer"
-                    role="button"
-                    class="btn btn-primary btn-lg"
-                >
-                    Sandbox
-                </a>
+                <a id="prodBtnSamlBearer" role="button" class="btn btn-primary btn-lg"> Production </a>
+                <a id="sandBtnSamlBearer" role="button" class="btn btn-primary btn-lg"> Sandbox </a>
             </div>
         </div>
     </body>
