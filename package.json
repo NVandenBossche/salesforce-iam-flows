@@ -5,7 +5,8 @@
   "main": "Server.js",
   "prettier": {
     "jsxBracketSameLine": true,
-    "tabWidth": 4
+    "tabWidth": 4,
+    "printWidth": 120
   },
   "scripts": {
     "start": "node Server.js",
