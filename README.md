@@ -24,3 +24,6 @@ Then run `npm start`, or `nodemon Server.js (if installed previously)` it will s
 
 ### Step 6
 Navigate to `https://localhost:8081/` in your browser and you would see option for all **3 Auth flow - JWT, User Agent and Web Server**.
+
+### Step 7
+If you're testing locally, make sure the date & time are set automatically on your local machine to avoid time skew in your messages.
