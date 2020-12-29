@@ -115,7 +115,7 @@ function createClientAssertion() {
         exp: Math.floor(new Date() / 1000) + 60 * 3,
     };
 
-    return signJWTClaims(assertionData);
+    return signJwtClaims(assertionData);
 }
 
 /**
@@ -141,7 +141,7 @@ function generateCodeChallenge(verifier) {
 
 /**
  * Create a JSON Web Token that is signed using the private key stored in 'key.pem'.
- * It first creates the Claims JSON and passes it to the
+ * It first creates the Claims JSON and passes it to the signJwtClaims method.
  * @param {String} sfdcUserName
  */
 function getSignedJWT(sfdcUserName) {
@@ -152,7 +152,7 @@ function getSignedJWT(sfdcUserName) {
         exp: Math.floor(Date.now() / 1000) + 60 * 3,
     };
 
-    return signJWTClaims(claims);
+    return signJwtClaims(claims);
 }
 
 /**
@@ -163,7 +163,7 @@ function getSignedJWT(sfdcUserName) {
  *  issuer (client ID), subject (Salesforce username), audience (login/test)
  *  and expiration.
  */
-function signJWTClaims(claims) {
+function signJwtClaims(claims) {
     var absolutePath = path.resolve("key.pem");
     var privateKey = fs.readFileSync(absolutePath);
 
@@ -175,6 +175,11 @@ function signJWTClaims(claims) {
     return jwt_token_b64;
 }
 
+/**
+ * Create a SAML Bearer Token that is signed using the private key stored in 'key.pem'.
+ * It first creates the list of SAML claims and passes it to the create method of the saml library.
+ * @returns {String} The signed SAML Bearer token in utf-8 encoding.
+ */
 function getSignedSamlToken() {
     let signedSamlToken;
 
