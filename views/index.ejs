@@ -13,91 +13,31 @@
         <script>
             // Clear all cookies upon the loading of the page
             function clearAllCookies() {
-                $.cookie("AccToken", "");
-                $.cookie("APIVer", "");
-                $.cookie("InstURL", "");
-                $.cookie("idURL", "");
-                $.cookie("LoggeduserId", "");
+                $.cookie('AccToken', '');
+                $.cookie('APIVer', '');
+                $.cookie('InstURL', '');
+                $.cookie('idURL', '');
+                $.cookie('LoggeduserId', '');
             }
 
-            // Initializes the redirects that will happen when clicking the production / sandbox buttons on each of the flows.
-            function initialiseButtons() {
-                // Redirect for User Agent flow
-                $("#prodBtn").click(function () {
-                    window.location = "uAgent?isSandbox=false";
-                });
-                $("#sandBtn").click(function () {
-                    window.location = "uAgent?isSandbox=true";
-                });
+            // Single method for launching any of the flows
+            function launchFlow(flowName, isSandbox, type) {
+                // Initialize the redirect URL
+                let newLocation = flowName + '?isSandbox=' + isSandbox;
 
-                // Redirect for Device Authentication flow
-                $("#prodBtnDvc").click(function () {
-                    window.location = "device?isSandbox=false";
-                });
-                $("#sandBtnDvc").click(function () {
-                    window.location = "device?isSandbox=true";
-                });
+                // Add parameters to the URL where needed
+                if (type) {
+                    newLocation += '&type=' + type;
+                }
+                if (flowName === 'jwt') {
+                    newLocation += '&jwtUserName=' + $('#jwtUserName').val();
+                }
 
-                // Redirect for Web Server flow using a client secret
-                $("#prodBtnWSsecret").click(function () {
-                    window.location = "webServer?isSandbox=false&type=secret";
-                });
-                $("#sandBtnWSsecret").click(function () {
-                    window.location = "webServer?isSandbox=true&type=secret";
-                });
-
-                // Redirect for Web Server flow using a client assertion
-                $("#prodBtnWSassertion").click(function () {
-                    window.location = "webServer?isSandbox=false&type=assertion";
-                });
-                $("#sandBtnWSassertion").click(function () {
-                    window.location = "webServer?isSandbox=true&type=assertion";
-                });
-
-                // Redirect for Web Server flow without client secret or assertion
-                $("#prodBtnWSnone").click(function () {
-                    window.location = "webServer?isSandbox=false&type=none";
-                });
-                $("#sandBtnWSnone").click(function () {
-                    window.location = "webServer?isSandbox=true&type=none";
-                });
-
-                // Redirect for JWT Bearer Assertion flow
-                $("#prodBtnR").click(function () {
-                    window.location = "jwt?isSandbox=false&jwtUserName=" + $("#jwtUserName").val();
-                });
-                $("#sandBtnR").click(function () {
-                    window.location = "jwt?isSandbox=true&jwtUserName=" + $("#jwtUserName").val();
-                });
-
-                // Redirect for Refresh Token flow
-                $("#prodBtnRef").click(function () {
-                    window.location = "refresh?isSandbox=false";
-                });
-                $("#sandBtnRef").click(function () {
-                    window.location = "refresh?isSandbox=true";
-                });
-
-                // Redirect for SAML Assertion flow
-                $("#prodBtnSamlAssert").click(function () {
-                    window.location = "samlAssert?isSandbox=false";
-                });
-                $("#sandBtnSamlAssert").click(function () {
-                    window.location = "samlAssert?isSandbox=true";
-                });
-
-                // Redirect for SAML Bearer Assertion flow
-                $("#prodBtnSamlBearer").click(function () {
-                    window.location = "samlBearer?isSandbox=false";
-                });
-                $("#sandBtnSamlBearer").click(function () {
-                    window.location = "samlBearer?isSandbox=true";
-                });
+                window.location = newLocation;
             }
 
             function onload() {
                 clearAllCookies();
-                initialiseButtons();
             }
 
             window.onload = onload;
@@ -233,8 +173,22 @@
                     </li>
                 </ol>
             </div>
-            <a id="prodBtn" role="button" style="margin-right: 40px" class="btn btn-primary btn-lg">Production</a>
-            <a id="sandBtn" role="button" class="btn btn-primary btn-lg">Sandbox</a>
+            <button
+                id="userAgentProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('uAgent', false)"
+            >
+                Production
+            </button>
+            <button
+                id="userAgentSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('uAgent', true)"
+            >
+                Sandbox
+            </button>
         </div>
 
         <!-- Web Server Flow -->
@@ -374,8 +328,22 @@
                         </li>
                     </ol>
                 </div>
-                <a id="prodBtnWSsecret" role="button" class="btn btn-primary btn-lg">Production</a>
-                <a id="sandBtnWSsecret" role="button" class="btn btn-primary btn-lg">Sandbox</a>
+                <button
+                    id="webServerSecretProduction"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('webServer', false, 'secret')"
+                >
+                    Production
+                </button>
+                <button
+                    id="webServerSecretSandbox"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('webServer', true, 'secret')"
+                >
+                    Sandbox
+                </button>
             </div>
             <div>
                 <h3>Web Server Flow with Client Assertion</h3>
@@ -486,8 +454,22 @@
                         </li>
                     </ol>
                 </div>
-                <a id="prodBtnWSassertion" role="button" class="btn btn-primary btn-lg">Production</a>
-                <a id="sandBtnWSassertion" role="button" class="btn btn-primary btn-lg">Sandbox</a>
+                <button
+                    id="webServerAssertionProduction"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('webServer', false, 'assertion')"
+                >
+                    Production
+                </button>
+                <button
+                    id="webServerAssertionSandbox"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('webServer', true, 'assertion')"
+                >
+                    Sandbox
+                </button>
             </div>
             <div>
                 <h3>Web Server Flow without Client Secret or Assertion</h3>
@@ -592,8 +574,22 @@
                     </ol>
                 </div>
 
-                <a id="prodBtnWSnone" role="button" class="btn btn-primary btn-lg">Production</a>
-                <a id="sandBtnWSnone" role="button" class="btn btn-primary btn-lg">Sandbox</a>
+                <button
+                    id="webServerNoneProduction"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('webServer', false, 'none')"
+                >
+                    Production
+                </button>
+                <button
+                    id="webServerNoneSandbox"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('webServer', true, 'none')"
+                >
+                    Sandbox
+                </button>
             </div>
         </div>
 
@@ -671,8 +667,17 @@
                     </ol>
                 </div>
 
-                <a id="prodBtnR" role="button" class="btn btn-primary btn-lg">Production</a>
-                <a id="sandBtnR" role="button" class="btn btn-primary btn-lg">Sandbox</a>
+                <button
+                    id="jwtProduction"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('jwt', false)"
+                >
+                    Production
+                </button>
+                <button id="jwtSandbox" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('jwt', true)">
+                    Sandbox
+                </button>
             </div>
         </div>
 
@@ -828,8 +833,22 @@
                     </ol>
                 </div>
 
-                <a id="prodBtnDvc" role="button" class="btn btn-primary btn-lg">Production</a>
-                <a id="sandBtnDvc" role="button" class="btn btn-primary btn-lg">Sandbox</a>
+                <button
+                    id="deviceProduction"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('device', false)"
+                >
+                    Production
+                </button>
+                <button
+                    id="deviceSandbox"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('device', true)"
+                >
+                    Sandbox
+                </button>
             </div>
         </div>
 
@@ -882,8 +901,23 @@
                         </li>
                     </ol>
                 </div>
-                <a id="prodBtnRef" role="button" class="btn btn-primary btn-lg"> Production </a>
-                <a id="sandBtnRef" role="button" class="btn btn-primary btn-lg"> Sandbox </a>
+
+                <button
+                    id="refreshProduction"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('refresh', false)"
+                >
+                    Production
+                </button>
+                <button
+                    id="refreshSandbox"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('refresh', true)"
+                >
+                    Sandbox
+                </button>
             </div>
         </div>
 
@@ -978,8 +1012,22 @@
                 </div>
 
                 <!-- Buttons to launch flow -->
-                <a id="prodBtnSamlAssert" role="button" class="btn btn-primary btn-lg"> Production </a>
-                <a id="sandBtnSamlAssert" role="button" class="btn btn-primary btn-lg"> Sandbox </a>
+                <button
+                    id="samlAssertProduction"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('samlAssert', false)"
+                >
+                    Production
+                </button>
+                <button
+                    id="samlAssertSandbox"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('samlAssert', true)"
+                >
+                    Sandbox
+                </button>
             </div>
         </div>
 
@@ -1056,8 +1104,22 @@
                 </div>
 
                 <!-- Buttons to launch flow -->
-                <a id="prodBtnSamlBearer" role="button" class="btn btn-primary btn-lg"> Production </a>
-                <a id="sandBtnSamlBearer" role="button" class="btn btn-primary btn-lg"> Sandbox </a>
+                <button
+                    id="samlBearerProduction"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('samlBearer', false)"
+                >
+                    Production
+                </button>
+                <button
+                    id="samlBearerSandbox"
+                    role="button"
+                    class="btn btn-primary btn-lg"
+                    onclick="launchFlow('samlBearer', true)"
+                >
+                    Sandbox
+                </button>
             </div>
         </div>
     </body>
