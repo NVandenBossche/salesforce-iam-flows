@@ -58,15 +58,23 @@
             <div style="display: flex">
                 <div style="width: 80%; float: left">
                     <p>
-                        This is a Node.js application with as sole purpose to try out and understand the different OAuth
-                        flows for authorization on the Salesforce platform. The goal is to help others on their journey
-                        to CTA (Certified Technical Architect) by providing them with a deeper understanding of this
-                        part of Identity and Access Management.
+                        This is a Node.js application with as sole purpose to practice and understand the different
+                        OAuth flows for authorization on the Salesforce platform. The goal is to help others on their
+                        journey to CTA (Certified Technical Architect) by providing them with a deeper understanding of
+                        Identity and Access Management.
                     </p>
-                    <div style="font-size: smaller">
-                        based on template by <a href="https://jitendrazaa.com/"> Jitendra Zaa </a> and inspired by
-                        <a href="https://cloudsundial.com/about-me"> Lawrence Newcombe </a>
-                    </div>
+                    <p>
+                        The navigation bar allows you to go the section of a specific flow. Each section will show you a
+                        sequence diagram of that flow. By clicking the "Show/Hide Details" button you can read a more
+                        detailed explanation of what is happening in the background. By clicking the "Production" or
+                        "Sandbox" buttons, you can launch the authorization flow.
+                    </p>
+                    <p>
+                        This application is based on a template by
+                        <a href="https://jitendrazaa.com/"> Jitendra Zaa </a>
+                        and inspired by conversations with and diagrams by
+                        <a href="https://cloudsundial.com/about-me"> Lawrence Newcombe </a>.
+                    </p>
                 </div>
                 <div style="width: 20%; float: right">
                     <img style="height: inherit" src="Salesforce.png" />
@@ -77,6 +85,13 @@
         <!-- User Agent Flow -->
         <div class="jumbotron" id="userAgentFlow">
             <h2>User Agent Flow</h2>
+            <figure>
+                <img
+                    class="authdiagram"
+                    src="https://cloudsundial.com/sites/default/files/2020-05/User%20Agent%203000.png"
+                />
+                <figcaption>User Agent flow diagram - created by Lawrence Newcombe</figcaption>
+            </figure>
             <button
                 type="button"
                 style="margin-right: 40px"
@@ -84,13 +99,13 @@
                 data-toggle="collapse"
                 data-target="#userAgentCollapse"
             >
-                Show/Hide
+                Show/Hide Details
             </button>
 
-            <div id="userAgentCollapse" class="collapse">
+            <div id="userAgentCollapse" class="in">
                 <ol class="smallFont">
                     <li>
-                        This page contains a JavaScript application that will use the
+                        This section covers the
                         <a
                             href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_user_agent_flow.htm&type=5&sfdcIFrameOrigin=null"
                         >
@@ -98,37 +113,35 @@
                         >
                     </li>
                     <li>
-                        Upon clicking the button, the user is redirected to Salesforce to the Authorization Endpoint
-                        using GET method with the following parameters:
+                        Upon clicking the button, the user is redirected with an HTTP GET to the Salesforce
+                        Authorization Endpoint (Authorization Server) with the following parameters:
                         <ul>
                             <li>
                                 <code>response_type=token</code> OR
                                 <code>response_type=token%20id_token</code>
                             </li>
-                            <li>
-                                <code>client_id=&lt;Connected App client_id&gt;</code>
-                            </li>
+                            <li><code>client_id=<%= clientId %></code> (client ID from environment variables)</li>
                             <li>
                                 <code>redirect_uri=<%= callbackURL %></code>
                             </li>
                             <li>
-                                <code>scope=&lt;Scope parameters&gt;</code>
-                                (optional - uses scope defined in Connected App if not specified)
+                                <code>scope=&lt;Scope parameters&gt;</code> (see
+                                <a
+                                    href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_tokens_scopes.htm&type=5"
+                                >
+                                    OAuth Tokens and Scopes
+                                </a>
+                                )
                             </li>
                             <li>
-                                <code>state=&lt;UniqueIdentifier&gt;</code>
-                                (prevents CSRF - other websites sending on behalf of this one)
+                                <code>state=&lt;Unique Identifier&gt;</code>
                             </li>
                             <li>
-                                <code>nonce=&lt;highEntropyCode&gt;</code>
-                                (prevents replay attack for Open ID)
+                                <code>nonce=&lt;High Entropy Code&gt;</code>
                             </li>
                         </ul>
                     </li>
-                    <li>
-                        Salesforce requests the user to log in and authorize the Connected App (this Node.js
-                        application)
-                    </li>
+                    <li>Salesforce requests the user to log in and authorize the Connected App.</li>
                     <li>
                         After successful authorization, Salesforce redirects to the callback URL (<%= callbackURL %>),
                         passing along the Access Token.
@@ -136,17 +149,49 @@
                     <li>
                         The callback page parses the returned data
                         <ul>
-                            <li><code>access_token=00D...</code></li>
                             <li><code>token_type=Bearer</code></li>
+                            <li><code>access_token=&lt;Access Token&gt;</code></li>
                             <li>
-                                <code>id_token=...</code> (contains information about the user's identity - only when
-                                specifying <code>openid</code> scope
+                                <code>id_token=&lt;ID Token&gt;</code> (contains information about the user's identity
+                                when specified in the response_type)
                             </li>
-                            <li><code>refresh_token=...</code></li>
+                            <li><code>refresh_token=&lt;Refresh Token&gt;</code></li>
                             <li><code>instance_url=<%= baseURL %></code></li>
                             <li><code>id=&lt;Identity URL&gt;</code></li>
-                            <li><code>signature=...</code> (client_secret key applied to id:issued_at - optional)</li>
+                            (where you can retrieve additional user data if not present in ID token)
+                            <li>
+                                <code>signature=&lt;Signature for Open ID&gt;</code> (client_secret key applied to
+                                id:issued_at - optional)
+                            </li>
                         </ul>
+                    </li>
+                    <li>
+                        There are a few important scenarios to keep in mind where malicious actors can be involved:
+                        <ol>
+                            <li>
+                                A malicious app tries to access resources they are not allowed to. This is blocked by
+                                the scope parameter of the Connected App. For example, even if the user has the
+                                permission to post on chatter through its permissions, the malicious app will not be
+                                able to post on chatter if the <code>chatter_api</code> scope wasn't enabled for the
+                                Connected App.
+                            </li>
+                            <li>
+                                A malicious app tries to send a user-agent request on behalf of the actual app
+                                (Cross-Site Request Forging or CSRF). This is blocked by the state parameter where the
+                                actual app sends a unique identifier for every user-agent request. Only if the actual
+                                app sees the same state being posted on the callback URL endpoint, it will know that the
+                                original request was originated from its context.
+                            </li>
+                            <li>
+                                A malicious app tries to replay a response from the authorisation server that contains
+                                an (OpenID) ID token to impact user data. The nonce is used to detect such replay
+                                attacks, i.e. two responses with the same nonce should only be processed once. More
+                                details
+                                <a href="https://openid.net/specs/openid-connect-core-1_0.html#ImplicitIDToken">
+                                    here </a
+                                >.
+                            </li>
+                        </ol>
                     </li>
                 </ol>
             </div>
@@ -178,10 +223,10 @@
                 data-toggle="collapse"
                 data-target="#wsintro"
             >
-                Show/Hide
+                Show/Hide Details
             </button>
 
-            <div id="wsintro" class="collapse">
+            <div id="wsintro" class="in">
                 <div>
                     This section contains a JavaScript application that will use the
                     <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
@@ -209,10 +254,10 @@
             <div>
                 <h3>Web Server Flow with Client Secret</h3>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsclientsecret">
-                    Show/Hide
+                    Show/Hide Details
                 </button>
 
-                <div id="wsclientsecret" class="collapse">
+                <div id="wsclientsecret" class="in">
                     <p>
                         This section contains a JavaScript application that will use the
                         <a
@@ -325,10 +370,10 @@
             <div>
                 <h3>Web Server Flow with Client Assertion</h3>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsclientassertion">
-                    Show/Hide
+                    Show/Hide Details
                 </button>
 
-                <div id="wsclientassertion" class="collapse">
+                <div id="wsclientassertion" class="in">
                     <p>
                         This section contains a JavaScript application that will use the
                         <a
@@ -451,10 +496,10 @@
             <div>
                 <h3>Web Server Flow without Client Secret or Assertion</h3>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsnone">
-                    Show/Hide
+                    Show/Hide Details
                 </button>
 
-                <div id="wsnone" class="collapse">
+                <div id="wsnone" class="in">
                     <p>
                         This section contains a JavaScript application that will use the
                         <a
@@ -575,10 +620,10 @@
             <div>
                 <h2>JWT Bearer Assertion OAuth 2.0 Flow</h2>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#jwtCollapse">
-                    Show/Hide
+                    Show/Hide Details
                 </button>
 
-                <div id="jwtCollapse" class="collapse">
+                <div id="jwtCollapse" class="in">
                     <p>
                         <i class="note">
                             <a href="https://jwt.io/">
@@ -663,10 +708,10 @@
             <div>
                 <h2>OAuth 2.0 Username-Password Flow</h2>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#upCollapse">
-                    Show/Hide
+                    Show/Hide Details
                 </button>
 
-                <div id="upCollapse" class="collapse">
+                <div id="upCollapse" class="in">
                     <ol class="smallFont">
                         <li>
                             This page contains a JavaScript application that will use the
@@ -745,10 +790,10 @@
             <div>
                 <h2>OAuth 2.0 Device Authentication Flow</h2>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#deviceCollapse">
-                    Show/Hide
+                    Show/Hide Details
                 </button>
 
-                <div id="deviceCollapse" class="collapse">
+                <div id="deviceCollapse" class="in">
                     <ol class="smallFont">
                         <li>Make sure Device Authentication flow is enabled in Connected App</li>
                         <li>
@@ -834,10 +879,10 @@
             <div>
                 <h2>OAuth 2.0 Refresh Token Flow</h2>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#refreshCollapse">
-                    Show/Hide
+                    Show/Hide Details
                 </button>
 
-                <div id="refreshCollapse" class="collapse">
+                <div id="refreshCollapse" class="in">
                     <ol class="smallFont">
                         <li>
                             This page contains a JavaScript application that will use the
@@ -903,9 +948,9 @@
             <div>
                 <h2>SAML Assertion Flow</h2>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#samlAssertCollapse">
-                    Show/Hide
+                    Show/Hide Details
                 </button>
-                <div id="samlAssertCollapse" class="collapse">
+                <div id="samlAssertCollapse" class="in">
                     <ol class="smallFont">
                         <li>
                             This page contains a JavaScript application that will use the
@@ -1013,10 +1058,10 @@
             <div>
                 <h2>OAuth 2.0 SAML Bearer Assertion Flow</h2>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#samlBearerCollapse">
-                    Show/Hide
+                    Show/Hide Details
                 </button>
 
-                <div id="samlBearerCollapse" class="collapse">
+                <div id="samlBearerCollapse" class="in">
                     <ol class="smallfont">
                         <li>
                             This page contains a JavaScript application that will use the
