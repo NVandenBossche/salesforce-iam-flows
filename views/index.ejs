@@ -102,7 +102,7 @@
                 Show/Hide Details
             </button>
 
-            <div id="userAgentCollapse" class="in">
+            <div id="userAgentCollapse" class="collapse">
                 <ol class="smallFont">
                     <li>
                         This section covers the
@@ -143,8 +143,9 @@
                     </li>
                     <li>Salesforce requests the user to log in and authorize the Connected App.</li>
                     <li>
-                        After successful authorization, Salesforce redirects to the callback URL (<%= callbackURL %>),
-                        passing along the Access Token.
+                        After successful authorization, Salesforce redirects to the callback URL (<%= callbackURL %>) if
+                        it matches with the redirect_uri specified in the Connected App. It passes along the Access
+                        Token in the URL.
                     </li>
                     <li>
                         The callback page parses the returned data
@@ -191,6 +192,15 @@
                                     here </a
                                 >.
                             </li>
+                            <li>
+                                A malicious, but seemingly harmless app is installed on your phone. It comes with an
+                                embedded browser inside the app which is used to launch the User-Agent flow. However,
+                                the embedded browser actually captures username and password while typing. This is
+                                something very difficult to block and requires educating the user to not type
+                                credentials in an embedded browser unless you really trust the app. It's better to work
+                                with a Web-Server flow without client secret or assertion where a trusted mobile browser
+                                is used for launching the auth flow (see lower).
+                            </li>
                         </ol>
                     </li>
                 </ol>
@@ -216,6 +226,13 @@
         <!-- Web Server Flow -->
         <div class="jumbotron" id="webServer">
             <h2>Web Server Flow</h2>
+            <figure>
+                <img
+                    class="authdiagram"
+                    src="https://cloudsundial.com/sites/default/files/2020-06/Web%20Server%202600.png"
+                />
+                <figcaption>Web Server flow diagram - created by Lawrence Newcombe</figcaption>
+            </figure>
             <button
                 type="button"
                 style="margin-right: 40px"
@@ -228,7 +245,7 @@
 
             <div id="wsintro" class="in">
                 <div>
-                    This section contains a JavaScript application that will use the
+                    This section covers the
                     <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
                         >OAuth 2.0 Web Server flow</a
                     >.
@@ -238,15 +255,15 @@
                     <ol>
                         <li>
                             Web Server flow with a client secret: when using a secure web server that can store a client
-                            secret
+                            secret.
                         </li>
                         <li>
                             Web Server flow with a client assertion: when using a secure web server that has a private
-                            key to sign the message
+                            key to sign the message.
                         </li>
                         <li>
                             Web Server flow without client secret or assertion: when using a client application (browser
-                            / mobile app) that uses an external browser for auth
+                            / mobile app) that uses an external browser for authorization.
                         </li>
                     </ol>
                 </div>
