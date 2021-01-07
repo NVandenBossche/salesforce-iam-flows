@@ -893,6 +893,13 @@
         <div class="jumbotron" id="usernamePassword">
             <div>
                 <h2>OAuth 2.0 Username-Password Flow</h2>
+                <figure>
+                    <img
+                        class="authdiagram"
+                        src="https://cloudsundial.com/sites/default/files/2020-05/Password%203000.png"
+                    />
+                    <figcaption>Username-Password flow diagram - created by Lawrence Newcombe</figcaption>
+                </figure>
                 <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#upCollapse">
                     Show/Hide Details
                 </button>
@@ -900,7 +907,7 @@
                 <div id="upCollapse" class="in">
                     <ol class="smallFont">
                         <li>
-                            This page contains a JavaScript application that will use the
+                            This section covers the
                             <a
                                 href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_username_password_flow.htm&type=5"
                             >
@@ -916,9 +923,9 @@
                             method, using the following parameters:
                             <ul>
                                 <li><code>grant_type=password</code></li>
-                                <li><code>username=<%= username %></code></li>
-                                <li><code>password=password</code></li>
                                 <li><code>client_id=<%= clientId %></code></li>
+                                <li><code>username=&lt;Username&gt;</code></li>
+                                <li><code>password=&lt;Password&gt;</code></li>
                                 <li>
                                     <code>client_secret=<%= clientSecret %></code>
                                 </li>
@@ -930,8 +937,8 @@
                             Access token gets returned and callback function processes and stores access token for use.
                             Following parameters are returned:
                             <ul>
-                                <li><code>access_token=...</code></li>
                                 <li><code>token_type=Bearer</code></li>
+                                <li><code>access_token=&lt;Access Token&gt;</code></li>
                                 <li>
                                     <code>instance_url=<%= baseURL %></code>
                                 </li>
@@ -943,6 +950,15 @@
                             </ul>
                         </li>
                         <li>Access token is used to query Salesforce.</li>
+                        <li>
+                            There are a few important scenarios to keep in mind where malicious actors can be involved:
+                            <ol>
+                                <li>
+                                    A malicious actor monitors web traffic and can read username and password in plain
+                                    text. This actor then abuses the credentials for malicious purposes.
+                                </li>
+                            </ol>
+                        </li>
                     </ol>
                 </div>
 
