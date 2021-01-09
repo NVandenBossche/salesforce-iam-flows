@@ -1,0 +1,7 @@
+{
+    "name": "Salesforce OAuth Flows Node.js application",
+    "description": "This is a Node.js application with as sole purpose to practice and understand the different OAuth flows for authorization on the Salesforce platform.",
+    "repository": "https://github.com/NVandenBossche/salesforce-iam-flows",
+    "keywords": ["salesforce", "iam", "identity", "access", "oauth", "authorization", "authentication"]
+  }
+  
