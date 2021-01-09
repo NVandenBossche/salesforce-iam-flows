@@ -1102,8 +1102,11 @@
                     <ol class="smallFont">
                         <li>
                             This section covers the
-                            <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_sso_flow.htm&type=5">
-                                SAML Assertion Flow </a>. This flow relies on the trustworthiness of the Identity Provider that is used for SAML
+                            <a
+                                href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_sso_flow.htm&type=5"
+                            >
+                                SAML Assertion Flow </a
+                            >. This flow relies on the trustworthiness of the Identity Provider that is used for SAML
                             SSO in the Salesforce org.
                         </li>
                         <li>
@@ -1117,7 +1120,9 @@
                                 </li>
                                 <li>
                                     Navigate to
-                                    <a href="https://axiomsso.herokuapp.com/RequestSamlResponse.action"> Axiom SSO SAML Response Requester </a>. Make sure that the data entered here is an exact match with your Single Sign-On
+                                    <a href="https://axiomsso.herokuapp.com/RequestSamlResponse.action">
+                                        Axiom SSO SAML Response Requester </a
+                                    >. Make sure that the data entered here is an exact match with your Single Sign-On
                                     (SSO) setup in Salesforce and generate the response.
                                 </li>
                                 <li>
@@ -1155,7 +1160,7 @@
                         <li>
                             Salesforce decodes the assertion and checks the SAML response. The validity of the response
                             can be checked manually with the
-                            <a href="https://help.salesforce.com/articleView?id=sso_saml_validation.htm&type=5"></a>
+                            <a href="https://help.salesforce.com/articleView?id=sso_saml_validation.htm&type=5">
                                 SAML validator
                             </a>
                             in the Single Sign-On setting of the Salesforce setup. The key parameters that are checked:
@@ -1322,8 +1327,9 @@
                             </a>
                         </li>
                         <li>
-                            Enter username and password in the below form. Attention: This is not secure! Don't use
-                            critical credentials, instead use a Trailhead Playground!
+                            Enter username and password in the below form. Make sure to paste your security token after
+                            the password or to specify login IPs on your user profile. Attention: This is not secure!
+                            Don't use critical credentials, instead use a Trailhead Playground!
                         </li>
                         <li>
                             Upon clicking the button, username and password are sent to the token endpoint via POST
@@ -1383,10 +1389,10 @@
                         <label for="sfdcPassword">Salesforce Password </label>
                         <input class="form-control" name="sfdcPassword" id="sfdcPassword" type="password" value="" />
                         <br />
-                        <button class="btn btn-primary btn-lg" type="submit" name="instance" value="prod">
+                        <button class="btn btn-primary btn-lg" type="submit" name="isSandbox" value="false">
                             Production
                         </button>
-                        <button class="btn btn-primary btn-lg" type="submit" name="instance" value="sand">
+                        <button class="btn btn-primary btn-lg" type="submit" name="isSandbox" value="true">
                             Sandbox
                         </button>
                     </div>

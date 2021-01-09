@@ -10,10 +10,11 @@ function getParameterList() {
         message = window.location.search.substr(1);
     }
 
-    var params = message.split("&"), response = {};
+    var params = message.split('&'),
+        response = {};
 
-    params.forEach(function(param) {
-        var keyValue = param.split("=");
+    params.forEach(function (param) {
+        var keyValue = param.split('=');
         response[keyValue[0]] = keyValue[1];
     });
 
@@ -22,44 +23,52 @@ function getParameterList() {
 
 /**
  * Process the callback coming from the authorization endpoint with the access token (User-Agent)
- * @param {Map<String, String>} paramKeyValueMap 
+ * @param {Map<String, String>} paramKeyValueMap
  */
 function processUserAgentCallback(paramKeyValueMap) {
-    var apiVersion = "v45.0";
+    var apiVersion = 'v45.0';
     var accessToken = decodeURIComponent(paramKeyValueMap['access_token']);
     var instanceUrl = decodeURIComponent(paramKeyValueMap['instance_url']);
     var idUrl = decodeURIComponent(paramKeyValueMap['id']);
 
     if (accessToken) {
-        $.cookie("AccToken", accessToken);
-        $.cookie("APIVer", apiVersion);
-        $.cookie("InstURL", instanceUrl);
-        $.cookie("idURL", idUrl);
+        $.cookie('AccToken', accessToken);
+        $.cookie('APIVer', apiVersion);
+        $.cookie('InstURL', instanceUrl);
+        $.cookie('idURL', idUrl);
 
-        strngBrks = paramKeyValueMap['id'].split("/");
-        $.cookie("LoggeduserId", strngBrks[strngBrks.length - 1]);
-        window.location = "queryresult";
+        strngBrks = paramKeyValueMap['id'].split('/');
+        $.cookie('LoggeduserId', strngBrks[strngBrks.length - 1]);
+        window.location = 'queryresult';
     } else {
-        $("#h2Message").html("AuthenticationError: No Token");
+        $('#h2Message').html('AuthenticationError: No Token');
     }
 }
 
 /**
  * Process the callback coming from the authorization endpoint with the authorization code (Web Server)
- * @param {Map<String, String>} paramKeyValueMap 
+ * @param {Map<String, String>} paramKeyValueMap
  */
 function processAuthorizationCodeCallback(paramKeyValueMap) {
-    if(returnedState == originalState) {
-        if (returnedState.includes("webServer")) {
-            //Its webserver flow so extract Token
-            $("#h2Message").html("I am Webserver Flow");
-            window.location = "webServerStep2?code=" + code;
+    // Check whether the incoming state is the same as the state that was originally sent
+    if (returnedState == originalState) {
+        // If it is, process as second step of web-server flow (if 'code' parameter is present),
+        // otherwise assume we have received the access token.
+        if (code) {
+            $('#h2Message').html('Initiating second part of the web server flow...');
+            window.location = 'webServerStep2?code=' + code;
         } else {
-            $.cookie("AccToken", access_code);
-            window.location = "queryresult";
+            $.cookie('AccToken', access_code);
+            window.location = 'queryresult';
         }
     } else {
-        $("#h2Message").html("State changed --> Cross App / Site Request Forgery detected!");
+        $('#h2Message').html(
+            'State changed --> Cross App / Site Request Forgery detected!' +
+                '\nReturned state: ' +
+                returnedState +
+                ' / Original state: ' +
+                originalState
+        );
     }
 }
 
@@ -73,6 +82,6 @@ function processCallback() {
     } else if (paramKeyValueMap['code']) {
         processAuthorizationCodeCallback(paramKeyValueMap);
     } else {
-        $("#h2Message").html("No access token in query string");
+        $('#h2Message').html('No access token in query string');
     }
 }
