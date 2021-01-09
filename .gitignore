@@ -4,3 +4,4 @@ node_modules/
 *.crt
 .DS_Store
 data/
+fontpatcher/
