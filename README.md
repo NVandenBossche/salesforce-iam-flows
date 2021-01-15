@@ -1,29 +1,61 @@
-# JWT, Web Server and User Agent OAuth flow in Salesforce using Node.js
+# Salesforce SAML and OAuth 2.0 authorization flows using Node.js
 
 [![Youtube demo Video](https://img.youtube.com/vi/Iez9xdKbeuk/0.jpg)](https://www.youtube.com/watch?v=Iez9xdKbeuk)
 
-
 # Steps to run
 
+### Prerequisites
+
+Create a [Heroku](https://heroku.com) account if you don't already have one.
+
 ### Step 1
-Clone this repository (Assuming Node.js already installed on system)
+
+Click on the below button to deploy this application on Heroku.
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 ### Step 2
-Create a ssl certificate or reuse same certificate uploaded in this repository. [Refer this post to learn how to create ssl certificate using openssl](http://www.jitendrazaa.com/blog/salesforce/use-lightning-components-on-external-websites-lightning-out/)
+
+Create a private key and public certificate using openssl. Store the key as 'key.pem' and the certificate as 'server.crt' in the root of the Heroku Git repository corresponding to the app. [Refer this post to learn how to create ssl certificate using openssl](http://www.jitendrazaa.com/blog/salesforce/use-lightning-components-on-external-websites-lightning-out/)
 
 ### Step 3
-Create Connected App in your Salesforce instance with callback URL - `https://localhost:8081/oauthcallback.html`. Make sure to upload [server.crt](https://github.com/JitendraZaa/JWTDemo/blob/master/server.crt) as a digital certificate in connected app. You can use your own certificate as well.
+
+Create a Connected App in your Salesforce org, with the following settings:
+
+-   Basic Information: Fill out Name and your Email, leave everything else blank.
+-   API
+    -   Enable OAuth Settings: check this.
+    -   Callback URL: set to 'https://localhost:8081/oauthcallback' (if running locally) or 'https://your-heroku-app.herokuapp.com:8081/oauthcallback' (if running on Heroku)
+    -   Use digital signature: check this and upload the 'server.crt' file.
+    -   Selected OAuth scopes: you can play with this but for all flows to fully function you'll need 'full', 'openid' and 'refresh_token'.
+    -   Require secret for web server flow: uncheck this (unless you want to specifically test this setting).
+    -   Introspect all tokens: uncheck this.
+    -   Configure ID Token: uncheck this.
+    -   Enable Asset Tokens: uncheck this. Currently not implemented.
+    -   Enable Single Logout: uncheck this.
+-   Web App Settings: leave blank.
+-   Custom Connected App Handler: leave blank.
+-   Mobile App Settings: leave blank.
+-   Canvas App Settings: leave blank.
 
 ### Step 4
-Copy consumer key & secret created in connected app and update `jwt_consumer_key` and `client_secret` variable defined in [Server.js](https://github.com/JitendraZaa/JWTDemo/blob/master/Server.js) file.
- 
+
+Update the environment variables for at least the following key-value pairs.
+PORT=8080
+CLIENT_ID=<your_client_id>
+CLIENT_SECRET=<your_client_secret>
+BASE_URL=<your_mydomain_url>
+CALLBACK_URL=https://<your_herokuapp>:8081/oauthcallback
+USERNAME=<your_Salesforce_username>
+PERSIST=true
 
 ### Step 5
-Run `npm install` command in the directory where this code was downloaded. It will download all the required node modules.
-Then run `npm start`, or `nodemon Server.js (if installed previously)` it will start the server
+
+Restart the Heroku application.
 
 ### Step 6
-Navigate to `https://localhost:8081/` in your browser and you would see option for all **3 Auth flow - JWT, User Agent and Web Server**.
+
+Navigate to the Heroku app.
 
 ### Step 7
+
 If you're testing locally, make sure the date & time are set automatically on your local machine to avoid time skew in your messages.
