@@ -1,10 +1,10 @@
 // Initialize global variables and instantiate the Salesforce communication client based on cookies
 var apiCount = 0,
-    proxyURL = 'https://localhost:8081/proxy/',
     instanceUrl = $.cookie('InstURL'),
     apiVersion = $.cookie('APIVer'),
     accessToken = $.cookie('AccToken'),
     idUrl = $.cookie('idURL'),
+    proxyURL = instanceUrl + 'proxy/',
     clientId = '',
     client = new forcetk.Client(clientId, instanceUrl, proxyURL);
 
