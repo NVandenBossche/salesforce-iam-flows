@@ -15,7 +15,19 @@ Click on the below button to deploy this application on Heroku.
 
 ### Step 2
 
-Create a private key and public certificate using openssl. Store the key as 'key.pem' and the certificate as 'server.crt' in the root of the Heroku Git repository corresponding to the app. [Refer this post to learn how to create ssl certificate using openssl](http://www.jitendrazaa.com/blog/salesforce/use-lightning-components-on-external-websites-lightning-out/)
+Create a private key and public X.509 certificate using openssl.
+
+#### Step 2.1
+
+Install openssl by following the [instructions](https://github.com/openssl/openssl#build-and-install) on its Github repository.
+
+### Step 2.2
+
+Run the following command in the shell of your choice (bash, zsh, Powershell, etc.).
+
+`openssl req -x509 -newkey rsa:2048 -keyout key.pem -out server.crt -days 365`
+
+This will create the private key in the file 'key.pem' and the public X.509 certificate in the file 'server.crt'.
 
 ### Step 3
 
@@ -59,3 +71,7 @@ Navigate to the Heroku app.
 ### Step 7
 
 If you're testing locally, make sure the date & time are set automatically on your local machine to avoid time skew in your messages.
+
+```
+
+```
