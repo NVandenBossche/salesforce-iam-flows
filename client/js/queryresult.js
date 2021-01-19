@@ -4,7 +4,7 @@ var apiCount = 0,
     apiVersion = $.cookie('APIVer'),
     accessToken = $.cookie('AccToken'),
     idUrl = $.cookie('idURL'),
-    proxyURL = instanceUrl + 'proxy/',
+    proxyURL = instanceUrl + '/proxy/',
     clientId = '',
     client = new forcetk.Client(clientId, instanceUrl, proxyURL);
 
