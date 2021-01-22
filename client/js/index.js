@@ -16,9 +16,6 @@ function launchFlow(flowName, isSandbox, type) {
     if (type) {
         newLocation += '&type=' + type;
     }
-    if (flowName === 'jwt') {
-        newLocation += '&jwtUserName=' + $('#jwtUserName').val();
-    }
 
     window.location = newLocation;
 }
