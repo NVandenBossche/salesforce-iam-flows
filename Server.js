@@ -205,7 +205,9 @@ function getSignedJWT(sfdcUserName) {
         exp: Math.floor(Date.now() / 1000) + 60 * 3, // valid for 3 minutes
     };
 
-    console.log('Claims: ' + claims);
+    console.log('Username: ' + sfdcUserName);
+    console.log('Audience: ' + jwt_aud);
+    console.log('Client ID' + clientId);
 
     return signJwtClaims(claims);
 }
