@@ -22,8 +22,6 @@ var apiVersion = 'v45.0',
     baseURL = process.env.BASE_URL,
     username = process.env.USERNAME,
     persistTokensToFile = process.env.PERSIST,
-    jwt_aud = baseURL, //'https://login.salesforce.com',
-    saml_aud = baseURL, //'https://login.salesforce.com',
     isSandbox = false,
     state = '',
     refreshToken = '',
@@ -201,13 +199,9 @@ function getSignedJWT(sfdcUserName) {
     var claims = {
         iss: clientId,
         sub: sfdcUserName,
-        aud: jwt_aud,
+        aud: getAudience(),
         exp: Math.floor(Date.now() / 1000) + 60 * 3, // valid for 3 minutes
     };
-
-    console.log('Username: ' + sfdcUserName);
-    console.log('Audience: ' + jwt_aud);
-    console.log('Client ID' + clientId);
 
     return signJwtClaims(claims);
 }
@@ -249,7 +243,7 @@ function getSignedSamlToken() {
         key: privateKey,
         issuer: clientId,
         lifetimeInSeconds: 600,
-        audiences: saml_aud,
+        audiences: getAudience(),
         nameIdentifier: username,
     };
 
@@ -273,6 +267,13 @@ function setSandbox(sandboxString) {
  */
 function getBaseUrl() {
     return isSandbox ? 'https://test.salesforce.com/' : baseURL;
+}
+
+/**
+ * Return the audience for authorization requests
+ */
+function getAudience() {
+    return isSandbox ? 'https://test.salesforce.com/' : 'https://login.salesforce.com';
 }
 
 /**
