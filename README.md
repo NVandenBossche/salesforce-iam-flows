@@ -68,7 +68,7 @@ Update the Config Vars of your Heroku app (Settings > Config Vars) for the follo
 
 Wait until the Heroku application is deployed and navigate to the Heroku app.
 
-### Local testing
+# Local testing
 
 There's also a possibility to test a Heroku app locally. If you're taking this approach, keep the following in mind:
 
