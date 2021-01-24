@@ -7,9 +7,9 @@ Please leverage this repository as learning material for Salesforce rather than 
 
 ## Video walkthrough
 
-Coming soon...
+Click the below image to launch the Youtube video.
 
-[![Video walkthrough](https://www.youtube.com/about/static/svgs/icons/brand-resources/YouTube-logo-full_color_light.svg?cache=72a5d9c)](https://www.youtube.com/watch?v=iWU9hJ26WuE)
+[![Video walkthrough](https://img.youtube.com/vi/iWU9hJ26WuE/0.jpg)](https://www.youtube.com/watch?v=iWU9hJ26WuE)
 
 ## Steps to run
 
