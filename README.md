@@ -1,8 +1,17 @@
 # Salesforce SAML and OAuth 2.0 authorization flows using Node.js
 
-[![Youtube demo Video](https://img.youtube.com/vi/Iez9xdKbeuk/0.jpg)](https://www.youtube.com/watch?v=Iez9xdKbeuk)
+## Introduction
 
-# Steps to run
+This application is purely meant to discover the different SAML and OAuth flows that are supported by Salesforce.
+Please leverage this repository as learning material for Salesforce rather than as a production-ready application.
+
+## Video walkthrough
+
+Coming soon...
+
+<!-- [![Youtube demo Video](https://img.youtube.com/vi/Iez9xdKbeuk/0.jpg)](https://www.youtube.com/watch?v=Iez9xdKbeuk) -->
+
+## Steps to run
 
 ### Prerequisites
 
@@ -68,7 +77,7 @@ Update the Config Vars of your Heroku app (Settings > Config Vars) for the follo
 
 Wait until the Heroku application is deployed and navigate to the Heroku app.
 
-# Local testing
+## Local testing
 
 There's also a possibility to test a Heroku app locally. If you're taking this approach, keep the following in mind:
 
