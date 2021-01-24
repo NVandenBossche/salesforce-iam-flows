@@ -9,7 +9,7 @@ Please leverage this repository as learning material for Salesforce rather than 
 
 Coming soon...
 
-<!-- [![Youtube demo Video](https://img.youtube.com/vi/Iez9xdKbeuk/0.jpg)](https://www.youtube.com/watch?v=Iez9xdKbeuk) -->
+[![Video walkthrough](https://www.youtube.com/about/static/svgs/icons/brand-resources/YouTube-logo-full_color_light.svg?cache=72a5d9c)](https://www.youtube.com/watch?v=iWU9hJ26WuE)
 
 ## Steps to run
 
