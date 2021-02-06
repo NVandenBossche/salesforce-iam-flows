@@ -4,10 +4,24 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
         <title>Device OAuth Flow</title>
+
         <link href="css/bootstrap.min.css" rel="stylesheet" />
         <link href="css/custom.css" rel="stylesheet" />
         <link rel="icon" type="image/icon" href="Cloud Red.ico" />
+
+        <!-- Needed to capture Express variables into JS variables. -->
+        <script>
+            var device_code = '<%= device_code %>';
+            var user_code = '<%= user_code %>';
+            var verification_uri = '<%= verification_uri %>';
+            var isSandbox = '<%= isSandbox %>';
+            var interval = '<%= interval %>';
+        </script>
+
+        <!-- Refresh the page every few seconds to see if positive response was received -->
+        <script type="text/javascript" src="js/deviceoauth.js"></script>
     </head>
     <body class="container" style="padding-top: 50px">
         <div class="jumbotron">
@@ -17,28 +31,5 @@
             <h3><a href="<%= verification_uri %>"><%= verification_uri %></a></h3>
             to validate this device
         </div>
-
-        <!-- TODO: Move below script to separate JS file -->
-        <script>
-            let device_code = '<%= device_code %>';
-            let user_code = '<%= user_code %>';
-            let verification_uri = '<%= verification_uri %>';
-            let isSandbox = '<%= isSandbox %>';
-            let interval = '<%= interval %>';
-
-            window.setInterval(function () {
-                window.location =
-                    'devicePol?device_code=' +
-                    device_code +
-                    '&user_code=' +
-                    user_code +
-                    '&isSandbox=' +
-                    isSandbox +
-                    '&interval=' +
-                    interval +
-                    '&verification_uri=' +
-                    verification_uri;
-            }, interval * 1000);
-        </script>
     </body>
 </html>
