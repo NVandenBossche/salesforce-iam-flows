@@ -1,6 +1,6 @@
 {
-  "name": "salesforce-oauth-jwt",
-  "version": "0.0.1",
+  "name": "salesforce-iam-flows",
+  "version": "0.1.0",
   "description": "Salesforce JWT OAuth Demo",
   "main": "Server.js",
   "prettier": {
@@ -24,7 +24,7 @@
     "API",
     "Salesforce"
   ],
-  "author": "Jitendra Zaa",
+  "author": "Nicolas Vanden Bossche",
   "license": "MIT",
   "dependencies": {
     "atlassian-jwt": "^0.1.4",
