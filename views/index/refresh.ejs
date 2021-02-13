@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+    <div class="jumbotron" id="refreshToken">
+        <div>
+            <h2>OAuth 2.0 Refresh Token Flow</h2>
+            <figure>
+                <img
+                    class="authdiagram"
+                    src="https://cloudsundial.com/sites/default/files/2020-05/Refresh%20token%203000.png"
+                />
+                <figcaption>Refresh token flow diagram - created by Lawrence Newcombe</figcaption>
+            </figure>
+            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#refreshCollapse">
+                Show/Hide Details
+            </button>
+
+            <div id="refreshCollapse" class="collapse">
+                <ol class="smallFont">
+                    <li>
+                        This section covers the
+                        <a
+                            href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_refresh_token_flow.htm&type=5"
+                        >
+                            OAuth 2.0 Refresh Token flow
+                        </a>
+                        . Refresh Token flow can only be implemented for OAuth flows with user interaction like Web
+                        Server flow and User Agent Flow. Flows like JWT and SAML Bearer don't provide a refresh token
+                        even if specified in the scope of the Connected App.
+                    </li>
+                    <li>
+                        Upon clicking the button, the system is using the refresh token (stored on the server) to
+                        retrieve a new access token. It sends a POST message to the token endpoint with the following
+                        parameters:
+                        <ul>
+                            <li><code>grant_type=refresh_token</code></li>
+                            <li><code>client_id=...</code> (client ID of the connected app)</li>
+                            <li><code>refresh_token=...</code> (refresh token stored on server)</li>
+                            <li><code>client_secret=...</code> (optional)</li>
+                            <li><code>client_assertion=...</code> (optional)</li>
+                            <li><code> client_assertion_type=... </code> (optional)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Salesforce checks the refresh token and replies to the POST message with an access token:
+                        <ul>
+                            <li><code>token_type=Bearer</code></li>
+                            <li><code>access_token=...</code> (a new access token)</li>
+                            <li><code>id=...</code> (identity URL)</li>
+                            <li><code>issued_at=...</code> (time since epoch)</li>
+                            <li><code>signature=...</code> (only if client secret is specified)</li>
+                            <li><code>scope=...</code> (granted scope)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        There are a few important scenarios to keep in mind where malicious actors can be involved:
+                        <ol>
+                            <li>
+                                The refresh token has the same value as user credentials and should be securely stored.
+                                Proper precautions should be taken so that malicious actors cannot access this refresh
+                                token from e.g. a database. In case a refresh token is compromised, you can always
+                                expire it manually from the Salesforce setup menu.
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </div>
+
+            <button
+                id="refreshProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('refresh', false)"
+            >
+                Production
+            </button>
+            <button
+                id="refreshSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('refresh', true)"
+            >
+                Sandbox
+            </button>
+        </div>
+    </div>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+    <div class="jumbotron" id="samlBearerAssertion">
+        <div>
+            <h2>OAuth 2.0 SAML Bearer Assertion Flow</h2>
+            <figure>
+                <img
+                    class="authdiagram"
+                    src="https://cloudsundial.com/sites/default/files/2020-05/SAML%20Bearer%203000.png"
+                />
+                <figcaption>SAML Bearer Token flow diagram - created by Lawrence Newcombe</figcaption>
+            </figure>
+            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#samlBearerCollapse">
+                Show/Hide Details
+            </button>
+
+            <div id="samlBearerCollapse" class="collapse">
+                <ol class="smallFont">
+                    <li>
+                        This section covers the
+                        <a
+                            href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_SAML_bearer_flow.htm&type=5"
+                        >
+                            OAuth 2.0 SAML Bearer Assertion Flow </a
+                        >. This flow relies on the digital signature for authentication and leverages previous
+                        authorizations.
+                    </li>
+                    <li>
+                        Upon clicking the button, the system is generating a SAML bearer token (containing client id,
+                        audience, name identifier) and POSTs is to the token endpoint using the following parameters:
+                        <ul>
+                            <li>
+                                <code> grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer </code>
+                            </li>
+                            <li>
+                                <code> assertion=&lt;base64url(SAML bearer Token)&gt; </code> - signed with private key
+                                corresponding to the certificate uploaded in the Connected App.
+                            </li>
+                            <li>
+                                Scope can't be specified, it's always determined in the following way:
+                                <ul>
+                                    <li>
+                                        If admins pre-authorize (using profile / permission set), scope parameter is
+                                        optional. If not specified, all scopes defined in the connected app are granted.
+                                    </li>
+                                    <li>
+                                        If users can self-authorize, scope is not taken into account. You need to first
+                                        use another flow (like User-Agent or Web-Server) to grant explicit authorization
+                                        for the scopes you need. This flow needs to return a refresh token. The scope
+                                        returned by the JWT flow is the combination of all previously granted scopes
+                                        where a refresh token was returned.
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        Salesforce checks the signature and assertion (containing user ID). Then checks previous
+                        authorizations before granting access token.
+                    </li>
+                    <li>
+                        Access token gets returned and callback function processes and stores access token for use.
+                        Following parameters are returned:
+                        <ul>
+                            <li>
+                                <code> token_type=Bearer </code>
+                            </li>
+                            <li>
+                                <code> access_token=... </code>
+                            </li>
+                            <li><code> id=... </code> (identity URL)</li>
+                            <li><code> id_token=... </code> (identity token - OpenID)</li>
+                        </ul>
+                    </li>
+                    <li>Access token is used to query Salesforce.</li>
+                </ol>
+            </div>
+
+            <!-- Buttons to launch flow -->
+            <button
+                id="samlBearerProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('samlBearer', false)"
+            >
+                Production
+            </button>
+            <button
+                id="samlBearerSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('samlBearer', true)"
+            >
+                Sandbox
+            </button>
+        </div>
+    </div>
+</html>

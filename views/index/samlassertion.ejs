@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <div class="jumbotron" id="samlAssertion">
+        <div>
+            <h2>SAML Assertion Flow</h2>
+            <figure>
+                <img
+                    class="authdiagram"
+                    src="https://cloudsundial.com/sites/default/files/2020-05/SAML%20Assertion%203000.png"
+                />
+                <figcaption>SAML Assertion Flow diagram - created by Lawrence Newcombe</figcaption>
+            </figure>
+            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#samlAssertCollapse">
+                Show/Hide Details
+            </button>
+            <div id="samlAssertCollapse" class="collapse">
+                <ol class="smallFont">
+                    <li>
+                        This section covers the
+                        <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_sso_flow.htm&type=5">
+                            SAML Assertion Flow </a
+                        >. This flow relies on the trustworthiness of the Identity Provider that is used for SAML SSO in
+                        the Salesforce org.
+                    </li>
+                    <li>
+                        To prepare for this flow, we first need to generate a SAML response and store it locally. To do
+                        this, take the following actions:
+                        <ol>
+                            <li>
+                                Set up Single Sign-On for your Salesforce org using
+                                <a href="https://axiomsso.herokuapp.com/SamlIdpHome.action"> Axiom SSO </a> by following
+                                the steps under "Configure".
+                            </li>
+                            <li>
+                                Navigate to
+                                <a href="https://axiomsso.herokuapp.com/RequestSamlResponse.action">
+                                    Axiom SSO SAML Response Requester </a
+                                >. Make sure that the data entered here is an exact match with your Single Sign-On (SSO)
+                                setup in Salesforce and generate the response.
+                            </li>
+                            <li>
+                                Copy the plain text SAML response and paste it in a file under
+                                './data/axiomSamlAssertion.xml'. Remove any newlines from the file before saving (e.g.
+                                using find-replace).
+                            </li>
+                            <li>
+                                Note: a SAML assertion is only valid once and only for a limited amount of time. Using
+                                Axiom, there's 60 seconds before your assertion is no longer valid.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        Upon clicking the button, the application will take a locally stored SAML response and encode it
+                        for sending to Salesforce. It sends a POST message to the token endpoint with the following
+                        parameters:
+                        <ul>
+                            <li>
+                                <code>grant_type=assertion</code>
+                            </li>
+                            <li>
+                                <code>assertion_type=urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser</code>
+                            </li>
+                            <li>
+                                <code>
+                                    assertion=&lt;XML SAML response, first base64 encoded, then URL encoded&gt;
+                                </code>
+                            </li>
+                        </ul>
+                        Note that in a real-world application, the SAML response would be requested to the Identity
+                        Provider at the moment of the user action rather than stored locally. Especially because SAML
+                        responses are only valid for a limited amount of time.
+                    </li>
+                    <li>
+                        Salesforce decodes the assertion and checks the SAML response. The validity of the response can
+                        be checked manually with the
+                        <a href="https://help.salesforce.com/articleView?id=sso_saml_validation.htm&type=5">
+                            SAML validator
+                        </a>
+                        in the Single Sign-On setting of the Salesforce setup. The key parameters that are checked:
+                        <ul>
+                            <li>
+                                Username or Federation ID is checked against the User object. If there is no match, the
+                                authorization fails except if JIT provisioning was enabled.
+                            </li>
+                            <li>
+                                Issuer (Identity Provider) and Entity ID (Audience) should be matching with the SSO
+                                setup inside Salesforce.
+                            </li>
+                            <li>Recipient should match the My Domain name of the Salesforce instance if present.</li>
+                            <li>
+                                Signature of the SAML response should be signed with the certificate provided in the SSO
+                                setup of Salesforce.
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <!-- Buttons to launch flow -->
+            <button
+                id="samlAssertProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('samlAssert', false)"
+            >
+                Production
+            </button>
+            <button
+                id="samlAssertSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('samlAssert', true)"
+            >
+                Sandbox
+            </button>
+        </div>
+    </div>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <div class="jumbotron" id="jwt">
+        <div>
+            <h2>JWT Bearer Assertion OAuth 2.0 Flow</h2>
+            <figure>
+                <img
+                    class="authdiagram"
+                    src="https://cloudsundial.com/sites/default/files/2020-05/JWT%20Bearer%203000.png"
+                />
+                <figcaption>JWT Bearer Assertion flow diagram - created by Lawrence Newcombe</figcaption>
+            </figure>
+            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#jwtCollapse">
+                Show/Hide Details
+            </button>
+
+            <div id="jwtCollapse" class="collapse">
+                <p>
+                    <i class="note">
+                        Use
+                        <a href="https://jwt.io/"> this tool </a>
+                        to debug JSON token generated in Node.js application.
+                    </i>
+                </p>
+
+                <ol class="smallFont">
+                    <li>
+                        This section covers the
+                        <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_jwt_flow.htm&type=5">
+                            OAuth 2.0 JWT Bearer Token flow </a
+                        >.
+                    </li>
+                    <li>
+                        Upon clicking the button, the system is generating a JWT token. The following claims are made
+                        inside the token. These claims are then signed.
+                        <ul>
+                            <li><code>iss</code> (Issuer, containg client ID)</li>
+                            <li><code>sub</code> (Subject, containing Salesforce username)</li>
+                            <li>
+                                <code>aud</code> (Audience, always https://test.salesforce.com or
+                                https://login.salesforce.com
+                            </li>
+                            <li><code>exp</code> (Expiration datetime, expressed in seconds after 1/1/1970)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        JWT token is then sent to the token endpoint via HTTP POST with the following parameters:
+                        <ul>
+                            <li>
+                                <code>grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer</code>
+                            </li>
+                            <li>
+                                <code>assertion=&lt;JWT Token&gt;</code>
+                                base64url(header.body.signature) - signature by private key is authentication
+                            </li>
+                            <li>
+                                Scope can't be specified, it's always determined in the following way:
+                                <ul>
+                                    <li>
+                                        If admins pre-authorize (using profile / permission set), scope parameter is
+                                        optional. If not specified, all scopes defined in the connected app are granted.
+                                    </li>
+                                    <li>
+                                        If users can self-authorize, scope is not taken into account. You need to first
+                                        use another flow (like User-Agent or Web-Server) to grant explicit authorization
+                                        for the scopes you need. This flow needs to return a refresh token. The scope
+                                        returned by the JWT flow is the combination of all previously granted scopes
+                                        where a refresh token was returned.
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        Salesforce checks the signature and assertion (containing username). Then checks previous
+                        authorizations before granting access token. Previous authorizations can be through permission
+                        sets or other OAuth flows with refresh tokens.
+                    </li>
+                    <li>
+                        Access token gets returned and callback function processes and stores access token for use.
+                        Following parameters are returned:
+                        <ul>
+                            <li><code>token_type=Bearer</code></li>
+                            <li><code>access_token=...</code></li>
+                            <li><code>id=...</code> (identity URL)</li>
+                            <li><code>id_token=...</code> (identity token - OpenID)</li>
+                        </ul>
+                    </li>
+                    <li>Access token is used to query Salesforce.</li>
+                    <li>
+                        There are a few important scenarios to keep in mind where malicious actors can be involved:
+                        <ol>
+                            <li>
+                                A malicious app tries to access resources they are not allowed to. This is blocked by
+                                the scope parameter of the Connected App. For example, even if the user has the
+                                permission to post on chatter through its permissions, the malicious app will not be
+                                able to post on chatter if the <code>chatter_api</code> scope wasn't enabled for the
+                                Connected App.
+                            </li>
+                            <li>
+                                A malicious app tries to pretend to be the actual app. This is blocked by applying a
+                                signature to the JWT claims that is based on a private key only known by the actual app.
+                                The corresponding public certificate is uploaded in the connected app.
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </div>
+
+            <button id="jwtProduction" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('jwt', false)">
+                Production
+            </button>
+            <button id="jwtSandbox" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('jwt', true)">
+                Sandbox
+            </button>
+        </div>
+    </div>
+</html>

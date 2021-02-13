@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+    <div class="jumbotron" id="webServer">
+        <h2>Web Server Flow</h2>
+        <figure>
+            <img
+                class="authdiagram"
+                src="https://cloudsundial.com/sites/default/files/2020-06/Web%20Server%202600.png"
+            />
+            <figcaption>Web Server flow diagram - created by Lawrence Newcombe</figcaption>
+        </figure>
+        <button
+            type="button"
+            style="margin-right: 40px"
+            class="btn btn-info"
+            data-toggle="collapse"
+            data-target="#wsintro"
+        >
+            Show/Hide Details
+        </button>
+
+        <div id="wsintro" class="collapse">
+            <div>
+                This section covers the
+                <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
+                    >OAuth 2.0 Web Server flow</a
+                >.
+            </div>
+            <div>
+                Three scenarios are covered:
+                <ol>
+                    <li>
+                        Web Server flow with a client secret: when using a secure web server that can store a client
+                        secret. You can make the client secret required in the Connected App setup.
+                    </li>
+                    <li>
+                        Web Server flow with a client assertion: when using a secure web server that has a private key
+                        to sign the message.
+                    </li>
+                    <li>
+                        Web Server flow without client secret or assertion: when using a client application (browser /
+                        mobile app) that uses an external browser for authorization.
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <div>
+            <h3>Web Server Flow with Client Secret</h3>
+            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsclientsecret">
+                Show/Hide Details
+            </button>
+
+            <div id="wsclientsecret" class="collapse">
+                <p>
+                    This section covers the
+                    <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
+                        >OAuth 2.0 Web Server flow</a
+                    >
+                    with client secret.
+                </p>
+                <ol class="smallFont">
+                    <li>
+                        Client application redirects using HTTP GET to the authorization endpoint at
+                        <code><%= baseURL %>/services/oauth2/authorize</code>
+                        with the following parameters:
+                        <ul>
+                            <li><code>response_type=code</code></li>
+                            <li>
+                                <code>client_id=<%= clientId %></code>
+                                (client ID configured in Connected App)
+                            </li>
+                            <li>
+                                <code>redirect_uri=<%= callbackURL %></code>
+                            </li>
+                            <li>
+                                <code>scope=&lt;Scope parameters&gt;</code> (see
+                                <a
+                                    href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_tokens_scopes.htm&type=5"
+                                >
+                                    OAuth Tokens and Scopes
+                                </a>
+                                )
+                            </li>
+                            <li>
+                                <code>code_challenge=<%= codeChallenge %></code>
+                            </li>
+                            <li>
+                                <code>state=&lt;UniqueIdentifier&gt;</code>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        Salesforce asks the user to authenticate and then authorize the application. If successful and
+                        redirect_uri matches with the Connected App settings, it redirects to the redirect_uri passing
+                        along the following parameters
+                        <ul>
+                            <li>
+                                <code>code=&lt;Authorization Code&gt;</code>
+                            </li>
+                            <li><code>state=&lt;UniqueIdentifier&gt;</code> (if state in request)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Callback endpoint receives the authorization code and sends it via HTTP POST to the token
+                        endpoint at
+                        <code><%= baseURL %>/services/oauth2/token</code>
+                        with the following parameters:
+                        <ul>
+                            <li>
+                                <code>grant_type=authorization_code</code>
+                            </li>
+                            <li><code>client_id=<%= clientId %></code> (from Connected App)</li>
+                            <li><code>client_secret=<%= clientSecret %></code> (from Connected App)</li>
+                            <li><code>redirect_uri=<%= callbackURL %></code> (from Connected App)</li>
+                            <li><code>code=&lt;Authorization Code&gt;</code> (from previous step)</li>
+                            <li>
+                                <code>code_verifier=&lt;Code Verifier&gt;</code> (128 bit random string, base64 and URL
+                                encoded)
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        The authorization code, code verifier, client id, client secret and redirect uri are all
+                        checked. After successful authorization, the authorisation server returns the Access Token as a
+                        response to the POST messsage.
+                    </li>
+                    <li>
+                        The response to the POST message is then parsed:
+                        <ul>
+                            <li>
+                                <code>token_type=Bearer</code>
+                            </li>
+                            <li>
+                                <code>access_token=&lt;Access Token&gt;</code>
+                            </li>
+                            <li>
+                                <code>id_token=&lt;ID Token&gt;</code> (contains information about the user's identity
+                                when specified in the response_type)
+                            </li>
+                            <li>
+                                <code>refresh_token=&lt;Refresh Token&gt;</code>
+                            </li>
+                            <li>
+                                <code>instance_url=<%= baseURL %></code>
+                            </li>
+                            <li>
+                                <code>id=&lt;Identity URL&gt;</code>
+                            </li>
+                            <li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
+                            <li><code>signature=...</code> (client_secret key applied to id:issued_at - optional)</li>
+                        </ul>
+                    </li>
+                    <li>Access token is used to query Salesforce.</li>
+                    <li>
+                        There are a few important scenarios to keep in mind where malicious actors can be involved:
+                        <ol>
+                            <li>
+                                A malicious app pretends it's our server. This is blocked because only our server should
+                                have access to the client secret. That's why it's so important that the client secret
+                                can be well-guarded by the server.
+                            </li>
+                            <li>
+                                A malicious app tries to access resources they are not allowed to. This is blocked by
+                                the scope parameter of the Connected App. For example, even if the user has the
+                                permission to post on chatter through its permissions, the malicious app will not be
+                                able to post on chatter if the <code>chatter_api</code> scope wasn't enabled for the
+                                Connected App.
+                            </li>
+                            <li>
+                                A malicious app tries to send an authorization request on behalf of the actual app
+                                (Cross-Site Request Forging or CSRF). This is blocked by the state parameter where the
+                                actual app sends a unique identifier for every authorization request. Only if the actual
+                                app sees the same state being posted on the callback URL endpoint, it will know that the
+                                original request was originated from its context.
+                            </li>
+                            <li>
+                                A malicious app intercepts the authorization code and tries to use it to get an access
+                                token. This is blocked by using the code_challenge parameter in the authorization
+                                request, which is then checked against the code_verifier parameter in the token request.
+                                The code verifier is 128 bytes of random data with high entropy that's base64url
+                                encoded. The code challenge is the base64url encoded SHA256 hash value of the code
+                                verifier.
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </div>
+            <button
+                id="webServerSecretProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('webServer', false, 'secret')"
+            >
+                Production
+            </button>
+            <button
+                id="webServerSecretSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('webServer', true, 'secret')"
+            >
+                Sandbox
+            </button>
+        </div>
+        <div>
+            <h3>Web Server Flow with Client Assertion</h3>
+            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsclientassertion">
+                Show/Hide Details
+            </button>
+
+            <div id="wsclientassertion" class="collapse">
+                <p>
+                    This section covers the
+                    <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
+                        >OAuth 2.0 Web Server flow</a
+                    >
+                    with client assertion.
+                </p>
+                <ol class="smallFont">
+                    <li>
+                        Client application redirects using HTTP GET to the authorization endpoint at
+                        <code><%= baseURL %>/services/oauth2/authorize</code>
+                        with the following parameters:
+                        <ul>
+                            <li><code>response_type=code</code></li>
+                            <li>
+                                <code>client_id=<%= clientId %></code>
+                                (client ID configured in Connected App)
+                            </li>
+                            <li>
+                                <code>redirect_uri=<%= callbackURL %></code>
+                            </li>
+                            <li>
+                                <code>scope=&lt;Scope parameters&gt;</code> (see
+                                <a
+                                    href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_tokens_scopes.htm&type=5"
+                                >
+                                    OAuth Tokens and Scopes
+                                </a>
+                                )
+                            </li>
+                            <li>
+                                <code>code_challenge=<%= codeChallenge %></code>
+                            </li>
+                            <li>
+                                <code>state=&lt;UniqueIdentifier&gt;</code>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        Salesforce asks the user to authenticate and then authorize the application. If successful and
+                        redirect_uri matches with the Connected App settings, it redirects to the redirect_uri passing
+                        along the following parameters
+                        <ul>
+                            <li>
+                                <code>code=&lt;Authorization Code&gt;</code>
+                            </li>
+                            <li><code>state=&lt;UniqueIdentifier&gt;</code> (if state in request)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Callback endpoint receives the authorization code and sends it via HTTP POST to the token
+                        endpoint at
+                        <code><%= baseURL %>/services/oauth2/token</code>
+                        with the following parameters:
+                        <ul>
+                            <li>
+                                <code> grant_type=authorization_code </code>
+                            </li>
+                            <li>
+                                <code>
+                                    client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+                                </code>
+                            </li>
+                            <li><code>client_id=<%= clientId %></code> (from Connected App)</li>
+                            <li>
+                                <code> client_assertion=... </code> (JWT token containing information about the client,
+                                signed with private key specified in the Connected App)
+                            </li>
+                            <li><code>redirect_uri=<%= callbackURL %></code> (from Connected App)</li>
+                            <li><code>code=&lt;Authorization Code&gt;</code> (from previous step)</li>
+                            <li>
+                                <code>code_verifier=&lt;Code Verifier&gt;</code> (128 bit random string, base64 and URL
+                                encoded)
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        The authorization code, code verifier, client id, client assertion and redirect uri are all
+                        checked. After successful authorization, the authorisation server returns the Access Token as a
+                        response to the POST messsage.
+                    </li>
+                    <li>
+                        The response to the POST message is then parsed:
+                        <ul>
+                            <li>
+                                <code>token_type=Bearer</code>
+                            </li>
+                            <li>
+                                <code>access_token=&lt;Access Token&gt;</code>
+                            </li>
+                            <li>
+                                <code>id_token=&lt;ID Token&gt;</code> (contains information about the user's identity
+                                when specified in the response_type)
+                            </li>
+                            <li>
+                                <code>refresh_token=&lt;Refresh Token&gt;</code>
+                            </li>
+                            <li>
+                                <code>instance_url=<%= baseURL %></code>
+                            </li>
+                            <li>
+                                <code>id=&lt;Identity URL&gt;</code>
+                            </li>
+                            <li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
+                            <li><code>signature=...</code> (client_secret key applied to id:issued_at - optional)</li>
+                        </ul>
+                    </li>
+                    <li>Access token is used to query Salesforce.</li>
+                    <li>
+                        There are a few important scenarios to keep in mind where malicious actors can be involved:
+                        <ol>
+                            <li>
+                                A malicious app pretends it's our server. This is blocked because only our server should
+                                have access to the private key. That's why it's so important that the private key can be
+                                well-guarded by the server.
+                            </li>
+                            <li>
+                                A malicious app tries to access resources they are not allowed to. This is blocked by
+                                the scope parameter of the Connected App. For example, even if the user has the
+                                permission to post on chatter through its permissions, the malicious app will not be
+                                able to post on chatter if the <code>chatter_api</code> scope wasn't enabled for the
+                                Connected App.
+                            </li>
+                            <li>
+                                A malicious app tries to send an authorization request on behalf of the actual app
+                                (Cross-Site Request Forging or CSRF). This is blocked by the state parameter where the
+                                actual app sends a unique identifier for every authorization request. Only if the actual
+                                app sees the same state being posted on the callback URL endpoint, it will know that the
+                                original request was originated from its context.
+                            </li>
+                            <li>
+                                A malicious app intercepts the authorization code and tries to use it to get an access
+                                token. This is blocked by using the code_challenge parameter in the authorization
+                                request, which is then checked against the code_verifier parameter in the token request.
+                                The code verifier is 128 bytes of random data with high entropy that's base64url
+                                encoded. The code challenge is the base64url encoded SHA256 hash value of the code
+                                verifier.
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </div>
+            <button
+                id="webServerAssertionProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('webServer', false, 'assertion')"
+            >
+                Production
+            </button>
+            <button
+                id="webServerAssertionSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('webServer', true, 'assertion')"
+            >
+                Sandbox
+            </button>
+        </div>
+        <div>
+            <h3>Web Server Flow without Client Secret or Assertion</h3>
+            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsnone">
+                Show/Hide Details
+            </button>
+
+            <div id="wsnone" class="collapse">
+                <p>
+                    This section covers the
+                    <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
+                        >OAuth 2.0 Web Server flow</a
+                    >
+                    without client secret client assertion. A use case of this flow can be part of a mobile
+                    authentication flow where the native mobile browser is used rather than an embedded browser. A good
+                    explanation of this flow can be found
+                    <a href="https://auth0.com/blog/oauth-2-best-practices-for-native-apps/">here</a>.
+                </p>
+                <figure>
+                    <img class="authdiagram" src="https://cdn.auth0.com/blog/oath2bcp/hoauth-flow.png" />
+                    <figcaption>Web Server flow without secret or assertion diagram - created by Auth0</figcaption>
+                </figure>
+                <ol class="smallFont">
+                    <li>
+                        Client application redirects using HTTP GET to the authorization endpoint at
+                        <code><%= baseURL %>/services/oauth2/authorize</code>
+                        with the following parameters:
+                        <ul>
+                            <li><code>response_type=code</code></li>
+                            <li>
+                                <code>client_id=<%= clientId %></code>
+                                (client ID configured in Connected App)
+                            </li>
+                            <li>
+                                <code>redirect_uri=<%= callbackURL %></code>
+                            </li>
+                            <li>
+                                <code>scope=&lt;Scope parameters&gt;</code> (see
+                                <a
+                                    href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_tokens_scopes.htm&type=5"
+                                >
+                                    OAuth Tokens and Scopes
+                                </a>
+                                )
+                            </li>
+                            <li>
+                                <code>code_challenge=<%= codeChallenge %></code>
+                            </li>
+                            <li>
+                                <code>state=&lt;UniqueIdentifier&gt;</code>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        Salesforce asks the user to authenticate and then authorize the application. If successful and
+                        redirect_uri matches with the Connected App settings, it redirects to the redirect_uri passing
+                        along the following parameters
+                        <ul>
+                            <li>
+                                <code>code=&lt;Authorization Code&gt;</code>
+                            </li>
+                            <li><code>state=&lt;UniqueIdentifier&gt;</code> (if state in request)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        Callback endpoint receives the authorization code and sends it via HTTP POST to the token
+                        endpoint at
+                        <code><%= baseURL %>/services/oauth2/token</code>
+                        with the following parameters:
+                        <ul>
+                            <li>
+                                <code> grant_type=authorization_code </code>
+                            </li>
+                            <li><code>client_id=<%= clientId %></code> (from Connected App)</li>
+                            <li><code>redirect_uri=<%= callbackURL %></code> (from Connected App)</li>
+                            <li><code>code=&lt;Authorization Code&gt;</code> (from previous step)</li>
+                            <li>
+                                <code>code_verifier=&lt;Code Verifier&gt;</code> (128 bit random string, base64 and URL
+                                encoded)
+                            </li>
+                            <li>
+                                No client secret or assertion. Make sure to uncheck the "Require Secret for Web Server
+                                Flow" flag in the Connected App.
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        The authorization code, code verifier, client id, and redirect uri are all checked. After
+                        successful authorization, the authorisation server returns the Access Token as a response to the
+                        POST messsage.
+                    </li>
+                    <li>
+                        The response to the POST message is then parsed:
+                        <ul>
+                            <li>
+                                <code>token_type=Bearer</code>
+                            </li>
+                            <li>
+                                <code>access_token=&lt;Access Token&gt;</code>
+                            </li>
+                            <li>
+                                <code>id_token=&lt;ID Token&gt;</code> (contains information about the user's identity
+                                when specified in the response_type)
+                            </li>
+                            <li>
+                                <code>refresh_token=&lt;Refresh Token&gt;</code>
+                            </li>
+                            <li>
+                                <code>instance_url=<%= baseURL %></code>
+                            </li>
+                            <li>
+                                <code>id=&lt;Identity URL&gt;</code>
+                            </li>
+                            <li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
+                            <li><code>signature=...</code> (client_secret key applied to id:issued_at - optional)</li>
+                        </ul>
+                    </li>
+                    <li>Access token is used to query Salesforce.</li>
+                    <li>
+                        There are a few important scenarios to keep in mind where malicious actors can be involved:
+                        <ol>
+                            <li>
+                                This flow authenticates based on the callback URL, just like User Agent flow. Unlike the
+                                User Agent flow, we leverage a mobile browser that is not embedded, which provides
+                                additional security to the mobile app user because the mobile app itself doesn't need to
+                                be trusted fully with username and password.
+                            </li>
+                            <li>
+                                A malicious app tries to access resources they are not allowed to. This is blocked by
+                                the scope parameter of the Connected App. For example, even if the user has the
+                                permission to post on chatter through its permissions, the malicious app will not be
+                                able to post on chatter if the <code>chatter_api</code> scope wasn't enabled for the
+                                Connected App.
+                            </li>
+                            <li>
+                                A malicious app tries to send an authorization request on behalf of the actual app
+                                (Cross-Site Request Forging or CSRF). This is blocked by the state parameter where the
+                                actual app sends a unique identifier for every authorization request. Only if the actual
+                                app sees the same state being posted on the callback URL endpoint, it will know that the
+                                original request was originated from its context.
+                            </li>
+                            <li>
+                                A malicious app intercepts the authorization code and tries to use it to get an access
+                                token. This is blocked by using the code_challenge parameter in the authorization
+                                request, which is then checked against the code_verifier parameter in the token request.
+                                The code verifier is 128 bytes of random data with high entropy that's base64url
+                                encoded. The code challenge is the base64url encoded SHA256 hash value of the code
+                                verifier.
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </div>
+
+            <button
+                id="webServerNoneProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('webServer', false, 'none')"
+            >
+                Production
+            </button>
+            <button
+                id="webServerNoneSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('webServer', true, 'none')"
+            >
+                Sandbox
+            </button>
+        </div>
+    </div>
+</html>

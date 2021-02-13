@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <div class="jumbotron" id="deviceFlow">
+        <div>
+            <h2>OAuth 2.0 Device Authentication Flow</h2>
+            <figure>
+                <img
+                    class="authdiagram"
+                    src="https://cloudsundial.com/sites/default/files/2020-05/Device%20Authentication%203000.png"
+                />
+                <figcaption>Device Authentication flow diagram - created by Lawrence Newcombe</figcaption>
+            </figure>
+            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#deviceCollapse">
+                Show/Hide Details
+            </button>
+
+            <div id="deviceCollapse" class="collapse">
+                <ol class="smallFont">
+                    <li>Make sure Device Authentication flow is enabled in Connected App</li>
+                    <li>
+                        Retrieve a device code using HTTP POST from the token endpoint with the following parameters:
+                        <ul>
+                            <li><code>response_type=device_code</code></li>
+                            <li><code>client_id=<%= clientId %></code></li>
+                            <li>
+                                <code>scope=&lt;Scope parameters&gt;</code>
+                                (optional - uses scope defined in Connected App if not specified)
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        Process the response from the POST, containing the following parameters:
+                        <ul>
+                            <li><code>user_code=...</code> (code to enter on the verification URI)</li>
+                            <li>
+                                <code>verification_uri=...</code> (URL that the user needs to open in another browser)
+                            </li>
+                            <li><code>device_code=...</code> (device code to identify device)</li>
+                            <li><code>interval=...</code> (number of seconds to wait between polls)</li>
+                        </ul>
+                    </li>
+                    <li>Display the user code and authorization URL to the end user on the device.</li>
+                    <li>
+                        Start polling the token endpoint with the device code. Make sure not to poll more frequently
+                        than the interval specified. This is a POST message with the following parameters:
+                        <ul>
+                            <li><code>grant_type=device</code></li>
+                            <li><code>code=...</code> (device code from response)</li>
+                            <li><code>client_id=<%= clientId %></code></li>
+                        </ul>
+                    </li>
+                    <li>User enters the user code in a browser by navigating to the authorization URL.</li>
+                    <li>
+                        Polling returns access_token. Following output parameters:
+                        <ul>
+                            <li><code>access_token=...</code></li>
+                            <li><code>refresh_token=...</code></li>
+                            <li><code>token_type=Bearer</code></li>
+                            <li>
+                                <code>scope=&lt;Scope parameters&gt;</code>
+                                (optional - uses scope defined in Connected App if not specified)
+                            </li>
+                            <li>
+                                <code>instance_url=<%= baseURL %></code>
+                            </li>
+                            <li><code>id=&lt;Identity URL&gt;</code></li>
+                            <li><code>issued_at=...</code> (datetime at which the access token was issued)</li>
+                            <li><code>signature=...</code> (client_secret key applied to id:issued_at - optional)</li>
+                        </ul>
+                    </li>
+                    <li>Access token is used to query Salesforce</li>
+                </ol>
+            </div>
+
+            <button
+                id="deviceProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('device', false)"
+            >
+                Production
+            </button>
+            <button
+                id="deviceSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('device', true)"
+            >
+                Sandbox
+            </button>
+        </div>
+    </div>
+</html>
