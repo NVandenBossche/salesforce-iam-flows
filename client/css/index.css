@@ -4,6 +4,9 @@ textarea {
     margin: 4px 0px 4px 0px;
     resize: none;
 }
+body {
+    padding-top: 50px;
+}
 .smallFont {
     font-size: 0.8em;
 }
