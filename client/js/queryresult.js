@@ -8,26 +8,28 @@ var apiCount = 0,
     clientId = '',
     client = new forcetk.Client(clientId, instanceUrl, proxyURL);
 
-// Set the access token for the client's session, display the user info, and execute the query
-if (accessToken && apiVersion && instanceUrl) {
-    client.setSessionToken(accessToken, apiVersion, instanceUrl);
-    getLoggedInUserInfo();
-    executeQuery();
-} else {
-    $('#result').html(
-        'Some issue occurred during authentication. Please contact admin or try again by <a href="index.html">navigating here</a>.'
-    );
-}
-
-// Execute the query and display results if the user presses the 'Enter' button on their keyboard while the query box has focus.
-$('#Query-to-execute').keypress(function (e) {
-    let key = e.which;
-
-    // 13 is the key code for the 'Enter' key
-    if (key == 13) {
+function onload() {
+    // Set the access token for the client's session, display the user info, and execute the query
+    if (accessToken && apiVersion && instanceUrl) {
+        client.setSessionToken(accessToken, apiVersion, instanceUrl);
+        getLoggedInUserInfo();
         executeQuery();
+    } else {
+        $('#result').html(
+            'Some issue occurred during authentication. Please contact admin or try again by <a href="index.html">navigating here</a>.'
+        );
     }
-});
+
+    // Execute the query and display results if the user presses the 'Enter' button on their keyboard while the query box has focus.
+    $('#Query-to-execute').keypress(function (e) {
+        let key = e.which;
+
+        // 13 is the key code for the 'Enter' key
+        if (key == 13) {
+            executeQuery();
+        }
+    });
+}
 
 // Retrieve details of the logged in user and display their name
 function getLoggedInUserInfo() {
