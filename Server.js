@@ -1,3 +1,5 @@
+const { UserAgentService } = require('./services/useragent');
+
 // Load dependencies
 var express = require('express'),
     http = require('http'),
@@ -325,16 +327,9 @@ app.all('/proxy', function (req, res) {
  *  Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  */
 app.get('/uAgent', function (req, res) {
-    // Set sandbox context
-    setSandbox(req.query.isSandbox);
-
-    // Set response type and get url of authorization endpoint
-    let responseType = 'token';
-    let endpointUrl = getAuthorizeEndpoint();
-
-    // Construct the url for the user agent flow, including parameters in url
-    let userAgentUrlWithParameters =
-        endpointUrl + '?client_id=' + clientId + '&redirect_uri=' + callbackURL + '&response_type=' + responseType;
+    // Instantiate the service to create the URL to call
+    let userAgentInstance = new UserAgentService(req.query.isSandbox);
+    const userAgentUrlWithParameters = userAgentInstance.generateUserAgentRequest();
 
     // Launch the HTTP GET request based on the constructed URL with parameters
     request({
