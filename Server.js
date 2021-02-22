@@ -1,4 +1,5 @@
 const { UserAgentService } = require('./services/useragent');
+const { WebServerService } = require('./services/webserver');
 
 // Load dependencies
 var express = require('express'),
@@ -27,7 +28,10 @@ var apiVersion = 'v45.0',
     isSandbox = false,
     state = '',
     refreshToken = '',
-    webserverType = '';
+    webserverType = '',
+    authInstance,
+    userAgentInstance,
+    webServerInstance;
 
 // Set default view engine to ejs. This will be used when calling res.render().
 app.set('view engine', 'ejs');
@@ -110,6 +114,22 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
         res.write(remoteBody);
     }
     res.end();
+}
+
+/**
+ * Extract Access token from POST response and redirect to page queryresult.
+ * @param {boolean} success True if successful result returned, false otherwise.
+ * @param {String} header JSON string containing header information for the response page.
+ * @param {String} response Either the content of an error message, or the refresh token in case of success.
+ */
+function processResponse(success, header, response, res) {
+    if (success) {
+        refreshToken = response;
+        res.writeHead(302, header);
+        res.end();
+    } else {
+        res.status(500).end(response);
+    }
 }
 
 /**
@@ -328,7 +348,7 @@ app.all('/proxy', function (req, res) {
  */
 app.get('/uAgent', function (req, res) {
     // Instantiate the service to create the URL to call
-    let userAgentInstance = new UserAgentService(req.query.isSandbox);
+    userAgentInstance = new UserAgentService(req.query.isSandbox);
     const userAgentUrlWithParameters = userAgentInstance.generateUserAgentRequest();
 
     // Launch the HTTP GET request based on the constructed URL with parameters
@@ -344,35 +364,9 @@ app.get('/uAgent', function (req, res) {
  *  This is the first step in the flow, where the authorization code is retrieved from the authorization endpoint.
  */
 app.get('/webServer', function (req, res) {
-    // Set sandbox context
-    setSandbox(req.query.isSandbox);
-
-    // Store the web server flow type in a global variable to be retrieved in the second step of the flow
-    webserverType = req.query.type;
-
-    // Set parameter values for retrieving authorization code
-    let responseType = 'code';
-    let scope = 'full%20refresh_token';
-    let endpointUrl = getAuthorizeEndpoint();
-
-    // Create a state to prevent CSRF
-    state = base64url.escape(crypto.randomBytes(32).toString('base64'));
-
-    // Generate the url to request the authorization code, including parameters
-    let authorizationUrl =
-        endpointUrl +
-        '?client_id=' +
-        clientId +
-        '&redirect_uri=' +
-        encodeURI(callbackURL) +
-        '&response_type=' +
-        responseType +
-        '&state=' +
-        state +
-        '&scope=' +
-        scope +
-        '&code_challenge=' +
-        codeChallenge;
+    // Instantiate the service to create the URL to call
+    authInstance = new WebServerService(req.query.isSandbox, req.query.type);
+    const authorizationUrl = authInstance.generateAuthorizationRequest();
 
     // Launch the request to get the authorization code
     request({ method: 'GET', url: authorizationUrl }).pipe(res);
@@ -385,38 +379,47 @@ app.get('/webServer', function (req, res) {
  * obtained authorization code to the token endpoint.
  */
 app.get('/webServerStep2', function (req, res) {
-    // Set parameter values for retrieving access token
-    let grantType = 'authorization_code';
-    let code = req.query.code;
-    let endpointUrl = getTokenEndpoint();
+    // Web Server instance was already created during first step of the flow, just send the request
+    let postRequest = authInstance.generateTokenRequest(req.query.code);
 
-    // Set the different parameters in the body of the post request
-    let paramBody =
-        'client_id=' +
-        clientId +
-        '&redirect_uri=' +
-        encodeURI(callbackURL) +
-        '&grant_type=' +
-        grantType +
-        '&code=' +
-        code +
-        '&code_verifier=' +
-        codeVerifier;
+    // // Set parameter values for retrieving access token
+    // let grantType = 'authorization_code';
+    // let code = req.query.code;
+    // let endpointUrl = getTokenEndpoint();
 
-    // Add additional parameters in case of 'Client secret' or 'Client assertion' flow
-    if (webserverType == 'secret') {
-        paramBody += '&client_secret=' + clientSecret;
-    } else if (webserverType == 'assertion') {
-        paramBody += '&client_assertion=' + createClientAssertion();
-        paramBody += '&client_assertion_type=' + 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
-    }
+    // // Set the different parameters in the body of the post request
+    // let paramBody =
+    //     'client_id=' +
+    //     clientId +
+    //     '&redirect_uri=' +
+    //     encodeURI(callbackURL) +
+    //     '&grant_type=' +
+    //     grantType +
+    //     '&code=' +
+    //     code +
+    //     '&code_verifier=' +
+    //     codeVerifier;
 
-    // Create the full POST request with all required parameters
-    let postRequest = createPostRequest(endpointUrl, paramBody);
+    // // Add additional parameters in case of 'Client secret' or 'Client assertion' flow
+    // if (webserverType == 'secret') {
+    //     paramBody += '&client_secret=' + clientSecret;
+    // } else if (webserverType == 'assertion') {
+    //     paramBody += '&client_assertion=' + createClientAssertion();
+    //     paramBody += '&client_assertion_type=' + 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
+    // }
+
+    // // Create the full POST request with all required parameters
+    // let postRequest = createPostRequest(endpointUrl, paramBody);
 
     // Send the request to the endpoint and specify callback function
-    request(postRequest, function (err, remoteResponse, remoteBody) {
-        accessTokenCallback(err, remoteResponse, remoteBody, res);
+    request(postRequest, (error, remoteResponse, remoteBody) => {
+        // Handle error or process response
+        if (error) {
+            res.status(500).end('Error occurred: ' + JSON.stringify(error));
+        } else {
+            let { success, header, response } = authInstance.processCallback(remoteBody);
+            processResponse(success, header, response, res);
+        }
     });
 });
 
@@ -644,11 +647,12 @@ app.route(/^\/(index.*)?$/).get(function (req, res) {
 app.get('/oauthcallback', function (req, res) {
     let code = req.query.code;
     let returnedState = req.query.state;
+    let originalState = authInstance.state;
 
     res.render('oauthcallback', {
         code: code,
         returnedState: returnedState,
-        originalState: state,
+        originalState: originalState,
     });
 });
 
