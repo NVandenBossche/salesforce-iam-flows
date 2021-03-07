@@ -1,9 +1,9 @@
 const { UserAgentService } = require('./services/useragent');
 const { WebServerService } = require('./services/webserver');
+const { JwtService } = require('./services/jwt');
 
 // Load dependencies
 var express = require('express'),
-    http = require('http'),
     request = require('request'),
     bodyParser = require('body-parser'),
     morgan = require('morgan'),
@@ -328,6 +328,22 @@ function createPostRequest(endpointUrl, body) {
     };
 }
 
+function handleGetRequest(getRequest, res) {
+    request({ method: 'GET', url: getRequest }).pipe(res);
+}
+
+function handlePostRequest(postRequest, res) {
+    request(postRequest, function (error, remoteResponse, remoteBody) {
+        // Handle error or process response
+        if (error) {
+            res.status(500).end('Error occurred: ' + JSON.stringify(error));
+        } else {
+            let { success, header, response } = authInstance.processCallback(remoteBody);
+            processResponse(success, header, response, res);
+        }
+    });
+}
+
 app.all('/proxy', function (req, res) {
     var url = req.header('SalesforceProxy-Endpoint');
     request({
@@ -348,14 +364,11 @@ app.all('/proxy', function (req, res) {
  */
 app.get('/uAgent', function (req, res) {
     // Instantiate the service to create the URL to call
-    userAgentInstance = new UserAgentService(req.query.isSandbox);
-    const userAgentUrlWithParameters = userAgentInstance.generateUserAgentRequest();
+    authInstance = new UserAgentService(req.query.isSandbox);
+    const userAgentUrlWithParameters = authInstance.generateUserAgentRequest();
 
     // Launch the HTTP GET request based on the constructed URL with parameters
-    request({
-        method: 'GET',
-        url: userAgentUrlWithParameters,
-    }).pipe(res);
+    handleGetRequest(userAgentUrlWithParameters, res);
 });
 
 /**
@@ -369,7 +382,7 @@ app.get('/webServer', function (req, res) {
     const authorizationUrl = authInstance.generateAuthorizationRequest();
 
     // Launch the request to get the authorization code
-    request({ method: 'GET', url: authorizationUrl }).pipe(res);
+    handleGetRequest(authorizationUrl, res);
 });
 
 /**
@@ -382,45 +395,8 @@ app.get('/webServerStep2', function (req, res) {
     // Web Server instance was already created during first step of the flow, just send the request
     let postRequest = authInstance.generateTokenRequest(req.query.code);
 
-    // // Set parameter values for retrieving access token
-    // let grantType = 'authorization_code';
-    // let code = req.query.code;
-    // let endpointUrl = getTokenEndpoint();
-
-    // // Set the different parameters in the body of the post request
-    // let paramBody =
-    //     'client_id=' +
-    //     clientId +
-    //     '&redirect_uri=' +
-    //     encodeURI(callbackURL) +
-    //     '&grant_type=' +
-    //     grantType +
-    //     '&code=' +
-    //     code +
-    //     '&code_verifier=' +
-    //     codeVerifier;
-
-    // // Add additional parameters in case of 'Client secret' or 'Client assertion' flow
-    // if (webserverType == 'secret') {
-    //     paramBody += '&client_secret=' + clientSecret;
-    // } else if (webserverType == 'assertion') {
-    //     paramBody += '&client_assertion=' + createClientAssertion();
-    //     paramBody += '&client_assertion_type=' + 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
-    // }
-
-    // // Create the full POST request with all required parameters
-    // let postRequest = createPostRequest(endpointUrl, paramBody);
-
     // Send the request to the endpoint and specify callback function
-    request(postRequest, (error, remoteResponse, remoteBody) => {
-        // Handle error or process response
-        if (error) {
-            res.status(500).end('Error occurred: ' + JSON.stringify(error));
-        } else {
-            let { success, header, response } = authInstance.processCallback(remoteBody);
-            processResponse(success, header, response, res);
-        }
-    });
+    handlePostRequest(postRequest, res);
 });
 
 /**
@@ -429,22 +405,12 @@ app.get('/webServerStep2', function (req, res) {
  * Creates a JWT token for the username defined in the environment variables, then posts it to the token endpoint.
  */
 app.get('/jwt', function (req, res) {
-    const grantType = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
+    // Instantiate JWT service and generate post request
+    authInstance = new JwtService(req.query.isSandbox);
+    let postRequest = authInstance.generateJwtRequest();
 
-    // Set sandbox context
-    setSandbox(req.query.isSandbox);
-
-    // Define POST request parameters
-    let endpointUrl = getTokenEndpoint();
-
-    let token = getSignedJWT(username);
-    let paramBody = 'grant_type=' + base64url.escape(grantType) + '&assertion=' + token;
-
-    let postRequest = createPostRequest(endpointUrl, paramBody);
-
-    request(postRequest, function (err, remoteResponse, remoteBody) {
-        accessTokenCallback(err, remoteResponse, remoteBody, res);
-    });
+    // Handle the response of the post request
+    handlePostRequest(postRequest, res);
 });
 
 /**
@@ -647,7 +613,7 @@ app.route(/^\/(index.*)?$/).get(function (req, res) {
 app.get('/oauthcallback', function (req, res) {
     let code = req.query.code;
     let returnedState = req.query.state;
-    let originalState = authInstance.state;
+    let originalState = authInstance ? authInstance.state : undefined;
 
     res.render('oauthcallback', {
         code: code,
@@ -677,7 +643,7 @@ var options = {
     cert: fs.readFileSync('./server.crt', 'utf8'),
 };
 
-// Define code verifier and code challenge
+// // Define code verifier and code challenge
 var codeVerifier = generateCodeVerifier();
 var codeChallenge = generateCodeChallenge(codeVerifier);
 

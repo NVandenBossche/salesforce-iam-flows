@@ -1,3 +1,8 @@
+var fs = require('fs'),
+    path = require('path'),
+    nJwt = require('njwt'),
+    CryptoJS = require('crypto-js');
+
 class AuthService {
     constructor() {
         this.clientId = process.env.CLIENT_ID;
@@ -65,13 +70,80 @@ class AuthService {
      */
     signJwtClaims(claims) {
         // Read private key into memory
-        let privateKey = fs.readFileSync(path.resolve('../key.pem'));
+        let privateKey = fs.readFileSync(path.resolve('key.pem'));
 
         // Leverage njwt library to create JWT token based on claims and private key
         let jwtToken = nJwt.create(claims, privateKey, 'RS256');
 
         // Return base64 version of the JWT token
         return jwtToken.compact();
+    }
+
+    processCallback(remoteBody) {
+        // Initialize return values
+        let success = true;
+        let header;
+        let response;
+
+        // Retrieve the response and store in JSON object
+        let sfdcResponse = JSON.parse(remoteBody);
+
+        // Parse specific parts of the response and store in variables
+        let identityUrl = sfdcResponse.id;
+        let issuedAt = sfdcResponse.issued_at;
+        let idToken = sfdcResponse.id_token;
+        let accessToken = sfdcResponse.access_token;
+
+        console.log('AT: ' + accessToken);
+
+        // If identity URL is specified, check its signature based on identity URL and 'issued at'
+        if (identityUrl && issuedAt) {
+            // Create SHA-256 hash of identity URL and 'issued at' based on client secret
+            let hash = CryptoJS.HmacSHA256(identityUrl + issuedAt, this.clientSecret);
+            let hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+
+            // Show error if base64 encoded hash doesn't match with the signature in the response
+            if (hashInBase64 != sfdcResponse.signature) {
+                success = false;
+                response = 'Signature not correct - Identity cannot be confirmed';
+            }
+        }
+
+        // If ID Token is specified, parse it and print it in the console
+        if (idToken) {
+            // Decode ID token
+            let tokenSplit = idToken.split('.');
+            let header = CryptoJS.enc.Base64.parse(tokenSplit[0]);
+            let body = CryptoJS.enc.Base64.parse(tokenSplit[1]);
+
+            console.log('ID Token header: ' + header.toString(CryptoJS.enc.Utf8));
+            console.log('ID Token body: ' + body.toString(CryptoJS.enc.Utf8));
+        }
+
+        // In case no error and signature checks out, AND there is an access token present, store refresh token in global state and redirect to query page
+        if (success && accessToken) {
+            let refreshToken;
+
+            if (sfdcResponse.refresh_token) {
+                refreshToken = sfdcResponse.refresh_token;
+            }
+
+            header = {
+                Location: 'queryresult',
+                'Set-Cookie': [
+                    'AccToken=' + accessToken,
+                    'APIVer=' + this.apiVersion,
+                    'InstURL=' + sfdcResponse.instance_url,
+                    'idURL=' + sfdcResponse.id,
+                ],
+            };
+
+            response = refreshToken;
+        } else if (success) {
+            success = false;
+            response = 'An error occurred. For more details, see the response from Salesforce: ' + remoteBody;
+        }
+        return { success, header, response };
     }
 }
 
