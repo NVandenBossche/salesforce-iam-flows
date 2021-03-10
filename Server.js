@@ -2,6 +2,7 @@ const { UserAgentService } = require('./services/useragent');
 const { WebServerService } = require('./services/webserver');
 const { JwtService } = require('./services/jwt');
 const { SamlBearerService } = require('./services/samlbearer');
+const { UsernamePasswordService } = require('./services/usernamepassword');
 
 // Load dependencies
 var express = require('express'),
@@ -434,35 +435,12 @@ app.get('/samlBearer', function (req, res) {
  * Sends username and password in the URL as free text to the token endpoint.
  */
 app.post('/uPwd', function (req, res) {
-    // Set sandbox context
-    setSandbox(req.body.isSandbox);
+    // Instantiate Username-Password service and generate post request
+    authInstance = new UsernamePasswordService(req.query.isSandbox);
+    let postRequest = authInstance.generateUsernamePasswordRequest(req.body.sfdcUsername, req.body.sfdcPassword);
 
-    // Construct parameters for POST request
-    const grantType = 'password';
-    let username = req.body.sfdcUsername;
-    let password = req.body.sfdcPassword;
-    let endpointUrl = getTokenEndpoint();
-
-    // Create body for POST request
-    let paramBody =
-        'client_id=' +
-        clientId +
-        '&grant_type=' +
-        grantType +
-        '&client_secret=' +
-        clientSecret +
-        '&username=' +
-        username +
-        '&password=' +
-        encodeURIComponent(password);
-
-    // Set the request parameters for the token endpoint
-    let postRequest = createPostRequest(endpointUrl, paramBody);
-
-    // Launch the request to the token endpoint and process in the callback function
-    request(postRequest, function (err, remoteResponse, remoteBody) {
-        accessTokenCallback(err, remoteResponse, remoteBody, res);
-    });
+    // Handle the response of the post request
+    handlePostRequest(postRequest, res);
 });
 
 /**
