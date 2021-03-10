@@ -3,6 +3,7 @@ const { WebServerService } = require('./services/webserver');
 const { JwtService } = require('./services/jwt');
 const { SamlBearerService } = require('./services/samlbearer');
 const { UsernamePasswordService } = require('./services/usernamepassword');
+const { DeviceService } = require('./services/device');
 
 // Load dependencies
 var express = require('express'),
@@ -124,8 +125,10 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
  * @param {String} header JSON string containing header information for the response page.
  * @param {String} response Either the content of an error message, or the refresh token in case of success.
  */
-function processResponse(success, header, response, res) {
-    if (success) {
+function processResponse(success, rerender, header, payload, response, res) {
+    if (rerender) {
+        res.render(response, payload);
+    } else if (success) {
         refreshToken = response;
         res.writeHead(302, header);
         res.end();
@@ -179,21 +182,6 @@ function deviceFlowCallback(err, remoteResponse, remoteBody, res) {
 }
 
 /**
- * Create a JWT client assertion
- * @returns JWT client assertion
- */
-function createClientAssertion() {
-    var assertionData = {
-        iss: clientId,
-        sub: clientId,
-        aud: baseURL + '/services/oauth2/token',
-        exp: Math.floor(new Date() / 1000) + 60 * 3,
-    };
-
-    return signJwtClaims(assertionData);
-}
-
-/**
  * Function that generates a cryptographically random code verifier
  * @returns Cryptographically random code verifier
  */
@@ -215,69 +203,6 @@ function generateCodeChallenge(verifier) {
 }
 
 /**
- * Create a JSON Web Token that is signed using the private key stored in 'key.pem'.
- * It first creates the Claims JSON and passes it to the signJwtClaims method.
- * @param {String} sfdcUserName
- */
-function getSignedJWT(sfdcUserName) {
-    var claims = {
-        iss: clientId,
-        sub: sfdcUserName,
-        aud: getAudience(),
-        exp: Math.floor(Date.now() / 1000) + 60 * 3, // valid for 3 minutes
-    };
-
-    return signJwtClaims(claims);
-}
-
-/**
- * Takes JSON formatted claims, creates a header for them, signs it with the
- * private key stored in 'key.pem' and base64 encodes the concatenation
- * "header.claims.signature".
- * @param {String} claims A JSON representation of the JWT claims containing
- *  issuer (client ID), subject (Salesforce username), audience (login/test)
- *  and expiration.
- */
-function signJwtClaims(claims) {
-    // Read private key into memory
-    let privateKey = fs.readFileSync(path.resolve('key.pem'));
-
-    // Leverage njwt library to create JWT token based on claims and private key
-    let jwtToken = nJwt.create(claims, privateKey, 'RS256');
-
-    // Return base64 version of the JWT token
-    return jwtToken.compact();
-}
-
-/**
- * Create a SAML Bearer Token that is signed using the private key stored in 'key.pem'.
- * It first creates the list of SAML claims and passes it to the create method of the saml library.
- * @returns {String} The signed SAML Bearer token in utf-8 encoding.
- */
-function getSignedSamlToken() {
-    let signedSamlToken;
-
-    // Retrieve private key and server certificate
-    let privateKey = fs.readFileSync(__dirname + '/key.pem');
-    let publicCert = fs.readFileSync(__dirname + '/server.crt');
-
-    // Set claims / options for SAML Bearer token. All of these are required for Salesforce.
-    let samlClaims = {
-        cert: publicCert,
-        key: privateKey,
-        issuer: clientId,
-        lifetimeInSeconds: 600,
-        audiences: getAudience(),
-        nameIdentifier: username,
-    };
-
-    // Create the SAML token which is signed with the private key (not encrypted)
-    signedSamlToken = saml.create(samlClaims);
-
-    return signedSamlToken;
-}
-
-/**
  * Set whether this flow is being executed for a sandbox or not.
  * @param {String} sandboxString The string containing 'true' or 'false' on whether or not
  * we're in the sandbox flow.
@@ -291,20 +216,6 @@ function setSandbox(sandboxString) {
  */
 function getBaseUrl() {
     return isSandbox ? 'https://test.salesforce.com/' : baseURL;
-}
-
-/**
- * Return the audience for authorization requests
- */
-function getAudience() {
-    return isSandbox ? 'https://test.salesforce.com/' : 'https://login.salesforce.com';
-}
-
-/**
- * Return the Authorization Endpoint for the set base URL
- */
-function getAuthorizeEndpoint() {
-    return getBaseUrl() + '/services/oauth2/authorize';
 }
 
 /**
@@ -340,8 +251,8 @@ function handlePostRequest(postRequest, res) {
         if (error) {
             res.status(500).end('Error occurred: ' + JSON.stringify(error));
         } else {
-            let { success, header, response } = authInstance.processCallback(remoteBody);
-            processResponse(success, header, response, res);
+            let { success, rerender, header, payload, response } = authInstance.processCallback(remoteBody);
+            processResponse(success, rerender, header, payload, response, res);
         }
     });
 }
@@ -449,21 +360,12 @@ app.post('/uPwd', function (req, res) {
  * Retrieves a device code, user code and verification URI and displays it to the user.
  */
 app.get('/device', function (req, res) {
-    // Set sandbox context
-    setSandbox(req.query.isSandbox);
+    // Instantiate Device service and generate post request
+    authInstance = new DeviceService(req.query.isSandbox);
+    let postRequest = authInstance.generateDeviceRequest();
 
-    // Define parameters
-    const responseType = 'device_code';
-    let endpointUrl = getTokenEndpoint();
-    let paramBody = 'client_id=' + clientId + '&response_type=' + responseType;
-
-    // Create post request to be sent to the token endpoint
-    let postRequest = createPostRequest(endpointUrl, paramBody);
-
-    // Launch request and set callback method
-    request(postRequest, function (err, remoteResponse, remoteBody) {
-        deviceFlowCallback(err, remoteResponse, remoteBody, res);
-    });
+    // Handle the response of the post request
+    handlePostRequest(postRequest, res);
 });
 
 /**

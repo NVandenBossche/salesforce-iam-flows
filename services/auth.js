@@ -79,10 +79,17 @@ class AuthService {
         return jwtToken.compact();
     }
 
+    // TODO: find a more elegant way of managing the callback. There are 3 options: show error, redirect to a new page, or show results page.
     processCallback(remoteBody) {
-        // Initialize return values
+        // True if successful call
         let success = true;
+        // Indicates whether there is a need to rerender the page with some parameters (device flow)
+        let rerender = false;
+        // Any headers that need to be sent for redirection
         let header;
+        // Any parameters for a rerender are stored in the payload
+        let payload;
+        // Contains either an error message, rerender target or refresh token
         let response;
 
         // Retrieve the response and store in JSON object
@@ -93,6 +100,10 @@ class AuthService {
         let issuedAt = sfdcResponse.issued_at;
         let idToken = sfdcResponse.id_token;
         let accessToken = sfdcResponse.access_token;
+        let verificationUri = sfdcResponse.verification_uri;
+        let userCode = sfdcResponse.user_code;
+        let deviceCode = sfdcResponse.device_code;
+        let interval = sfdcResponse.interval;
 
         console.log('AT: ' + accessToken);
 
@@ -120,30 +131,45 @@ class AuthService {
             console.log('ID Token body: ' + body.toString(CryptoJS.enc.Utf8));
         }
 
-        // In case no error and signature checks out, AND there is an access token present, store refresh token in global state and redirect to query page
-        if (success && accessToken) {
-            let refreshToken;
+        // For correct (or blank) signatures, check in which of the 3 scenarios we are
+        if (success) {
+            if (accessToken) {
+                // If access token is present, we redirect to queryresult page with some cookies.
+                let refreshToken;
 
-            if (sfdcResponse.refresh_token) {
-                refreshToken = sfdcResponse.refresh_token;
+                if (sfdcResponse.refresh_token) {
+                    refreshToken = sfdcResponse.refresh_token;
+                }
+
+                header = {
+                    Location: 'queryresult',
+                    'Set-Cookie': [
+                        'AccToken=' + accessToken,
+                        'APIVer=' + this.apiVersion,
+                        'InstURL=' + sfdcResponse.instance_url,
+                        'idURL=' + sfdcResponse.id,
+                    ],
+                };
+
+                response = refreshToken;
+            } else if (verificationUri) {
+                // If verification URI is present, we are in device flow and need to keep polling
+                rerender = true;
+                response = 'deviceOAuth';
+                payload = {
+                    verification_uri: verificationUri,
+                    user_code: userCode,
+                    device_code: deviceCode,
+                    isSandbox: this.isSandbox,
+                    interval: interval,
+                };
+            } else {
+                // If no access token or verification URI is present, something went wrong
+                success = false;
+                response = 'An error occurred. For more details, see the response from Salesforce: ' + remoteBody;
             }
-
-            header = {
-                Location: 'queryresult',
-                'Set-Cookie': [
-                    'AccToken=' + accessToken,
-                    'APIVer=' + this.apiVersion,
-                    'InstURL=' + sfdcResponse.instance_url,
-                    'idURL=' + sfdcResponse.id,
-                ],
-            };
-
-            response = refreshToken;
-        } else if (success) {
-            success = false;
-            response = 'An error occurred. For more details, see the response from Salesforce: ' + remoteBody;
         }
-        return { success, header, response };
+        return { success, rerender, header, payload, response };
     }
 }
 
