@@ -1,6 +1,7 @@
 const { UserAgentService } = require('./services/useragent');
 const { WebServerService } = require('./services/webserver');
 const { JwtService } = require('./services/jwt');
+const { SamlBearerService } = require('./services/samlbearer');
 
 // Load dependencies
 var express = require('express'),
@@ -419,33 +420,12 @@ app.get('/jwt', function (req, res) {
  * Creates a SAML bearer token for the username defined in the environment variables, then posts it to the token endpoint.
  */
 app.get('/samlBearer', function (req, res) {
-    // Set parameters for the SAML request body
-    const assertionType = 'urn:ietf:params:oauth:grant-type:saml2-bearer';
-    let token = getSignedSamlToken();
-    let base64SignedSamlToken = base64url.encode(token);
+    // Instantiate SAML Bearer service and generate post request
+    authInstance = new SamlBearerService(req.query.isSandbox);
+    let postRequest = authInstance.generateSamlBearerRequest();
 
-    // Set sandbox context
-    setSandbox(req.query.isSandbox);
-
-    // If persist option is set to true, persist the SAML bearer token and its base64 encoding to file
-    if (persistTokensToFile) {
-        fs.writeFile(__dirname + '/data/samlBearer.xml', token);
-        fs.writeFile(__dirname + '/data/samlBase64.txt', base64SignedSamlToken);
-    }
-
-    // Determine the endpoint URL depending on whether this needs to be executed on sandbox or production
-    let endpointUrl = getTokenEndpoint();
-
-    // Set the body of the POST request by defining the grant_type and assertion parameters
-    let paramBody = 'grant_type=' + assertionType + '&assertion=' + base64SignedSamlToken;
-
-    // Set the request parameters for the token endpoint
-    let postRequest = createPostRequest(endpointUrl, paramBody);
-
-    // Launch the request and handle the response using accessTokenCallback
-    request(postRequest, function (err, remoteResponse, remoteBody) {
-        accessTokenCallback(err, remoteResponse, remoteBody, res);
-    });
+    // Handle the response of the post request
+    handlePostRequest(postRequest, res);
 });
 
 /**
