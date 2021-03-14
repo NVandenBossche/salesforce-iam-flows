@@ -81,6 +81,10 @@ class AuthService {
 
     // TODO: find a more elegant way of managing the callback. There are 3 options: show error, redirect to a new page, or show results page.
     processCallback(remoteBody) {
+        return this.parseResults(remoteBody);
+    }
+
+    parseResults(remoteBody) {
         // True if successful call
         let success = true;
         // Indicates whether there is a need to rerender the page with some parameters (device flow)
@@ -93,17 +97,18 @@ class AuthService {
         let response;
 
         // Retrieve the response and store in JSON object
-        let sfdcResponse = JSON.parse(remoteBody);
+        let salesforceResponse = JSON.parse(remoteBody);
 
         // Parse specific parts of the response and store in variables
-        let identityUrl = sfdcResponse.id;
-        let issuedAt = sfdcResponse.issued_at;
-        let idToken = sfdcResponse.id_token;
-        let accessToken = sfdcResponse.access_token;
-        let verificationUri = sfdcResponse.verification_uri;
-        let userCode = sfdcResponse.user_code;
-        let deviceCode = sfdcResponse.device_code;
-        let interval = sfdcResponse.interval;
+        let identityUrl = salesforceResponse.id;
+        let issuedAt = salesforceResponse.issued_at;
+        let idToken = salesforceResponse.id_token;
+        let accessToken = salesforceResponse.access_token;
+        let verificationUri = salesforceResponse.verification_uri;
+        let userCode = salesforceResponse.user_code;
+        let deviceCode = salesforceResponse.device_code;
+        let interval = salesforceResponse.interval;
+        let errorType = salesforceResponse.error;
 
         console.log('AT: ' + accessToken);
 
@@ -114,7 +119,7 @@ class AuthService {
             let hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
 
             // Show error if base64 encoded hash doesn't match with the signature in the response
-            if (hashInBase64 != sfdcResponse.signature) {
+            if (hashInBase64 != salesforceResponse.signature) {
                 success = false;
                 response = 'Signature not correct - Identity cannot be confirmed';
             }
@@ -137,8 +142,8 @@ class AuthService {
                 // If access token is present, we redirect to queryresult page with some cookies.
                 let refreshToken;
 
-                if (sfdcResponse.refresh_token) {
-                    refreshToken = sfdcResponse.refresh_token;
+                if (salesforceResponse.refresh_token) {
+                    refreshToken = salesforceResponse.refresh_token;
                 }
 
                 header = {
@@ -146,8 +151,8 @@ class AuthService {
                     'Set-Cookie': [
                         'AccToken=' + accessToken,
                         'APIVer=' + this.apiVersion,
-                        'InstURL=' + sfdcResponse.instance_url,
-                        'idURL=' + sfdcResponse.id,
+                        'InstURL=' + salesforceResponse.instance_url,
+                        'idURL=' + salesforceResponse.id,
                     ],
                 };
 
@@ -163,7 +168,7 @@ class AuthService {
                     isSandbox: this.isSandbox,
                     interval: interval,
                 };
-            } else {
+            } else if (errorType != 'authorization_pending') {
                 // If no access token or verification URI is present, something went wrong
                 success = false;
                 response = 'An error occurred. For more details, see the response from Salesforce: ' + remoteBody;

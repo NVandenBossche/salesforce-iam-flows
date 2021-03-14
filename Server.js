@@ -127,13 +127,23 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
  */
 function processResponse(success, rerender, header, payload, response, res) {
     if (rerender) {
+        // Page needs to be rerendered to retry retrieving access token (device flow)
+        console.log('Rendering the following page: ' + response + '.\nPayload: ' + JSON.stringify(payload));
         res.render(response, payload);
-    } else if (success) {
-        refreshToken = response;
-        res.writeHead(302, header);
-        res.end();
-    } else {
-        res.status(500).end(response);
+    } else if (response) {
+        if (success) {
+            // If response returns successful response, we set the access token in the cookies and store the refresh token
+            console.log(
+                'Setting cookies: ' + JSON.stringify(header) + '. Storing following refresh token: ' + response
+            );
+            refreshToken = response;
+            res.writeHead(302, header);
+            res.end();
+        } else {
+            // If response doesn't return a successful response, show the error page.
+            console.log('No successful response from request. Showing error page with error: ' + response);
+            res.status(500).end(response);
+        }
     }
 }
 
@@ -246,14 +256,18 @@ function handleGetRequest(getRequest, res) {
 }
 
 function handlePostRequest(postRequest, res) {
-    request(postRequest, function (error, remoteResponse, remoteBody) {
-        // Handle error or process response
-        if (error) {
-            res.status(500).end('Error occurred: ' + JSON.stringify(error));
-        } else {
-            let { success, rerender, header, payload, response } = authInstance.processCallback(remoteBody);
-            processResponse(success, rerender, header, payload, response, res);
-        }
+    return new Promise((resolve, reject) => {
+        request(postRequest, function (error, remoteResponse, remoteBody) {
+            // Handle error or process response
+            if (error) {
+                res.status(500).end('Error occurred: ' + JSON.stringify(error));
+                reject(JSON.stringify(error));
+            } else {
+                let { success, rerender, header, payload, response } = authInstance.processCallback(remoteBody);
+                processResponse(success, rerender, header, payload, response, res);
+                resolve();
+            }
+        });
     });
 }
 
@@ -364,32 +378,31 @@ app.get('/device', function (req, res) {
     authInstance = new DeviceService(req.query.isSandbox);
     let postRequest = authInstance.generateDeviceRequest();
 
+    // Reset value so we can test the flow multiple times
+    this.deviceResponse = undefined;
+
     // Handle the response of the post request
-    handlePostRequest(postRequest, res);
+    console.log('Sending request to get device code...');
+    handlePostRequest(postRequest, res).then(() => {
+        console.log('Starting polling for authorization...');
+
+        // Asynchrous polling of the endpoint using a promise. Set device response on success.
+        authInstance.pollContinually().then((response) => {
+            console.log('Authorization granted by user.');
+            this.deviceResponse = response;
+        });
+    });
 });
 
 /**
  * This method is called every time we poll the token endpoint to see if the device
- * was authorized. Keep polling until the device is verified.
+ * was authorized. It only loads the page in case a response was received
  */
 app.get('/devicePol', function (req, res) {
-    // Retrieve query parameters for further processing
-    const grantType = 'device';
-    let deviceCode = req.query.device_code;
-
-    // Set sandbox context
-    setSandbox(req.query.isSandbox);
-
-    // Set parameters for POST request
-    let endpointUrl = getTokenEndpoint();
-    let paramBody = 'client_id=' + clientId + '&grant_type=' + grantType + '&code=' + deviceCode;
-
-    let postRequest = createPostRequest(endpointUrl, paramBody);
-
-    // Launch request towards token endpoint
-    request(postRequest, function (err, remoteResponse, remoteBody) {
-        deviceFlowCallback(err, remoteResponse, remoteBody, res);
-    });
+    if (this.deviceResponse) {
+        res.writeHead(302, this.deviceResponse.header);
+        res.end();
+    }
 });
 
 /**
