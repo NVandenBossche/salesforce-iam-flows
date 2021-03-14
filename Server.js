@@ -125,26 +125,43 @@ function accessTokenCallback(err, remoteResponse, remoteBody, res) {
  * @param {String} header JSON string containing header information for the response page.
  * @param {String} response Either the content of an error message, or the refresh token in case of success.
  */
-function processResponse(success, rerender, header, payload, response, res) {
-    if (rerender) {
+function processResponse(error, accessTokenHeader, refreshToken, redirect, res) {
+    if (redirect) {
         // Page needs to be rerendered to retry retrieving access token (device flow)
-        console.log('Rendering the following page: ' + response + '.\nPayload: ' + JSON.stringify(payload));
-        res.render(response, payload);
-    } else if (response) {
-        if (success) {
-            // If response returns successful response, we set the access token in the cookies and store the refresh token
-            console.log(
-                'Setting cookies: ' + JSON.stringify(header) + '. Storing following refresh token: ' + response
-            );
-            refreshToken = response;
-            res.writeHead(302, header);
-            res.end();
-        } else {
-            // If response doesn't return a successful response, show the error page.
-            console.log('No successful response from request. Showing error page with error: ' + response);
-            res.status(500).end(response);
-        }
+        console.log(
+            'Rendering the following page: ' + redirect.location + '.\nPayload: ' + JSON.stringify(redirect.payload)
+        );
+        res.render(redirect.location, redirect.payload);
+    } else if (error) {
+        // If response doesn't return a successful response, show the error page.
+        console.log('No successful response from request. Showing error page with error: ' + response);
+        res.status(500).end(response);
+    } else {
+        // If response returns successful response, we set the access token in the cookies and store the refresh token
+        console.log(
+            'Setting cookies: ' +
+                JSON.stringify(accessTokenHeader) +
+                '. Storing following refresh token: ' +
+                refreshToken
+        );
+        this.refreshToken = refreshToken;
+        res.writeHead(302, accessTokenHeader);
+        res.end();
     }
+    //     if (success) {
+    //         // If response returns successful response, we set the access token in the cookies and store the refresh token
+    //         console.log(
+    //             'Setting cookies: ' + JSON.stringify(header) + '. Storing following refresh token: ' + response
+    //         );
+    //         refreshToken = response;
+    //         res.writeHead(302, header);
+    //         res.end();
+    //     } else {
+    //         // If response doesn't return a successful response, show the error page.
+    //         console.log('No successful response from request. Showing error page with error: ' + response);
+    //         res.status(500).end(response);
+    //     }
+    // }
 }
 
 /**
@@ -263,8 +280,8 @@ function handlePostRequest(postRequest, res) {
                 res.status(500).end('Error occurred: ' + JSON.stringify(error));
                 reject(JSON.stringify(error));
             } else {
-                let { success, rerender, header, payload, response } = authInstance.processCallback(remoteBody);
-                processResponse(success, rerender, header, payload, response, res);
+                let { error, accessTokenHeader, refreshToken, redirect } = authInstance.processCallback(remoteBody);
+                processResponse(error, accessTokenHeader, refreshToken, redirect, res);
                 resolve();
             }
         });
@@ -400,7 +417,7 @@ app.get('/device', function (req, res) {
  */
 app.get('/devicePol', function (req, res) {
     if (this.deviceResponse) {
-        res.writeHead(302, this.deviceResponse.header);
+        res.writeHead(302, this.deviceResponse.accessTokenHeader);
         res.end();
     }
 });
@@ -419,7 +436,7 @@ app.get('/refresh', function (req, res) {
     const grantType = 'refresh_token';
     let endpointUrl = getTokenEndpoint();
     let paramBody =
-        'grant_type=' + base64url.escape(grantType) + '&refresh_token=' + refreshToken + '&client_id=' + clientId;
+        'grant_type=' + base64url.escape(grantType) + '&refresh_token=' + this.refreshToken + '&client_id=' + clientId;
 
     // Create the POST request
     let postRequest = createPostRequest(endpointUrl, paramBody);

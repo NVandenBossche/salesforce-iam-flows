@@ -29,14 +29,33 @@ class DeviceService extends AuthService {
     }
 
     processCallback(remoteBody) {
-        let salesforceResponse = JSON.parse(remoteBody);
+        // Return value for redirect
+        let redirect = {};
+        let error;
 
+        // Parse response for device code, interval, verification URI and user code
+        let salesforceResponse = JSON.parse(remoteBody);
         this.deviceCode = salesforceResponse.device_code;
         this.interval = salesforceResponse.interval;
+        let verificationUri = salesforceResponse.verification_uri;
+        let userCode = salesforceResponse.user_code;
 
-        return super.processCallback(remoteBody);
+        if (verificationUri) {
+            // If verification URI is present, we are in device flow and need to keep polling
+            redirect.location = 'deviceOAuth';
+            redirect.payload = {
+                verification_uri: verificationUri,
+                user_code: userCode,
+            };
+        } else {
+            // If no verification URI is present, something went wrong
+            error = 'An error occurred. For more details, see the response from Salesforce: ' + remoteBody;
+        }
+
+        return { error, undefined, undefined, redirect };
     }
 
+    // TODO: Add timeout after x minutes
     pollContinually() {
         let postRequest = this.generatePollingRequest(this.deviceCode);
         let interval = this.interval;
@@ -58,10 +77,10 @@ class DeviceService extends AuthService {
             }
 
             function keepPolling() {
-                if (!(deviceResponse && deviceResponse.success && deviceResponse.header)) {
-                    setTimeout(pollSalesforceForAuthorization, interval * 1000);
-                } else {
+                if (deviceResponse && deviceResponse.accessTokenHeader) {
                     resolve(deviceResponse);
+                } else {
+                    setTimeout(pollSalesforceForAuthorization, interval * 1000);
                 }
             }
 

@@ -79,22 +79,16 @@ class AuthService {
         return jwtToken.compact();
     }
 
-    // TODO: find a more elegant way of managing the callback. There are 3 options: show error, redirect to a new page, or show results page.
+    // TODO: find a more elegant way of managing the callback.
+    // There are 4 types of results: error returned, access token received, access token & refresh token received, redirect required.
     processCallback(remoteBody) {
         return this.parseResults(remoteBody);
     }
 
     parseResults(remoteBody) {
-        // True if successful call
-        let success = true;
-        // Indicates whether there is a need to rerender the page with some parameters (device flow)
-        let rerender = false;
-        // Any headers that need to be sent for redirection
-        let header;
-        // Any parameters for a rerender are stored in the payload
-        let payload;
-        // Contains either an error message, rerender target or refresh token
-        let response;
+        let error;
+        let accessTokenHeader;
+        let refreshToken;
 
         // Retrieve the response and store in JSON object
         let salesforceResponse = JSON.parse(remoteBody);
@@ -104,11 +98,7 @@ class AuthService {
         let issuedAt = salesforceResponse.issued_at;
         let idToken = salesforceResponse.id_token;
         let accessToken = salesforceResponse.access_token;
-        let verificationUri = salesforceResponse.verification_uri;
-        let userCode = salesforceResponse.user_code;
-        let deviceCode = salesforceResponse.device_code;
-        let interval = salesforceResponse.interval;
-        let errorType = salesforceResponse.error;
+        refreshToken = salesforceResponse.refresh_token;
 
         console.log('AT: ' + accessToken);
 
@@ -120,8 +110,7 @@ class AuthService {
 
             // Show error if base64 encoded hash doesn't match with the signature in the response
             if (hashInBase64 != salesforceResponse.signature) {
-                success = false;
-                response = 'Signature not correct - Identity cannot be confirmed';
+                error = 'Signature not correct - Identity cannot be confirmed';
             }
         }
 
@@ -136,45 +125,23 @@ class AuthService {
             console.log('ID Token body: ' + body.toString(CryptoJS.enc.Utf8));
         }
 
-        // For correct (or blank) signatures, check in which of the 3 scenarios we are
-        if (success) {
-            if (accessToken) {
-                // If access token is present, we redirect to queryresult page with some cookies.
-                let refreshToken;
-
-                if (salesforceResponse.refresh_token) {
-                    refreshToken = salesforceResponse.refresh_token;
-                }
-
-                header = {
-                    Location: 'queryresult',
-                    'Set-Cookie': [
-                        'AccToken=' + accessToken,
-                        'APIVer=' + this.apiVersion,
-                        'InstURL=' + salesforceResponse.instance_url,
-                        'idURL=' + salesforceResponse.id,
-                    ],
-                };
-
-                response = refreshToken;
-            } else if (verificationUri) {
-                // If verification URI is present, we are in device flow and need to keep polling
-                rerender = true;
-                response = 'deviceOAuth';
-                payload = {
-                    verification_uri: verificationUri,
-                    user_code: userCode,
-                    device_code: deviceCode,
-                    isSandbox: this.isSandbox,
-                    interval: interval,
-                };
-            } else if (errorType != 'authorization_pending') {
-                // If no access token or verification URI is present, something went wrong
-                success = false;
-                response = 'An error occurred. For more details, see the response from Salesforce: ' + remoteBody;
-            }
+        // For correct (or blank) signatures, check if access token is present
+        if (accessToken) {
+            // If access token is present, we redirect to queryresult page with some cookies.
+            accessTokenHeader = {
+                Location: 'queryresult',
+                'Set-Cookie': [
+                    'AccToken=' + accessToken,
+                    'APIVer=' + this.apiVersion,
+                    'InstURL=' + salesforceResponse.instance_url,
+                    'idURL=' + salesforceResponse.id,
+                ],
+            };
+        } else {
+            // If no access token is present, something went wrong
+            error = 'An error occurred. For more details, see the response from Salesforce: ' + remoteBody;
         }
-        return { success, rerender, header, payload, response };
+        return { error, accessTokenHeader, refreshToken };
     }
 }
 
