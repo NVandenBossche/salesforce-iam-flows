@@ -455,8 +455,6 @@ app.route(/^\/(index.*)?$/).get(function (req, res) {
         username: username,
         clientId: clientId,
         clientSecret: clientSecret,
-        codeVerifier: codeVerifier,
-        codeChallenge: codeChallenge,
     });
 });
 
@@ -496,10 +494,6 @@ var options = {
     key: fs.readFileSync('./key.pem', 'utf8'),
     cert: fs.readFileSync('./server.crt', 'utf8'),
 };
-
-// // Define code verifier and code challenge
-var codeVerifier = generateCodeVerifier();
-var codeChallenge = generateCodeChallenge(codeVerifier);
 
 // Create the server and log that it's up and running
 https.createServer(options, app).listen(8081);

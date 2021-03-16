@@ -26,6 +26,14 @@ class WebServerService extends AuthService {
     }
 
     /**
+     * Function that generates a cryptographically random code verifier
+     * @returns Cryptographically random code verifier
+     */
+    generateCodeVerifier() {
+        return crypto.randomBytes(128).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    }
+
+    /**
      * Create a JWT client assertion
      * @returns JWT client assertion
      */
@@ -105,14 +113,6 @@ class WebServerService extends AuthService {
 
         // Create the full POST request with all required parameters
         return this.createPostRequest(endpointUrl, paramBody);
-    }
-
-    /**
-     * Function that generates a cryptographically random code verifier
-     * @returns Cryptographically random code verifier
-     */
-    generateCodeVerifier() {
-        return crypto.randomBytes(128).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
     }
 }
 
