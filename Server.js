@@ -5,6 +5,7 @@ const { SamlBearerService } = require('./services/samlbearer');
 const { UsernamePasswordService } = require('./services/usernamepassword');
 const { DeviceService } = require('./services/device');
 const { RefreshService } = require('./services/refresh');
+const { SamlAssertService } = require('./services/samlassert');
 
 // Load dependencies
 var express = require('express'),
@@ -12,12 +13,8 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     morgan = require('morgan'),
     app = express(),
-    path = require('path'),
     https = require('https'),
     fs = require('fs'),
-    base64url = require('base64-url'),
-    nJwt = require('njwt'),
-    saml = require('saml').Saml20,
     CryptoJS = require('crypto-js'),
     crypto = require('crypto');
 
@@ -28,14 +25,8 @@ var apiVersion = 'v45.0',
     callbackURL = process.env.CALLBACK_URL,
     baseURL = process.env.BASE_URL,
     username = process.env.USERNAME,
-    persistTokensToFile = process.env.PERSIST === 'true',
     isSandbox = false,
-    state = '',
-    refreshToken = '',
-    webserverType = '',
-    authInstance,
-    userAgentInstance,
-    webServerInstance;
+    authInstance;
 
 // Set default view engine to ejs. This will be used when calling res.render().
 app.set('view engine', 'ejs');
@@ -417,32 +408,12 @@ app.get('/refresh', function (req, res) {
  * Requires a SAML assertion that is stored on the server's file system ('data/axiomSamlAssertino.xml').
  */
 app.get('/samlAssert', function (req, res) {
-    // Set sandbox context
-    setSandbox(req.query.isSandbox);
+    // Instantiate Saml Assert service and generate post request
+    authInstance = new SamlAssertService(req.query.isSandbox);
+    let postRequest = authInstance.generateSamlAssertRequest();
 
-    // Set parameters for the SAML request body
-    const assertionType = 'urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser';
-    let endpointUrl = getTokenEndpoint();
-
-    // Read assertion XML from file located at 'data/axiomSamlAssertion.xml'. Alternatively, copy-paste XML string below and assign to variable.
-    let assertionXml = fs.readFileSync('data/axiomSamlAssertion.xml', 'utf8');
-    let base64AssertionXml = Buffer.from(assertionXml).toString('base64');
-
-    // Construct the request body containing grant type, assertion type and assertion. All should be URL encoded.
-    let samlParamBody =
-        'grant_type=' +
-        encodeURIComponent('assertion') +
-        '&assertion_type=' +
-        encodeURIComponent(assertionType) +
-        '&assertion=' +
-        encodeURIComponent(base64AssertionXml);
-
-    let postRequest = createPostRequest(endpointUrl, samlParamBody);
-
-    // Launch the POST request with the constructured body to the defined endpoint.
-    request(postRequest, function (err, remoteResponse, remoteBody) {
-        accessTokenCallback(err, remoteResponse, remoteBody, res);
-    });
+    // Handle the response of the post request
+    handlePostRequest(postRequest, res);
 });
 
 /**
