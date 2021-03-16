@@ -148,20 +148,6 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
         res.writeHead(302, accessTokenHeader);
         res.end();
     }
-    //     if (success) {
-    //         // If response returns successful response, we set the access token in the cookies and store the refresh token
-    //         console.log(
-    //             'Setting cookies: ' + JSON.stringify(header) + '. Storing following refresh token: ' + response
-    //         );
-    //         refreshToken = response;
-    //         res.writeHead(302, header);
-    //         res.end();
-    //     } else {
-    //         // If response doesn't return a successful response, show the error page.
-    //         console.log('No successful response from request. Showing error page with error: ' + response);
-    //         res.status(500).end(response);
-    //     }
-    // }
 }
 
 /**
@@ -273,18 +259,14 @@ function handleGetRequest(getRequest, res) {
 }
 
 function handlePostRequest(postRequest, res) {
-    return new Promise((resolve, reject) => {
-        request(postRequest, function (error, remoteResponse, remoteBody) {
-            // Handle error or process response
-            if (error) {
-                res.status(500).end('Error occurred: ' + JSON.stringify(error));
-                reject(JSON.stringify(error));
-            } else {
-                let { error, accessTokenHeader, refreshToken, redirect } = authInstance.processCallback(remoteBody);
-                processResponse(error, accessTokenHeader, refreshToken, redirect, res);
-                resolve();
-            }
-        });
+    request(postRequest, function (error, remoteResponse, remoteBody) {
+        // Handle error or process response
+        if (error) {
+            res.status(500).end('Error occurred: ' + JSON.stringify(error));
+        } else {
+            let { error, accessTokenHeader, refreshToken, redirect } = authInstance.processCallback(remoteBody);
+            processResponse(error, accessTokenHeader, refreshToken, redirect, res);
+        }
     });
 }
 
@@ -395,20 +377,9 @@ app.get('/device', function (req, res) {
     authInstance = new DeviceService(req.query.isSandbox);
     let postRequest = authInstance.generateDeviceRequest();
 
-    // Reset value so we can test the flow multiple times
-    this.deviceResponse = undefined;
-
     // Handle the response of the post request
     console.log('Sending request to get device code...');
-    handlePostRequest(postRequest, res).then(() => {
-        console.log('Starting polling for authorization...');
-
-        // Asynchrous polling of the endpoint using a promise. Set device response on success.
-        authInstance.pollContinually().then((response) => {
-            console.log('Authorization granted by user.');
-            this.deviceResponse = response;
-        });
-    });
+    handlePostRequest(postRequest, res);
 });
 
 /**
@@ -416,10 +387,12 @@ app.get('/device', function (req, res) {
  * was authorized. It only loads the page in case a response was received
  */
 app.get('/devicePol', function (req, res) {
-    if (this.deviceResponse) {
-        res.writeHead(302, this.deviceResponse.accessTokenHeader);
-        res.end();
-    }
+    console.log('Starting polling for authorization...');
+    // Asynchrous polling of the endpoint using a promise. Set device response on success.
+    authInstance.pollContinually().then((response) => {
+        console.log('Authorization granted by user.');
+        processResponse(response.error, response.accessTokenHeader, response.refreshToken, response.redirect, res);
+    });
 });
 
 /**
