@@ -14,18 +14,14 @@ var express = require('express'),
     morgan = require('morgan'),
     app = express(),
     https = require('https'),
-    fs = require('fs'),
-    CryptoJS = require('crypto-js'),
-    crypto = require('crypto');
+    fs = require('fs');
 
 // Set global variables, some loaded from environment variables (.env file)
-var apiVersion = 'v45.0',
-    clientId = process.env.CLIENT_ID,
+var clientId = process.env.CLIENT_ID,
     clientSecret = process.env.CLIENT_SECRET,
     callbackURL = process.env.CALLBACK_URL,
     baseURL = process.env.BASE_URL,
     username = process.env.USERNAME,
-    isSandbox = false,
     authInstance;
 
 // Set default view engine to ejs. This will be used when calling res.render().
@@ -42,73 +38,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Set the port to use based on the environment variables
 app.set('port', process.env.PORT);
 
-/**
- * Extract Access token from POST response and redirect to page queryresult.
- * @param {*} err Error object returned to the callback function in case anything went wrong.
- * @param {*} remoteResponse The response code from the remote call.
- * @param {String} remoteBody The (JSON) body response from the remote call.
- * @param {*} res The resource from Express, modify to display a result.
- */
-function accessTokenCallback(err, remoteResponse, remoteBody, res) {
-    // Display error if error is returned to callback function
-    if (err) {
-        return res.status(500).end('Error');
-    }
+function handleGetRequest(getRequest, res) {
+    request({ method: 'GET', url: getRequest }).pipe(res);
+}
 
-    // Retrieve the response and store in JSON object
-    let sfdcResponse = JSON.parse(remoteBody);
-
-    let identityUrl = sfdcResponse.id;
-    let issuedAt = sfdcResponse.issued_at;
-    let idToken = sfdcResponse.id_token;
-    let accessToken = sfdcResponse.access_token;
-
-    // If identity URL is specified, check its signature based on identity URL and 'issued at'
-    if (identityUrl && issuedAt) {
-        // Create SHA-256 hash of identity URL and 'issued at' based on client secret
-        let hash = CryptoJS.HmacSHA256(identityUrl + issuedAt, clientSecret);
-        let hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-
-        // Show error if base64 encoded hash doesn't match with the signature in the response
-        if (hashInBase64 != sfdcResponse.signature) {
-            return res.status(500).end('Signature not correct - Identity cannot be confirmed');
+function handlePostRequest(postRequest, res) {
+    request(postRequest, function (error, remoteResponse, remoteBody) {
+        // Handle error or process response
+        if (error) {
+            res.status(500).end('Error occurred: ' + JSON.stringify(error));
+        } else {
+            let { error, accessTokenHeader, refreshToken, redirect } = authInstance.processCallback(remoteBody);
+            processResponse(error, accessTokenHeader, refreshToken, redirect, res);
         }
-    }
-
-    // If ID Token is specified, parse it and print it in the console
-    if (idToken) {
-        // Decode ID token
-        let tokenSplit = idToken.split('.');
-        let header = CryptoJS.enc.Base64.parse(tokenSplit[0]);
-        let body = CryptoJS.enc.Base64.parse(tokenSplit[1]);
-
-        console.log('ID Token header: ' + header.toString(CryptoJS.enc.Utf8));
-        console.log('ID Token body: ' + body.toString(CryptoJS.enc.Utf8));
-    }
-
-    // In case no error and signature checks out, AND there is an access token present, store refresh token in global state and redirect to query page
-    if (accessToken) {
-        if (sfdcResponse.refresh_token) {
-            refreshToken = sfdcResponse.refresh_token;
-        }
-
-        res.writeHead(302, {
-            Location: 'queryresult',
-            'Set-Cookie': [
-                'AccToken=' + accessToken,
-                'APIVer=' + apiVersion,
-                'InstURL=' + sfdcResponse.instance_url,
-                'idURL=' + sfdcResponse.id,
-            ],
-        });
-    } else {
-        res.write(
-            'Some error occurred. Make sure connected app is approved previously if its JWT flow, Username and Password is correct if its Password flow. '
-        );
-        res.write(' Salesforce Response : ');
-        res.write(remoteBody);
-    }
-    res.end();
+    });
 }
 
 /**
@@ -140,126 +83,6 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
         res.writeHead(302, accessTokenHeader);
         res.end();
     }
-}
-
-/**
- * Extract Access token from POST response and redirect to page queryresult.
- * @param {*} err Error object returned to the callback function in case anything went wrong.
- * @param {*} remoteResponse The response code from the remote call.
- * @param {String} remoteBody The (JSON) body response from the remote call.
- * @param {*} res The resource from Express, modify to display a result.
- */
-function deviceFlowCallback(err, remoteResponse, remoteBody, res) {
-    // If an error is received, show it
-    if (err) {
-        return res.status(500).end('Error:' + err);
-    }
-
-    // Parse the response for the device flow, either a user code to be displayed or the access token
-    let sfdcResponse = JSON.parse(remoteBody);
-    let verificationUri = sfdcResponse.verification_uri;
-    let userCode = sfdcResponse.user_code;
-    let deviceCode = sfdcResponse.device_code;
-    let interval = sfdcResponse.interval;
-    let accessToken = sfdcResponse.access_token;
-
-    // Render query result if access token is present, or show user code page if not
-    if (accessToken) {
-        res.writeHead(302, {
-            Location: 'queryresult',
-            'Set-Cookie': [
-                'AccToken=' + sfdcResponse.access_token,
-                'APIVer=' + apiVersion,
-                'InstURL=' + sfdcResponse.instance_url,
-                'idURL=' + sfdcResponse.id,
-            ],
-        });
-        res.end();
-    } else if (verificationUri) {
-        res.render('deviceOAuth', {
-            verification_uri: verificationUri,
-            user_code: userCode,
-            device_code: deviceCode,
-            isSandbox: isSandbox,
-            interval: interval,
-        });
-    }
-}
-
-/**
- * Function that generates a cryptographically random code verifier
- * @returns Cryptographically random code verifier
- */
-function generateCodeVerifier() {
-    return crypto.randomBytes(128).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-}
-
-/**
- * Function that hashes the code verifier and encodes it into base64URL
- * @param {String} verifier The code verifier string. This string should be long enough to be secure.
- * @returns Code challenge based on provided verifier
- */
-function generateCodeChallenge(verifier) {
-    return CryptoJS.SHA256(verifier)
-        .toString(CryptoJS.enc.Base64)
-        .replace(/=/g, '')
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_');
-}
-
-/**
- * Set whether this flow is being executed for a sandbox or not.
- * @param {String} sandboxString The string containing 'true' or 'false' on whether or not
- * we're in the sandbox flow.
- */
-function setSandbox(sandboxString) {
-    isSandbox = sandboxString === 'true';
-}
-
-/**
- * Return the base URL for sending any HTTP requests to
- */
-function getBaseUrl() {
-    return isSandbox ? 'https://test.salesforce.com/' : baseURL;
-}
-
-/**
- * Return the Token Endpoint for the set base URL
- * @returns The token endpoint URL
- */
-function getTokenEndpoint() {
-    return getBaseUrl() + '/services/oauth2/token';
-}
-
-/**
- * Creates a HTTP POST request JSON object that can be passed along to the Express "request".
- * @param {String} endpointUrl The url of the endpoint (authorization or token).
- * @param {String} body The parameters to be passed to the endpoint as URL parameters (key1=value1&key2=value2&...).
- * @returns JSON object containing information needed for sending the POST request.
- */
-function createPostRequest(endpointUrl, body) {
-    return {
-        method: 'POST',
-        url: endpointUrl,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body,
-    };
-}
-
-function handleGetRequest(getRequest, res) {
-    request({ method: 'GET', url: getRequest }).pipe(res);
-}
-
-function handlePostRequest(postRequest, res) {
-    request(postRequest, function (error, remoteResponse, remoteBody) {
-        // Handle error or process response
-        if (error) {
-            res.status(500).end('Error occurred: ' + JSON.stringify(error));
-        } else {
-            let { error, accessTokenHeader, refreshToken, redirect } = authInstance.processCallback(remoteBody);
-            processResponse(error, accessTokenHeader, refreshToken, redirect, res);
-        }
-    });
 }
 
 app.all('/proxy', function (req, res) {
