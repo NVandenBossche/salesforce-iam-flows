@@ -4,6 +4,7 @@ const { JwtService } = require('./services/jwt');
 const { SamlBearerService } = require('./services/samlbearer');
 const { UsernamePasswordService } = require('./services/usernamepassword');
 const { DeviceService } = require('./services/device');
+const { RefreshService } = require('./services/refresh');
 
 // Load dependencies
 var express = require('express'),
@@ -134,8 +135,8 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
         res.render(redirect.location, redirect.payload);
     } else if (error) {
         // If response doesn't return a successful response, show the error page.
-        console.log('No successful response from request. Showing error page with error: ' + response);
-        res.status(500).end(response);
+        console.log('No successful response from request. Showing error page with error: ' + error);
+        res.status(500).end(error);
     } else {
         // If response returns successful response, we set the access token in the cookies and store the refresh token
         console.log(
@@ -402,22 +403,12 @@ app.get('/devicePol', function (req, res) {
  * Sends the refresh token to the token endpoint.
  */
 app.get('/refresh', function (req, res) {
-    // Set sandbox context
-    setSandbox(req.query.isSandbox);
+    // Instantiate Username-Password service and generate post request
+    authInstance = new RefreshService(req.query.isSandbox);
+    let postRequest = authInstance.generateRefreshRequest(this.refreshToken);
 
-    // Set parameters for POST request
-    const grantType = 'refresh_token';
-    let endpointUrl = getTokenEndpoint();
-    let paramBody =
-        'grant_type=' + base64url.escape(grantType) + '&refresh_token=' + this.refreshToken + '&client_id=' + clientId;
-
-    // Create the POST request
-    let postRequest = createPostRequest(endpointUrl, paramBody);
-
-    // Launch POST request towards token endpoint
-    request(postRequest, function (err, remoteResponse, remoteBody) {
-        accessTokenCallback(err, remoteResponse, remoteBody, res);
-    });
+    // Handle the response of the post request
+    handlePostRequest(postRequest, res);
 });
 
 /**
