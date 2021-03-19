@@ -38,10 +38,22 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Set the port to use based on the environment variables
 app.set('port', process.env.PORT);
 
+/**
+ * Send the GET request and process the response.
+ *
+ * @param {JSON Object} getRequest The JSON object containing details on the GET request.
+ * @param {*} res The response object from Node.js.
+ */
 function handleGetRequest(getRequest, res) {
     request({ method: 'GET', url: getRequest }).pipe(res);
 }
 
+/**
+ * Send the POST request and process the response. Show an error if anything goes wrong.
+ *
+ * @param {JSON Object} postRequest The JSON object containing details on the POST request.
+ * @param {*} res The response object from Node.js.
+ */
 function handlePostRequest(postRequest, res) {
     request(postRequest, function (error, remoteResponse, remoteBody) {
         // Handle error or process response
@@ -55,10 +67,16 @@ function handlePostRequest(postRequest, res) {
 }
 
 /**
- * Extract Access token from POST response and redirect to page queryresult.
- * @param {boolean} success True if successful result returned, false otherwise.
- * @param {String} header JSON string containing header information for the response page.
- * @param {String} response Either the content of an error message, or the refresh token in case of success.
+ * Process the response from the GET / POST request. There are 3 possible input combinations.
+ * 1. The page needs to be redirected.
+ * 2. There was an error returned that needs to be displayed to the page.
+ * 3. An access token was returned and we can query the resource server.
+ *
+ * @param {String} error The error that's returned from the GET or POST request.
+ * @param {JSON Object} accessTokenHeader The header variables containing the cookies that will set the access token.
+ * @param {String} refreshToken The refresh token (if any).
+ * @param {JSON Object} redirect Contains information about redirect (location and payload).
+ * @param {} res The response object from Node.js.
  */
 function processResponse(error, accessTokenHeader, refreshToken, redirect, res) {
     if (redirect) {
@@ -128,20 +146,6 @@ app.get('/webServer', function (req, res) {
 
     // Launch the request to get the authorization code
     handleGetRequest(authorizationUrl, res);
-});
-
-/**
- * Step 2 Web Server Flow - Get access token using authorization code.
- * Gets launched as part of the callback actions from the first step of the web server flow.
- * This is the second step in the flow where the access token is retrieved by passing the previously
- * obtained authorization code to the token endpoint.
- */
-app.get('/webServerStep2', function (req, res) {
-    // Web Server instance was already created during first step of the flow, just send the request
-    let postRequest = authInstance.generateTokenRequest(req.query.code);
-
-    // Send the request to the endpoint and specify callback function
-    handlePostRequest(postRequest, res);
 });
 
 /**
@@ -259,8 +263,6 @@ app.route(/^\/(index.*)?$/).get(function (req, res) {
 /**
  * Handle OAuth callback from Salesforce and parse the result.
  * Result is parsed in oauthcallback.ejs.
- *
- * TODO: Move parsing of oauthcallback to server-side
  */
 app.get('/oauthcallback', function (req, res) {
     let code = req.query.code;
