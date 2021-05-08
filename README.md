@@ -34,7 +34,7 @@ Be aware that this isn't safe.
 
 -   Install openssl by following the [instructions](https://github.com/openssl/openssl#build-and-install) on its Github repository.
 -   Clone this repository to your local machine.
--   Run the following command in the root of the cloned repository: `openssl req -x509 -newkey rsa:2048 -keyout key.pem -out server.crt -days 365 -noenc`
+-   Run the following command in the root of the cloned repository: `openssl req -x509 -newkey rsa:2048 -keyout key.pem -out server.crt -days 365 -nodes`
 -   Set your [Heroku remote](https://devcenter.heroku.com/articles/git#for-an-existing-heroku-app).
 -   Stage these changes, commit them and then [push](https://devcenter.heroku.com/articles/git#deploying-code) to the heroku master.
 
@@ -45,7 +45,7 @@ Create a Connected App in your Salesforce org. The Connected App should have the
 -   Basic Information: Fill out Name and your Email, leave everything else blank.
 -   API
     -   Enable OAuth Settings: check this.
-    -   Callback URL: set to 'https://localhost:8081/oauthcallback' (if running locally) or 'https://your-heroku-app.herokuapp.com:8081/oauthcallback' (if running on Heroku)
+    -   Callback URL: set to 'https://localhost:8081/oauthcallback' (if running locally) or 'https://your-heroku-app.herokuapp.com/oauthcallback' (if running on Heroku)
     -   Use digital signature: check this and upload the 'server.crt' file (either from this Github repository or self-generated certificate).
     -   Selected OAuth scopes: you can play with this but for all flows to fully function you'll need 'full', 'openid' and 'refresh_token'.
     -   Require secret for web server flow: uncheck this (unless you want to specifically test this setting).
@@ -69,7 +69,7 @@ Update the Config Vars of your Heroku app (Settings > Config Vars) for the follo
 -   CLIENT_ID=<your_client_id>
 -   CLIENT_SECRET=<your_client_secret>
 -   BASE_URL=<your_mydomain_url>
--   CALLBACK_URL=https://<your_herokuapp>:8081/oauthcallback
+-   CALLBACK_URL= set to the same URL added to your connected app
 -   USERNAME=<your_Salesforce_username>
 -   PERSIST=false
 
