@@ -45,6 +45,7 @@ Create a Connected App in your Salesforce org. The Connected App should have the
 -   Basic Information: Fill out Name and your Email, leave everything else blank.
 -   API
     -   Enable OAuth Settings: check this.
+    -   Enable for Device Flow: check this too.
     -   Callback URL: set to 'https://localhost:8081/oauthcallback' (if running locally) or 'https://your-heroku-app.herokuapp.com/oauthcallback' (if running on Heroku)
     -   Use digital signature: check this and upload the 'server.crt' file (either from this Github repository or self-generated certificate).
     -   Selected OAuth scopes: you can play with this but for all flows to fully function you'll need 'full', 'openid' and 'refresh_token'.
@@ -69,7 +70,7 @@ Update the Config Vars of your Heroku app (Settings > Config Vars) for the follo
 -   CLIENT_ID=<your_client_id>
 -   CLIENT_SECRET=<your_client_secret>
 -   BASE_URL=<your_mydomain_url>
--   CALLBACK_URL= set to the same URL added to your connected app
+-   CALLBACK_URL= the Callback URL you added to your connected app
 -   USERNAME=<your_Salesforce_username>
 -   PERSIST=false
 
