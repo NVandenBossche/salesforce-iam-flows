@@ -241,10 +241,20 @@ app.get('/refresh', function (req, res) {
 app.get('/samlAssert', function (req, res) {
     // Instantiate Saml Assert service and generate post request
     authInstance = new SamlAssertService(req.query.isSandbox);
-    let postRequest = authInstance.generateSamlAssertRequest();
 
-    // Handle the response of the post request
-    handlePostRequest(postRequest, res);
+    let postRequest;
+    try {
+        postRequest = authInstance.generateSamlAssertRequest();
+    }
+    catch(e) {
+        console.log('Erorr: '+e);
+        res.status(500).end(error);
+    }
+
+    if(postRequest) {
+        // Handle the response of the post request
+        handlePostRequest(postRequest, res);
+    }    
 });
 
 /**

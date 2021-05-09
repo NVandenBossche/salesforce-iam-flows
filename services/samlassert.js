@@ -14,7 +14,11 @@ class SamlAssertService extends AuthService {
         let endpointUrl = this.getTokenEndpoint();
 
         // Read assertion XML from file located at 'data/axiomSamlAssertion.xml'. Alternatively, copy-paste XML string below and assign to variable.
-        let assertionXml = fs.readFileSync(path.resolve('data/axiomSamlAssertion.xml'), 'utf8');
+        const fileLocation = 'data/axiomSamlAssertion.xml';
+        let assertionXml = fs.readFileSync(path.resolve(fileLocation), 'utf8');
+        if(!assertionXml) {
+            throw new Error('Axiom SAML assertion not found at '+fileLocation+'- check the steps for this flow ensure this has been delpoyed');
+        }
         let base64AssertionXml = Buffer.from(assertionXml).toString('base64');
 
         // Construct the request body containing grant type, assertion type and assertion. All should be URL encoded.
