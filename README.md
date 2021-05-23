@@ -5,7 +5,7 @@ Please leverage this repository as learning material, rather than something to b
 
 ## Introduction
 
-When I was preparing for the Salesforce Certified Technical Architect certification, Identity & Access Management (IAM)
+When I was preparing for the Salesforce Certified Technical Architect (CTA) certification, Identity & Access Management (IAM)
 was one of the topics I struggled with. Mainly because I hadn't come into contact with it frequently during any projects I'd worked on.
 
 I knew how to set up Single Sign-On (SSO), but that didn't compare to understanding the more delicate
@@ -67,7 +67,7 @@ Create a Connected App in your Salesforce org. The Connected App should have the
 -   API
     -   Enable OAuth Settings: check this.
     -   Enable for Device Flow: check this too.
-    -   Callback URL: set to 'https://localhost:8081/oauthcallback' (if running locally) or 'https://<your-heroku-app>.herokuapp.com/oauthcallback' (if running on Heroku)
+    -   Callback URL: set to 'https://localhost:8081/oauthcallback' (if running locally) or 'https://your-heroku-app.herokuapp.com/oauthcallback' (if running on Heroku)
     -   Use digital signature: check this and upload the 'server.crt' file (either from this Github repository or self-generated certificate).
     -   Selected OAuth scopes: you can play with this but for all flows to fully function you'll need 'full', 'openid' and 'refresh_token'.
     -   Require secret for web server flow: uncheck this (unless you want to specifically test this setting).
@@ -87,19 +87,19 @@ After saving, add the correct profile of your user or add a permission set that 
 
 Update the Config Vars of your Heroku app (Settings > Config Vars) for the following key-value pairs.
 
--   PORT=8080
--   CLIENT_ID=<client ID / consumer key of your connected app>
--   CLIENT_SECRET=<client secret / consumer secret of your connected app>
--   BASE_URL=<myDomain URL of your Salesforce org>
--   CALLBACK_URL=<callback URL added to your connected app>
--   USERNAME=<Salesforce username>
--   PERSIST=false
+-   PORT = 8080
+-   CLIENT_ID = client ID / consumer key of your connected app
+-   CLIENT_SECRET = client secret / consumer secret of your connected app
+-   BASE_URL = myDomain URL of your Salesforce org
+-   CALLBACK_URL = callback URL added to your connected app
+-   USERNAME = Salesforce username
+-   PERSIST = false
 
 You can set "PERSIST" to "true" if you're running the application locally and you'd like to persist the response from the SAML Assertion flow.
 
 ### Step 4
 
-Navigate to the Heroku app at https://<your-heroku-app>.herokuapp.com/. Go to the flow you're interested in, read the description and
+Navigate to the Heroku app at https://your-heroku-app.herokuapp.com/. Go to the flow you're interested in, read the description and
 click the Production / Sandbox button to execute.
 
 ## Local testing
