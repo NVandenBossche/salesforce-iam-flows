@@ -30,7 +30,7 @@ class DeviceService extends AuthService {
 
     processCallback(remoteBody) {
         // Return value for redirect
-        let redirect = {};
+        let redirect;
         let error;
 
         // Parse response for device code, interval, verification URI and user code
@@ -42,6 +42,7 @@ class DeviceService extends AuthService {
 
         if (verificationUri) {
             // If verification URI is present, we are in device flow and need to keep polling
+            redirect = {}
             redirect.location = 'deviceOAuth';
             redirect.payload = {
                 verification_uri: verificationUri,

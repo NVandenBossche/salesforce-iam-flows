@@ -28,3 +28,8 @@ figcaption {
     font-style: italic;
     text-align: left;
 }
+small {
+    font-size: 70%;
+    position: relative;
+    top: -10px
+}
