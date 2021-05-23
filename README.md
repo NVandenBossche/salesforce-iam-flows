@@ -2,6 +2,17 @@
 
 ## Introduction
 
+When I was preparing for the Salesforce Certified Technical Architect certification, Identity & Access Management (IAM)
+was one of the topics I struggled with. Mainly because I hadn't come into contact with it frequently during my project.
+
+Sure, I knew how to set up Single Sign-On (SSO), but that didn't compare to understanding the more delicate
+complexities of the different OAuth flows. So I started diving into the topic in detail.
+
+There were two resources that were invaluable to me:
+
+1. A very lengthy conversation about different IAM topics with Lawrence Newcombe. Lawrence has actually taken the outcome of these discussions and created very clear diagrams from them on his [personal blog](https://cloundsundial.com).
+2. A [blog post](https://www.jitendrazaa.com/blog/salesforce/using-jwt-flow-to-authenticate-nodejs-application-with-salesforce/) about a Node.js application implementing the JWT OAuth flow by Jitendra Zaa.
+
 This application is purely meant to discover the different SAML and OAuth flows that are supported by Salesforce.
 Please leverage this repository as learning material for Salesforce rather than as a production-ready application.
 
@@ -45,7 +56,8 @@ Create a Connected App in your Salesforce org. The Connected App should have the
 -   Basic Information: Fill out Name and your Email, leave everything else blank.
 -   API
     -   Enable OAuth Settings: check this.
-    -   Callback URL: set to 'https://localhost:8081/oauthcallback' (if running locally) or 'https://your-heroku-app.herokuapp.com:8081/oauthcallback' (if running on Heroku)
+    -   Enable for Device Flow: check this too.
+    -   Callback URL: set to 'https://localhost:8081/oauthcallback' (if running locally) or 'https://your-heroku-app.herokuapp.com/oauthcallback' (if running on Heroku)
     -   Use digital signature: check this and upload the 'server.crt' file (either from this Github repository or self-generated certificate).
     -   Selected OAuth scopes: you can play with this but for all flows to fully function you'll need 'full', 'openid' and 'refresh_token'.
     -   Require secret for web server flow: uncheck this (unless you want to specifically test this setting).
@@ -69,7 +81,7 @@ Update the Config Vars of your Heroku app (Settings > Config Vars) for the follo
 -   CLIENT_ID=<your_client_id>
 -   CLIENT_SECRET=<your_client_secret>
 -   BASE_URL=<your_mydomain_url>
--   CALLBACK_URL=https://<your_herokuapp>:8081/oauthcallback
+-   CALLBACK_URL=<callback URL added to your connected app>
 -   USERNAME=<your_Salesforce_username>
 -   PERSIST=false
 
