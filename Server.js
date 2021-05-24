@@ -245,16 +245,15 @@ app.get('/samlAssert', function (req, res) {
     let postRequest;
     try {
         postRequest = authInstance.generateSamlAssertRequest();
-    }
-    catch(error) {
-        console.log('Erorr from generateSamlAssertRequest(): '+error);
+    } catch (error) {
+        console.log('Error from generateSamlAssertRequest(): ' + error);
         res.status(500).end('Error occurred: ' + error.message);
     }
 
-    if(postRequest) {
+    if (postRequest) {
         // Handle the response of the post request
         handlePostRequest(postRequest, res);
-    }    
+    }
 });
 
 /**
