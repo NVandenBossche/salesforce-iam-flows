@@ -55,7 +55,9 @@ To generate your own private key and public certificate, follow these steps
 
 -   Install openssl by following the [instructions](https://github.com/openssl/openssl#build-and-install) on its Github repository.
 -   Clone this repository to your local machine.
--   Run the following command in the root of the cloned repository: `openssl req -x509 -newkey rsa:2048 -keyout key.pem -out server.crt -days 365 -noenc`
+-   Run the following command in the root of the cloned repository: 
+    -   For OpenSSL 3.0 and above: `openssl req -x509 -newkey rsa:2048 -keyout key.pem -out server.crt -days 365 -noenc`
+    -   For earlier versions of OpenSSL: `openssl req -x509 -newkey rsa:2048 -keyout key.pem -out server.crt -days 365 -nodes`
 -   Set your [Heroku remote](https://devcenter.heroku.com/articles/git#for-an-existing-heroku-app).
 -   Stage these changes, commit them and then [push](https://devcenter.heroku.com/articles/git#deploying-code) to the heroku master.
 
