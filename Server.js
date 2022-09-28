@@ -8,24 +8,35 @@ const { RefreshService } = require('./services/refresh');
 const { SamlAssertService } = require('./services/samlassert');
 
 // Load dependencies
-var express = require('express'),
+const express = require('express'),
     request = require('request'),
     bodyParser = require('body-parser'),
     morgan = require('morgan'),
     app = express(),
     https = require('https'),
-    fs = require('fs');
+    fs = require('fs'),
+    rateLimit = require('express-rate-limit');
 
 // Set global variables, some loaded from environment variables (.env file)
-var clientId = process.env.CLIENT_ID,
+const clientId = process.env.CLIENT_ID,
     clientSecret = process.env.CLIENT_SECRET,
     callbackURL = process.env.CALLBACK_URL,
     baseURL = process.env.BASE_URL,
     username = process.env.USERNAME,
-    authInstance;
+    limiter = rateLimit({
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+        standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+        legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    });
+
+var authInstance;
 
 // Set default view engine to ejs. This will be used when calling res.render().
 app.set('view engine', 'ejs');
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter);
 
 // Let Express know where the client files are located
 app.use(express.static(__dirname + '/client'));
