@@ -4,7 +4,6 @@ var apiCount = 0,
     apiVersion = $.cookie('APIVer'),
     accessToken = $.cookie('AccToken'),
     idUrl = $.cookie('idURL'),
-    clientId = '',
     connection;
 
 function onload() {
