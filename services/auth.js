@@ -13,7 +13,7 @@ class AuthService {
         this.persistTokensToFile = process.env.PERSIST === 'true';
         this.isSandbox = false;
         this.state = '';
-        this.apiVersion = 'v45.0';
+        this.apiVersion = '45.0';
     }
 
     /**

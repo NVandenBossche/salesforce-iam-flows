@@ -103,20 +103,6 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
     }
 }
 
-app.all('/proxy', function (req, res) {
-    var url = req.header('SalesforceProxy-Endpoint');
-    request({
-        url: url,
-        method: req.method,
-        json: req.body,
-        headers: {
-            Authorization: req.header('X-Authorization'),
-            'Content-Type': 'application/json',
-        },
-        body: req.body,
-    }).pipe(res);
-});
-
 /**
  *	User Agent oAuth Flow. Gets launched when navigating to '/uAgent'.
  *  Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.

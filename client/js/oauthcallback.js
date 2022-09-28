@@ -19,7 +19,7 @@ function getParameterList() {
  * @param {Map<String, String>} paramKeyValueMap
  */
 function processUserAgentCallback(paramKeyValueMap) {
-    let apiVersion = 'v45.0';
+    let apiVersion = '45.0';
     let accessToken = decodeURIComponent(paramKeyValueMap['access_token']);
     let instanceUrl = decodeURIComponent(paramKeyValueMap['instance_url']);
     let idUrl = decodeURIComponent(paramKeyValueMap['id']);
