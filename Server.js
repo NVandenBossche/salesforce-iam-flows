@@ -137,11 +137,14 @@ app.get('/uAgent', function (req, res) {
  *  This is the first step in the flow, where the authorization code is retrieved from the authorization endpoint.
  */
 app.get('/webServer', function (req, res) {
+    console.debug('Starting Web Server flow...');
+
     // Instantiate the service to create the URL to call
     authInstance = new WebServerService(req.query.isSandbox, req.query.type);
     const authorizationUrl = authInstance.generateAuthorizationRequest();
 
     // Launch the request to get the authorization code
+    console.log('Launching authorization code request with URL:\n%s', authorizationUrl);
     handleGetRequest(authorizationUrl, res);
 });
 
@@ -275,7 +278,8 @@ app.get('/oauthcallback', function (req, res) {
     let returnedState = req.query.state;
     let originalState = authInstance ? authInstance.state : undefined;
 
-    console.log('Callback received, parsing response...');
+    console.debug('Callback received with code %s and state %s', code, returnedState);
+
     if (code) {
         // If an authorization code is returned, check the state and continue web-server flow.
         if (returnedState === originalState) {
@@ -283,6 +287,11 @@ app.get('/oauthcallback', function (req, res) {
             let postRequest = authInstance.generateTokenRequest(code);
 
             // Send the request to the endpoint and specify callback function
+            console.debug(
+                'Launching access token request with URL:\n%s\n...and body:\n%s',
+                postRequest.url,
+                postRequest.body
+            );
             handlePostRequest(postRequest, res);
         } else {
             res.status(500).end(

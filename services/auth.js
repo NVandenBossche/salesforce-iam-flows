@@ -100,7 +100,7 @@ class AuthService {
         let accessToken = salesforceResponse.access_token;
         refreshToken = salesforceResponse.refresh_token;
 
-        console.log('AT: ' + accessToken);
+        console.debug('Received access token %s and refresh token %s', accessToken, refreshToken);
 
         // If identity URL is specified, check its signature based on identity URL and 'issued at'
         if (identityUrl && issuedAt) {
@@ -121,8 +121,7 @@ class AuthService {
             let header = CryptoJS.enc.Base64.parse(tokenSplit[0]);
             let body = CryptoJS.enc.Base64.parse(tokenSplit[1]);
 
-            console.log('ID Token header: ' + header.toString(CryptoJS.enc.Utf8));
-            console.log('ID Token body: ' + body.toString(CryptoJS.enc.Utf8));
+            // TODO: Check if we can do something useful with the ID token.
         }
 
         // For correct (or blank) signatures, check if access token is present
