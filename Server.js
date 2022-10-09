@@ -102,12 +102,7 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
         res.status(500).end(error);
     } else {
         // If response returns successful response, we set the access token in the cookies and store the refresh token
-        console.log(
-            'Setting cookies: ' +
-                JSON.stringify(accessTokenHeader) +
-                '. Storing following refresh token: ' +
-                refreshToken
-        );
+        console.log('Setting access token in cookies to use it in client-side JavaScript...');
         this.refreshToken = refreshToken;
         res.writeHead(302, accessTokenHeader);
         res.end();
