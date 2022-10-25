@@ -43,11 +43,11 @@ function executeQuery() {
 
     connection.query(queryToExecute, (err, result) => {
         if (err) {
-            $('#result').html('Error: ' + JSON.stringify(err));
+            $('#result').text('Error: ' + JSON.stringify(err));
         }
         let replacer = null,
             whitespace = 4;
-        $('#result').html(JSON.stringify(result.records, replacer, whitespace));
+        $('#result').text(JSON.stringify(result.records, replacer, whitespace));
         addAPICount();
     });
 }
