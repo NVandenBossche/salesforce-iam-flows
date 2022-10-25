@@ -1,25 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-    <div class="jumbotron" id="userAgentFlow">
-        <h2>User Agent Flow</h2>
-        <figure>
-            <img
-                class="authdiagram"
-                src="https://cloudsundial.com/sites/default/files/2020-05/User%20Agent%203000.png"
-            />
-            <figcaption>User Agent flow diagram - created by Lawrence Newcombe</figcaption>
-        </figure>
-        <button
-            type="button"
-            style="margin-right: 40px"
-            class="btn btn-info"
-            data-toggle="collapse"
-            data-target="#userAgentCollapse"
-        >
-            Show/Hide Details
-        </button>
-
-        <div id="userAgentCollapse" class="collapse">
+<div class="p-5 mb-4 bg-light text-dark border rounded-3" id="userAgentFlow">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="display-7">User Agent Flow</h2>
+            <figure>
+                <img
+                    class="card-img-bottom"
+                    src="https://cloudsundial.com/sites/default/files/2020-05/User%20Agent%203000.png"
+                />
+                <figcaption>User Agent flow diagram - created by Lawrence Newcombe</figcaption>
+            </figure>
+        </div>
+        <div class="card-body">
+            <button
+                id="userAgentProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('uAgent', false)"
+            >
+                Production
+            </button>
+            <button
+                id="userAgentSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('uAgent', true)"
+            >
+                Sandbox
+            </button>
+        </div>
+        <div class="card-body">
+            <button
+                class="btn btn-info text-white"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#userAgentCollapse"
+                aria-expanded="false"
+                aria-controls="userAgentCollapse"
+            >
+                Show or Hide Details
+            </button>
+        </div>
+        <div class="collapse card-body" id="userAgentCollapse">
             <ol class="smallFont">
                 <li>
                     This section covers the
@@ -91,7 +112,8 @@
                             A malicious app tries to access resources they are not allowed to. This is blocked by the
                             scope parameter of the Connected App. For example, even if the user has the permission to
                             post on chatter through its permissions, the malicious app will not be able to post on
-                            chatter if the <code>chatter_api</code> scope wasn't enabled for the Connected App.
+                            chatter if the
+                            <code>chatter_api</code> scope wasn't enabled for the Connected App.
                         </li>
                         <li>
                             A malicious app tries to send a user-agent request on behalf of the actual app (Cross-Site
@@ -119,16 +141,5 @@
                 </li>
             </ol>
         </div>
-        <button
-            id="userAgentProduction"
-            role="button"
-            class="btn btn-primary btn-lg"
-            onclick="launchFlow('uAgent', false)"
-        >
-            Production
-        </button>
-        <button id="userAgentSandbox" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('uAgent', true)">
-            Sandbox
-        </button>
     </div>
-</html>
+</div>

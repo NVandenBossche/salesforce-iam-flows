@@ -2,46 +2,66 @@
 <html lang="en">
     <head>
         <title>Salesforce OAuth - Explained</title>
-        <link href="css/bootstrap.min.css" rel="stylesheet" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+            crossorigin="anonymous"
+        />
         <link href="css/index.css" rel="stylesheet" />
 
         <link rel="icon" type="image/icon" href="Cloud Red.ico" />
 
-        <script type="text/javascript" src="lib/jquery.js"></script>
-        <script type="text/javascript" src="lib/jqueryCookies.js"></script>
-        <script type="text/javascript" src="lib/bootstrap.min.js"></script>
+        <script
+            src="https://code.jquery.com/jquery-2.2.4.min.js"
+            integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"
+            integrity="sha256-0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg="
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+            crossorigin="anonymous"
+        ></script>
+
         <script type="text/javascript" src="js/index.js"></script>
     </head>
 
-    <body class="container" onload="onload()">
+    <body onload="onload()">
         <!-- Navigation pane on top of page -->
         <%- include('index/nav.ejs') %>
 
-        <!-- Title and description -->
-        <%- include('index/intro.ejs') %>
+        <main class="container">
+            <!-- Title and description -->
+            <%- include('index/intro.ejs') %>
 
-        <!-- User Agent Flow -->
-        <%- include('index/useragent.ejs') %>
+            <!-- User Agent Flow -->
+            <%- include('index/useragent.ejs') %>
 
-        <!-- Web Server Flow -->
-        <%- include('index/webserver.ejs') %>
+            <!-- Web Server Flow -->
+            <%- include('index/webserver.ejs') %>
 
-        <!-- Refresh Token Flow -->
-        <%- include('index/refresh.ejs') %>
+            <!-- Refresh Token Flow -->
+            <%- include('index/refresh.ejs') %>
 
-        <!-- JWT Bearer Assertion Flow -->
-        <%- include('index/jwtbearer.ejs') %>
+            <!-- JWT Bearer Assertion Flow -->
+            <%- include('index/jwtbearer.ejs') %>
 
-        <!-- SAML Bearer Assertion Flow -->
-        <%- include('index/samlbearer.ejs') %>
+            <!-- SAML Bearer Assertion Flow -->
+            <%- include('index/samlbearer.ejs') %>
 
-        <!-- SAML Assertion Flow -->
-        <%- include('index/samlassertion.ejs') %>
+            <!-- SAML Assertion Flow -->
+            <%- include('index/samlassertion.ejs') %>
 
-        <!-- Device Flow -->
-        <%- include('index/device.ejs') %>
+            <!-- Device Flow -->
+            <%- include('index/device.ejs') %>
 
-        <!-- Username / Password Flow -->
-        <%- include('index/usernamepassword.ejs') %>
+            <!-- Username / Password Flow -->
+            <%- include('index/usernamepassword.ejs') %>
+        </main>
     </body>
 </html>

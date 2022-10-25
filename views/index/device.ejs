@@ -1,20 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-    <div class="jumbotron" id="deviceFlow">
-        <div>
+<div class="p-5 mb-4 bg-light text-dark border rounded-3" id="deviceFlow">
+    <div class="card">
+        <div class="card-body">
             <h2>OAuth 2.0 Device Authentication Flow</h2>
             <figure>
                 <img
-                    class="authdiagram"
+                    class="card-img-bottom"
                     src="https://cloudsundial.com/sites/default/files/2020-05/Device%20Authentication%203000.png"
                 />
                 <figcaption>Device Authentication flow diagram - created by Lawrence Newcombe</figcaption>
             </figure>
-            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#deviceCollapse">
+            <button
+                id="deviceProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('device', false)"
+            >
+                Production
+            </button>
+            <button
+                id="deviceSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('device', true)"
+            >
+                Sandbox
+            </button>
+        </div>
+
+        <div class="card-body">
+            <button
+                type="button"
+                class="btn btn-info text-white"
+                data-bs-toggle="collapse"
+                data-bs-target="#deviceCollapse"
+            >
                 Show/Hide Details
             </button>
 
-            <div id="deviceCollapse" class="collapse">
+            <div id="deviceCollapse" class="collapse card-body">
                 <ol class="smallFont">
                     <li>Make sure Device Authentication flow is enabled in Connected App</li>
                     <li>
@@ -71,23 +94,6 @@
                     <li>Access token is used to query Salesforce</li>
                 </ol>
             </div>
-
-            <button
-                id="deviceProduction"
-                role="button"
-                class="btn btn-primary btn-lg"
-                onclick="launchFlow('device', false)"
-            >
-                Production
-            </button>
-            <button
-                id="deviceSandbox"
-                role="button"
-                class="btn btn-primary btn-lg"
-                onclick="launchFlow('device', true)"
-            >
-                Sandbox
-            </button>
         </div>
     </div>
-</html>
+</div>

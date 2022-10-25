@@ -1,20 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-    <div class="jumbotron" id="samlBearerAssertion">
-        <div>
+<div class="p-5 mb-4 bg-light text-dark border rounded-3" id="samlBearerAssertion">
+    <div class="card">
+        <div class="card-body">
             <h2>OAuth 2.0 SAML Bearer Assertion Flow</h2>
             <figure>
                 <img
-                    class="authdiagram"
+                    class="card-img-bottom"
                     src="https://cloudsundial.com/sites/default/files/2020-05/SAML%20Bearer%203000.png"
                 />
                 <figcaption>SAML Bearer Token flow diagram - created by Lawrence Newcombe</figcaption>
             </figure>
-            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#samlBearerCollapse">
+            <!-- Buttons to launch flow -->
+            <button
+                id="samlBearerProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('samlBearer', false)"
+            >
+                Production
+            </button>
+            <button
+                id="samlBearerSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('samlBearer', true)"
+            >
+                Sandbox
+            </button>
+        </div>
+        <div class="card-body">
+            <button
+                type="button"
+                class="btn btn-info text-white"
+                data-bs-toggle="collapse"
+                data-bs-target="#samlBearerCollapse"
+            >
                 Show/Hide Details
             </button>
 
-            <div id="samlBearerCollapse" class="collapse">
+            <div id="samlBearerCollapse" class="collapse card-body">
                 <ol class="smallFont">
                     <li>
                         This section covers the
@@ -75,24 +98,6 @@
                     <li>Access token is used to query Salesforce.</li>
                 </ol>
             </div>
-
-            <!-- Buttons to launch flow -->
-            <button
-                id="samlBearerProduction"
-                role="button"
-                class="btn btn-primary btn-lg"
-                onclick="launchFlow('samlBearer', false)"
-            >
-                Production
-            </button>
-            <button
-                id="samlBearerSandbox"
-                role="button"
-                class="btn btn-primary btn-lg"
-                onclick="launchFlow('samlBearer', true)"
-            >
-                Sandbox
-            </button>
         </div>
     </div>
-</html>
+</div>

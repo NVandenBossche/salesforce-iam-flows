@@ -1,10 +1,10 @@
 // Clear all cookies upon the loading of the page
 function clearAllCookies() {
-    $.cookie('AccToken', '');
-    $.cookie('APIVer', '');
-    $.cookie('InstURL', '');
-    $.cookie('idURL', '');
-    $.cookie('LoggeduserId', '');
+    Cookies.remove('AccToken');
+    Cookies.remove('APIVer');
+    Cookies.remove('InstURL');
+    Cookies.remove('idURL');
+    Cookies.remove('LoggeduserId');
 }
 
 // Single method for launching any of the flows

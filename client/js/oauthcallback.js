@@ -25,13 +25,13 @@ function processUserAgentCallback(paramKeyValueMap) {
     let idUrl = decodeURIComponent(paramKeyValueMap['id']);
 
     if (accessToken) {
-        $.cookie('AccToken', accessToken);
-        $.cookie('APIVer', apiVersion);
-        $.cookie('InstURL', instanceUrl);
-        $.cookie('idURL', idUrl);
+        Cookies.set('AccToken', accessToken, { sameSite: 'strict' });
+        Cookies.set('APIVer', apiVersion, { sameSite: 'strict' });
+        Cookies.set('InstURL', instanceUrl, { sameSite: 'strict' });
+        Cookies.set('idURL', idUrl, { sameSite: 'strict' });
 
         userId = paramKeyValueMap['id'].split('/');
-        $.cookie('LoggeduserId', userId[userId.length - 1]);
+        Cookies.set('LoggeduserId', userId[userId.length - 1], { sameSite: 'strict' });
         window.location = 'queryresult';
     } else {
         $('#h2Message').html('AuthenticationError: No Token');

@@ -1,19 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-    <div class="jumbotron" id="samlAssertion">
-        <div>
+<div class="p-5 mb-4 bg-light text-dark border rounded-3" id="samlAssertion">
+    <div class="card">
+        <div class="card-body">
             <h2>SAML Assertion Flow</h2>
             <figure>
                 <img
-                    class="authdiagram"
+                    class="card-img-bottom"
                     src="https://cloudsundial.com/sites/default/files/2020-05/SAML%20Assertion%203000.png"
                 />
                 <figcaption>SAML Assertion Flow diagram - created by Lawrence Newcombe</figcaption>
             </figure>
-            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#samlAssertCollapse">
+            <!-- Buttons to launch flow -->
+            <button
+                id="samlAssertProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('samlAssert', false)"
+            >
+                Production
+            </button>
+            <button
+                id="samlAssertSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('samlAssert', true)"
+            >
+                Sandbox
+            </button>
+        </div>
+
+        <div class="card-body">
+            <button
+                type="button"
+                class="btn btn-info text-white"
+                data-bs-toggle="collapse"
+                data-bs-target="#samlAssertCollapse"
+            >
                 Show/Hide Details
             </button>
-            <div id="samlAssertCollapse" class="collapse">
+            <div id="samlAssertCollapse" class="collapse card-body">
                 <ol class="smallFont">
                     <li>
                         This section covers the
@@ -95,24 +119,6 @@
                     </li>
                 </ol>
             </div>
-
-            <!-- Buttons to launch flow -->
-            <button
-                id="samlAssertProduction"
-                role="button"
-                class="btn btn-primary btn-lg"
-                onclick="launchFlow('samlAssert', false)"
-            >
-                Production
-            </button>
-            <button
-                id="samlAssertSandbox"
-                role="button"
-                class="btn btn-primary btn-lg"
-                onclick="launchFlow('samlAssert', true)"
-            >
-                Sandbox
-            </button>
         </div>
     </div>
-</html>
+</div>

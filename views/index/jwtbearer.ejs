@@ -1,20 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-    <div class="jumbotron" id="jwt">
-        <div>
+<div class="p-5 mb-4 bg-light text-dark border rounded-3" id="userAgentFlow">
+    <div class="card">
+        <div class="card-body">
             <h2>JWT Bearer Assertion OAuth 2.0 Flow</h2>
             <figure>
                 <img
-                    class="authdiagram"
+                    class="card-img-bottom"
                     src="https://cloudsundial.com/sites/default/files/2020-05/JWT%20Bearer%203000.png"
                 />
                 <figcaption>JWT Bearer Assertion flow diagram - created by Lawrence Newcombe</figcaption>
             </figure>
-            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#jwtCollapse">
+            <button id="jwtProduction" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('jwt', false)">
+                Production
+            </button>
+            <button id="jwtSandbox" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('jwt', true)">
+                Sandbox
+            </button>
+        </div>
+        <div class="card-body">
+            <button
+                type="button"
+                class="btn btn-info text-white"
+                data-bs-toggle="collapse"
+                data-bs-target="#jwtCollapse"
+            >
                 Show/Hide Details
             </button>
 
-            <div id="jwtCollapse" class="collapse">
+            <div id="jwtCollapse" class="collapse card-body">
                 <p>
                     <i class="note">
                         Use
@@ -106,13 +118,6 @@
                     </li>
                 </ol>
             </div>
-
-            <button id="jwtProduction" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('jwt', false)">
-                Production
-            </button>
-            <button id="jwtSandbox" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('jwt', true)">
-                Sandbox
-            </button>
         </div>
     </div>
-</html>
+</div>

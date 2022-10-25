@@ -1,74 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>
-      Salesforce OAuth Flow examples
-    </title>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/queryresult.css" rel="stylesheet">
-    <link rel="icon" type="image/icon" href="Cloud Red.ico" />
-    <script type="text/javascript" src="lib/jquery.js">  </script>
-    <script type="text/javascript" src="lib/jqueryCookies.js"> </script>  
-    <script type="text/javascript" src="js/queryresult.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.9.1/jsforce.min.js"></script>
-  </head>
-  <body onload="onload()">
-    <!-- Navigation bar -->
-    <nav role="navigation" class="navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" class="navbar-toggle">
-            <span class="sr-only">
-              Toggle navigation
-            </span>
-            <span class="icon-bar">
-            </span>
-            <span class="icon-bar">
-            </span>
-            <span class="icon-bar">
-            </span>
-          </button>
-          <a href="/" class="navbar-brand">
-           <span class="glyphicon glyphicon-cloud" style="vertical-align : middle" ></span> Salesforce OAuth Flow examples
-          </a>
-        </div>
-		    <ul class="nav navbar-nav navbar-right">
-            <li>  <a href="javascript:void(0)"  >
-                    <span class="glyphicon glyphicon-user"></span>  <span id="loggedInUser"> </span>  
-                  </a>      
-            </li>
-        </ul>
-		    <ul class="nav navbar-nav navbar-right">
-            <li>  <a href="javascript:void(0)">
-                    <span class="glyphicon glyphicon-cloud-upload"></span> 
-					          <span class="headingText"> API Count </span>
-					          <span id="apiCount" class="headingText">0</span>  
-                  </a>      
-            </li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-            <li>  
-              <a href="/" class="navbar-brand">
-                <span class="glyphicon glyphicon-home headingText" style="vertical-align : middle" ></span> 
-                <span class="headingText">Home</span>
-              </a>     
-            </li>
-        </ul>
-      </div>
-    </nav> 
-    <!-- Query result page -->
-    <div id="body">
-      <div class="form-group">
-        <label class="col-md-2 control-label" for="Query to execute">Query to execute</label>  
-        <div class="col-md-8">
-        <input id="Query-to-execute" name="Query-to-execute" type="text" placeholder="Select Id, Name From Account" 
-        class="form-control input-md" value="Select Id, Name From Account LIMIT 10" >
-        </input> 
-        </div>
-      </div> 
-      <p class="info">Press enter to execute query</p> 
-      <pre id="result">
-      </pre>
-    </div> 
-  </body> 
-</html> 
+    <head>
+        <title>Salesforce OAuth - Explained - Query Result</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+            crossorigin="anonymous"
+        />
+        <link href="css/queryresult.css" rel="stylesheet" />
+        <link rel="icon" type="image/icon" href="Cloud Red.ico" />
+        <script
+            src="https://code.jquery.com/jquery-2.2.4.min.js"
+            integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"
+            integrity="sha256-0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg="
+            crossorigin="anonymous"
+        ></script>
+        <script type="text/javascript" src="js/queryresult.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.9.1/jsforce.min.js"></script>
+    </head>
+    <body onload="onload()">
+        <!-- Navigation bar -->
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse">
+                    <a class="navbar-brand" href="/">Salesforce OAuth</a>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a href="javascript:void(0)">
+                                <span class="glyphicon glyphicon-user"></span> <span id="loggedInUser"> </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/" class="nav-link"> Home </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link active">
+                                <span> API Count </span>
+                                <span id="apiCount">0</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Query result page -->
+        <main class="container">
+            <form>
+                <div class="mb-3">
+                    <label class="form-label" for="queryToExecute">Query to execute</label>
+                    <input
+                        type="text"
+                        id="queryToExecute"
+                        name="queryToExecute"
+                        placeholder="Select Id, Name From Account"
+                        class="form-control input-md"
+                        value="Select Id, Name From Account LIMIT 10"
+                        aria-describedby="queryHelp"
+                    />
+                    <div id="queryHelp" class="form-text">Press enter to execute query.</div>
+                </div>
+            </form>
+            <div class="card">
+                <pre id="result" class="card-body"></pre>
+            </div>
+        </main>
+    </body>
+</html>

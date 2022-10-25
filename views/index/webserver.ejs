@@ -1,56 +1,76 @@
-<!DOCTYPE html>
-<html lang="en">
-    <div class="jumbotron" id="webServer">
-        <h2>Web Server Flow</h2>
-        <figure>
-            <img
-                class="authdiagram"
-                src="https://cloudsundial.com/sites/default/files/2020-06/Web%20Server%202600.png"
-            />
-            <figcaption>Web Server flow diagram - created by Lawrence Newcombe</figcaption>
-        </figure>
-        <button
-            type="button"
-            style="margin-right: 40px"
-            class="btn btn-info"
-            data-toggle="collapse"
-            data-target="#wsintro"
-        >
-            Show/Hide Details
-        </button>
-
-        <div id="wsintro" class="collapse">
-            <div>
-                This section covers the
-                <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
-                    >OAuth 2.0 Web Server flow</a
-                >.
-            </div>
-            <div>
-                Three scenarios are covered:
-                <ol>
-                    <li>
-                        Web Server flow with a client secret: when using a secure web server that can store a client
-                        secret. You can make the client secret required in the Connected App setup.
-                    </li>
-                    <li>
-                        Web Server flow with a client assertion: when using a secure web server that has a private key
-                        to sign the message.
-                    </li>
-                    <li>
-                        Web Server flow without client secret or assertion: when using a client application (browser /
-                        mobile app) that uses an external browser for authorization.
-                    </li>
-                </ol>
-            </div>
+<div class="p-5 mb-4 bg-light text-dark border rounded-3" id="webServer">
+    <div class="card">
+        <div class="card-body">
+            <h2>Web Server Flow</h2>
+            <figure>
+                <img
+                    class="card-img-bottom"
+                    src="https://cloudsundial.com/sites/default/files/2020-06/Web%20Server%202600.png"
+                />
+                <figcaption>Web Server flow diagram - created by Lawrence Newcombe</figcaption>
+            </figure>
         </div>
-        <div>
-            <h3>Web Server Flow with Client Secret</h3>
-            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsclientsecret">
+        <div class="card-body">
+            <button type="button" class="btn btn-info text-white" data-bs-toggle="collapse" data-bs-target="#wsintro">
                 Show/Hide Details
             </button>
-
-            <div id="wsclientsecret" class="collapse">
+        </div>
+        <div class="card-body">
+            <div id="wsintro" class="collapse">
+                <div>
+                    This section covers the
+                    <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
+                        >OAuth 2.0 Web Server flow</a
+                    >.
+                </div>
+                <div>
+                    Three scenarios are covered:
+                    <ol>
+                        <li>
+                            Web Server flow with a client secret: when using a secure web server that can store a client
+                            secret. You can make the client secret required in the Connected App setup.
+                        </li>
+                        <li>
+                            Web Server flow with a client assertion: when using a secure web server that has a private
+                            key to sign the message.
+                        </li>
+                        <li>
+                            Web Server flow without client secret or assertion: when using a client application (browser
+                            / mobile app) that uses an external browser for authorization.
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <h3>Web Server Flow with Client Secret</h3>
+            <button
+                id="webServerSecretProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('webServer', false, 'secret')"
+            >
+                Production
+            </button>
+            <button
+                id="webServerSecretSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('webServer', true, 'secret')"
+            >
+                Sandbox
+            </button>
+        </div>
+        <div class="card-body">
+            <button
+                type="button"
+                class="btn btn-info text-white"
+                data-bs-toggle="collapse"
+                data-bs-target="#wsclientsecret"
+            >
+                Show/Hide Details
+            </button>
+            <div id="wsclientsecret" class="collapse card-body">
                 <p>
                     This section covers the
                     <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
@@ -185,30 +205,36 @@
                     </li>
                 </ol>
             </div>
+        </div>
+        <div class="card-body">
+            <h3>Web Server Flow with Client Assertion</h3>
             <button
-                id="webServerSecretProduction"
+                id="webServerAssertionProduction"
                 role="button"
                 class="btn btn-primary btn-lg"
-                onclick="launchFlow('webServer', false, 'secret')"
+                onclick="launchFlow('webServer', false, 'assertion')"
             >
                 Production
             </button>
             <button
-                id="webServerSecretSandbox"
+                id="webServerAssertionSandbox"
                 role="button"
                 class="btn btn-primary btn-lg"
-                onclick="launchFlow('webServer', true, 'secret')"
+                onclick="launchFlow('webServer', true, 'assertion')"
             >
                 Sandbox
             </button>
         </div>
-        <div>
-            <h3>Web Server Flow with Client Assertion</h3>
-            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsclientassertion">
+        <div class="card-body">
+            <button
+                type="button"
+                class="btn btn-info text-white"
+                data-bs-toggle="collapse"
+                data-bs-target="#wsclientassertion"
+            >
                 Show/Hide Details
             </button>
-
-            <div id="wsclientassertion" class="collapse">
+            <div id="wsclientassertion" class="collapse card-body">
                 <p>
                     This section covers the
                     <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
@@ -351,30 +377,31 @@
                     </li>
                 </ol>
             </div>
+        </div>
+        <div class="card-body">
+            <h3>Web Server Flow without Client Secret or Assertion</h3>
             <button
-                id="webServerAssertionProduction"
+                id="webServerNoneProduction"
                 role="button"
                 class="btn btn-primary btn-lg"
-                onclick="launchFlow('webServer', false, 'assertion')"
+                onclick="launchFlow('webServer', false, 'none')"
             >
                 Production
             </button>
             <button
-                id="webServerAssertionSandbox"
+                id="webServerNoneSandbox"
                 role="button"
                 class="btn btn-primary btn-lg"
-                onclick="launchFlow('webServer', true, 'assertion')"
+                onclick="launchFlow('webServer', true, 'none')"
             >
                 Sandbox
             </button>
         </div>
-        <div>
-            <h3>Web Server Flow without Client Secret or Assertion</h3>
-            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#wsnone">
+        <div class="card-body">
+            <button type="button" class="btn btn-info text-white" data-bs-toggle="collapse" data-bs-target="#wsnone">
                 Show/Hide Details
             </button>
-
-            <div id="wsnone" class="collapse">
+            <div id="wsnone" class="collapse card-body">
                 <p>
                     This section covers the
                     <a href="https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5"
@@ -386,7 +413,7 @@
                     <a href="https://auth0.com/blog/oauth-2-best-practices-for-native-apps/">here</a>.
                 </p>
                 <figure>
-                    <img class="authdiagram" src="https://cdn.auth0.com/blog/oath2bcp/hoauth-flow.png" />
+                    <img class="card-img-bottom" src="https://cdn.auth0.com/blog/oath2bcp/hoauth-flow.png" />
                     <figcaption>Web Server flow without secret or assertion diagram - created by Auth0</figcaption>
                 </figure>
                 <ol class="smallFont">
@@ -520,23 +547,6 @@
                     </li>
                 </ol>
             </div>
-
-            <button
-                id="webServerNoneProduction"
-                role="button"
-                class="btn btn-primary btn-lg"
-                onclick="launchFlow('webServer', false, 'none')"
-            >
-                Production
-            </button>
-            <button
-                id="webServerNoneSandbox"
-                role="button"
-                class="btn btn-primary btn-lg"
-                onclick="launchFlow('webServer', true, 'none')"
-            >
-                Sandbox
-            </button>
         </div>
     </div>
-</html>
+</div>

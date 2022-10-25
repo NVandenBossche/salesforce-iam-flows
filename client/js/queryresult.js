@@ -1,9 +1,9 @@
 // Initialize global variables and instantiate the Salesforce communication client based on cookies
 var apiCount = 0,
-    instanceUrl = $.cookie('InstURL'),
-    apiVersion = $.cookie('APIVer'),
-    accessToken = $.cookie('AccToken'),
-    idUrl = $.cookie('idURL'),
+    instanceUrl = Cookies.get('InstURL'),
+    apiVersion = Cookies.get('APIVer'),
+    accessToken = Cookies.get('AccToken'),
+    idUrl = Cookies.get('idURL'),
     connection;
 
 function onload() {
@@ -18,11 +18,12 @@ function onload() {
     }
 
     // Execute the query and display results if the user presses the 'Enter' button on their keyboard while the query box has focus.
-    $('#Query-to-execute').keypress(function (e) {
+    $('#queryToExecute').keypress(function (e) {
         let key = e.which;
 
         // 13 is the key code for the 'Enter' key
         if (key == 13) {
+            e.preventDefault();
             executeQuery();
         }
     });
@@ -38,7 +39,7 @@ function setupConnection() {
 
 // Execute the query that's entered in the text box
 function executeQuery() {
-    let queryToExecute = $('#Query-to-execute').val();
+    let queryToExecute = $('#queryToExecute').val();
 
     connection.query(queryToExecute, (err, result) => {
         if (err) {
@@ -47,6 +48,7 @@ function executeQuery() {
         let replacer = null,
             whitespace = 4;
         $('#result').html(JSON.stringify(result.records, replacer, whitespace));
+        addAPICount();
     });
 }
 

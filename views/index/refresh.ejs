@@ -1,20 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-    <div class="jumbotron" id="refreshToken">
-        <div>
+<div class="p-5 mb-4 bg-light text-dark border rounded-3" id="refreshToken">
+    <div class="card">
+        <div class="card-body">
             <h2>OAuth 2.0 Refresh Token Flow</h2>
             <figure>
                 <img
-                    class="authdiagram"
+                    class="card-img-bottom"
                     src="https://cloudsundial.com/sites/default/files/2020-05/Refresh%20token%203000.png"
                 />
                 <figcaption>Refresh token flow diagram - created by Lawrence Newcombe</figcaption>
             </figure>
-            <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#refreshCollapse">
+            <button
+                id="refreshProduction"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('refresh', false)"
+            >
+                Production
+            </button>
+            <button
+                id="refreshSandbox"
+                role="button"
+                class="btn btn-primary btn-lg"
+                onclick="launchFlow('refresh', true)"
+            >
+                Sandbox
+            </button>
+        </div>
+        <div class="card-body">
+            <button
+                type="button"
+                class="btn btn-info text-white"
+                data-bs-toggle="collapse"
+                data-bs-target="#refreshCollapse"
+            >
                 Show/Hide Details
             </button>
 
-            <div id="refreshCollapse" class="collapse">
+            <div id="refreshCollapse" class="collapse card-body">
                 <ol class="smallFont">
                     <li>
                         This section covers the
@@ -64,23 +86,6 @@
                     </li>
                 </ol>
             </div>
-
-            <button
-                id="refreshProduction"
-                role="button"
-                class="btn btn-primary btn-lg"
-                onclick="launchFlow('refresh', false)"
-            >
-                Production
-            </button>
-            <button
-                id="refreshSandbox"
-                role="button"
-                class="btn btn-primary btn-lg"
-                onclick="launchFlow('refresh', true)"
-            >
-                Sandbox
-            </button>
         </div>
     </div>
-</html>
+</div>
