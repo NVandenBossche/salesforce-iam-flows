@@ -6,7 +6,6 @@ const { UsernamePasswordService } = require('./services/usernamepassword');
 const { DeviceService } = require('./services/device');
 const { RefreshService } = require('./services/refresh');
 const { SamlAssertService } = require('./services/samlassert');
-const { query } = require('express-validator');
 
 // Load dependencies
 const express = require('express'),
@@ -16,7 +15,8 @@ const express = require('express'),
     app = express(),
     https = require('https'),
     fs = require('fs'),
-    rateLimit = require('express-rate-limit');
+    rateLimit = require('express-rate-limit'),
+    escape = require('escape-html');
 
 // Set global variables, some loaded from environment variables (.env file)
 const clientId = process.env.CLIENT_ID,
@@ -269,9 +269,9 @@ app.route(/^\/(index.*)?$/).get(function (req, res) {
  * Handle OAuth callback from Salesforce and parse the result.
  * Result is parsed in oauthcallback.ejs.
  */
-app.get('/oauthcallback', [query('state').escape()], function (req, res) {
+app.get('/oauthcallback', function (req, res) {
     let code = req.query.code;
-    let returnedState = req.query.state;
+    let returnedState = escape(req.query.state);
     let originalState = authInstance ? authInstance.state : undefined;
 
     console.debug('Callback received with code %s and state %s', code, returnedState);
