@@ -13,7 +13,7 @@ complexities of the different OAuth flows. So I started diving into this topic i
 
 There were two resources that were invaluable to me:
 
-1. A very lengthy conversation about different IAM topics with _Lawrence Newcombe_. Lawrence has actually taken the outcome of these discussions and created very clear diagrams from them on his [personal blog](https://cloundsundial.com).
+1. A very lengthy conversation about different IAM topics with _Lawrence Newcombe_. Lawrence has actually taken the outcome of these discussions and created very clear diagrams from them on his [personal blog](https://cloudsundial.com/salesforce-identity).
 2. A [blog post](https://www.jitendrazaa.com/blog/salesforce/using-jwt-flow-to-authenticate-nodejs-application-with-salesforce/) about a Node.js application implementing the JWT OAuth flow by _Jitendra Zaa_.
 
 At first, I expanded upon Jitendra's work by adding the flows I struggled with most. After passing the CTA board,
@@ -55,7 +55,7 @@ To generate your own private key and public certificate, follow these steps
 
 -   Install openssl by following the [instructions](https://github.com/openssl/openssl#build-and-install) on its Github repository.
 -   Clone this repository to your local machine.
--   Run the following command in the root of the cloned repository: 
+-   Run the following command in the root of the cloned repository:
     -   For OpenSSL 3.0 and above: `openssl req -x509 -newkey rsa:2048 -keyout key.pem -out server.crt -days 365 -noenc`
     -   For earlier versions of OpenSSL: `openssl req -x509 -newkey rsa:2048 -keyout key.pem -out server.crt -days 365 -nodes`
 -   Set your [Heroku remote](https://devcenter.heroku.com/articles/git#for-an-existing-heroku-app).
