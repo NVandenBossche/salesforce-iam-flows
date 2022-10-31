@@ -6,7 +6,7 @@ const { UsernamePasswordService } = require('./services/usernamepassword');
 const { DeviceService } = require('./services/device');
 const { RefreshService } = require('./services/refresh');
 const { SamlAssertService } = require('./services/samlassert');
-const { check } = require('express-validator');
+const { query } = require('express-validator');
 
 // Load dependencies
 const express = require('express'),
@@ -269,7 +269,7 @@ app.route(/^\/(index.*)?$/).get(function (req, res) {
  * Handle OAuth callback from Salesforce and parse the result.
  * Result is parsed in oauthcallback.ejs.
  */
-app.get('/oauthcallback', [check('returnedState').escape(), check('originalState').escape()], function (req, res) {
+app.get('/oauthcallback', [query('state').escape()], function (req, res) {
     let code = req.query.code;
     let returnedState = req.query.state;
     let originalState = authInstance ? authInstance.state : undefined;
