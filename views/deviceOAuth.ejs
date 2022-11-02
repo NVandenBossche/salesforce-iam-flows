@@ -20,11 +20,11 @@
         <script type="text/javascript" src="js/deviceoauth.js"></script>
     </head>
     <body class="container" style="padding-top: 50px">
-        <div class="jumbotron">
+        <div class="p-5 mb-4 bg-secondary text-white rounded-3">
             Enter code
             <h3><%= user_code %></h3>
             at
-            <h3><a href="<%= verification_uri %>"><%= verification_uri %></a></h3>
+            <h3><a href="<%= verification_uri %>" class="text-light"><%= verification_uri %></a></h3>
             to validate this device
         </div>
     </body>
