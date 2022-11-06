@@ -1,0 +1,13 @@
+<div class="p-5 mb-4 bg-light text-dark border rounded-3" id="deviceFlow">
+    <div class="card">
+        <%- include('flowheader', {
+            title: authFlow.title, 
+            image: authFlow.image, 
+            protocol: authFlow.protocol
+        }) %> 
+        <%- include('flowbody', {
+            name: authFlow.name,
+            config: authFlow.configuration
+        }) %>
+    </div>
+</div>

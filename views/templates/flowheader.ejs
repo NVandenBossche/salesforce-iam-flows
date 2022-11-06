@@ -1,0 +1,16 @@
+<div class="card-body">
+    <h2><%= title %> (<%= protocol %>)</h2>
+    <figure>
+        <img
+            class="card-img-bottom"
+            src=<%= image %>
+        />
+        <figcaption><%= title %> diagram - created by Lawrence Newcombe</figcaption>
+    </figure>
+    <button id="deviceProduction" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('device', false)">
+        Production
+    </button>
+    <button id="deviceSandbox" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('device', true)">
+        Sandbox
+    </button>
+</div>

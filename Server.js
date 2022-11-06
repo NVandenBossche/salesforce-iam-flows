@@ -16,6 +16,7 @@ const express = require('express'),
     https = require('https'),
     fs = require('fs'),
     rateLimit = require('express-rate-limit'),
+    data = require('./data/authFlows.json'),
     escape = require('escape-html');
 
 // Set global variables, some loaded from environment variables (.env file)
@@ -262,6 +263,7 @@ app.route(/^\/(index.*)?$/).get(function (req, res) {
         username: username,
         clientId: clientId,
         clientSecret: clientSecret,
+        data: data,
     });
 });
 
