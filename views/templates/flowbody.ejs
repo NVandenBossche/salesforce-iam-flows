@@ -6,371 +6,417 @@
     <div id="<%= name %>Collapse" class="collapse card-body">
         <% if (config) { %>
             The application follows these steps.
-            <ol class="smallFont">
-                <% if (config.first_call) { %>
-                    <!-- Show the first call to a Salesforce endpoint -->
-                    <% if (config.first_call.input) { %>
-                        <li>
-                            Upon clicking the button, the user is redirected with an HTTP <%- config.first_call.method %> 
-                            to the Salesforce <%- config.first_call.endpoint_name %> Endpoint at 
-                                <code><%= baseURL %><%= config.first_call.endpoint_url %></code>
-                            with the following parameters:
-                            <ul>
-                                <% if (config.first_call.input.includes("response_type")) { %>
-                                    <li>
-                                        <code>response_type=<%- config.response_type %></code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("grant_type")) { %>
-                                    <li>
-                                        <code>grant_type=<%- config.grant_type %></code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("refresh_token")) { %>
-                                    <li>
-                                        <code>refresh_token=<%- refresh_token %></code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("client_id")) { %>
-                                    <li>
-                                        <code>client_id=<%- clientId %></code> - should match the client ID in the 
-                                        Connected App
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("client_secret")) { %>
-                                    <li>
-                                        <code>client_secret=<%- clientSecret %></code> - should match the client secret in the 
-                                        Connected App
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("redirect_uri")) { %>
-                                    <li>
-                                        <code>redirect_uri=<%- callbackURL %></code> - should match the callback URL in the
-                                        Connected App
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("client_assertion_type")) { %>
-                                    <li>
-                                        <code>client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("client_assertion")) { %>
-                                    <li>
-                                        <code>client_assertion=&lt;<i>generated_on_click</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("assertion_type")) { %>
-                                    <li>
-                                        <code>assertion_type=urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("assertion")) { %>
-                                    <li>
-                                        <code>assertion=&lt;<i>generated_on_click</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("scope")) { %>
-                                    <li>
-                                        <code>scope=<%- scope %> </code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("scope")) { %>
-                                    <li>
-                                        <code>scope=<%- scope %> </code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("code")) { %>
-                                    <li>
-                                        <code>code=&lt;<i>returned_by_Salesforce</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("code_challenge")) { %>
-                                    <li>
-                                        <code>code_challenge=&lt;<i>generated_on_click</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("state")) { %>
-                                    <li>
-                                        <code>state=&lt;<i>generated_on_click</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("nonce")) { %>
-                                    <li>
-                                        <code>nonce=&lt;<i>generated_on_click</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("username")) { %>
-                                    <li>
-                                        <code>username=&lt;<i>entered_by_user</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.input.includes("password")) { %>
-                                    <li>
-                                        <code>password=&lt;<i>entered_by_user</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                            </ul>
-                        </li> 
-                    <% } %>
+            <ol class="smallFont">      
+                <% if (config.calls) { %>
+                    <% config.calls.forEach(call => { %> 
+                        <% if (call.method == "GET") { %>
+                            <!-- Show the first call to a Salesforce endpoint -->
+                            <% if (call.input) { %>
+                                <li>
+                                    The user is redirected with an HTTP <%- call.method %> 
+                                    to the Salesforce <%- call.endpoint_name %> Endpoint at 
+                                        <code><%= baseURL %><%= call.endpoint_url %></code>
+                                    with the following parameters:
+                                    <ul>
+                                        <% if (call.input.includes("response_type")) { %>
+                                            <li>
+                                                <code>response_type=<%- config.response_type %></code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("grant_type")) { %>
+                                            <li>
+                                                <code>grant_type=<%- config.grant_type %></code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("refresh_token")) { %>
+                                            <li>
+                                                <code>refresh_token=<%- refresh_token %></code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("client_id")) { %>
+                                            <li>
+                                                <code>client_id=<%- clientId %></code> - should match the client ID in the 
+                                                Connected App
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("client_secret")) { %>
+                                            <li>
+                                                <code>client_secret=<%- clientSecret %></code> - should match the client secret in the 
+                                                Connected App
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("redirect_uri")) { %>
+                                            <li>
+                                                <code>redirect_uri=<%- callbackURL %></code> - should match the callback URL in the
+                                                Connected App
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("client_assertion_type")) { %>
+                                            <li>
+                                                <code>client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("client_assertion")) { %>
+                                            <li>
+                                                <code>client_assertion=&lt;<i>generated_on_click</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("assertion_type")) { %>
+                                            <li>
+                                                <code>assertion_type=urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("assertion")) { %>
+                                            <li>
+                                                <code>assertion=&lt;<i>generated_on_click</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("scope")) { %>
+                                            <li>
+                                                <code>scope=<%- scope %> </code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("scope")) { %>
+                                            <li>
+                                                <code>scope=<%- scope %> </code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("code")) { %>
+                                            <li>
+                                                <code>code=&lt;<i>returned_by_Salesforce</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("code_challenge")) { %>
+                                            <li>
+                                                <code>code_challenge=&lt;<i>generated_on_click</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("state")) { %>
+                                            <li>
+                                                <code>state=&lt;<i>generated_on_click</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("nonce")) { %>
+                                            <li>
+                                                <code>nonce=&lt;<i>generated_on_click</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("username")) { %>
+                                            <li>
+                                                <code>username=&lt;<i>entered_by_user</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("password")) { %>
+                                            <li>
+                                                <code>password=&lt;<i>entered_by_user</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                    </ul>
+                                </li> 
+                            <% } %>
 
-                    <!-- Interaction of user with the flow -->
-                    <% if (config.first_call.user_authorization) { %>
-                        <li>
-                            Salesforce requests the user to log in and authorize the Connected App for the selected OAuth 
-                            scopes.
-                        </li>
-                    <% } %>
+                            <!-- Interaction of user with the flow -->
+                            <% if (call.user_authorization) { %>
+                                <li>
+                                    Salesforce requests the user to log in and authorize the Connected App for the selected OAuth 
+                                    scopes. If the credentials are incorrect or the user declines the authorization, the flow
+                                    fails. Otherwise it continues to the next step.
+                                </li>
+                            <% } %>
 
-                    <!-- Show how the response is handled -->
-                    <% if (config.first_call.output) { %>
-                        <li>
-                            After successful authorization, Salesforce redirects to the callback URL if it matches with the
-                            redirect_uri specified in the Connected App. There are different parameters returned in the
-                            URL, after a hash sign <code>#</code>:
-                            <ul>
-                                <% if (config.first_call.output.includes("code")) { %>
-                                    <li>
-                                        <code>code=&lt;<i>returned_by_Salesforce</i>&gt;</code> - the authorization code.
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.output.includes("token_type")) { %>
-                                    <li>
-                                        <code>token_type=<%- config.token_type %></code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.output.includes("instance_url")) { %>
-                                    <li>
-                                        <code>instance_url=<%- baseURL %> </code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.output.includes("access_token")) { %>
-                                    <li>
-                                        <code>access_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.output.includes("refresh_token")) { %>
-                                    <li>
-                                        <code>refresh_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.output.includes("id")) { %>
-                                    <li>
-                                        <code>id=&lt;<i>returned_by_Salesforce</i>&gt;</code> - the identity URL
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.output.includes("id_token")) { %>
-                                    <li>
-                                        <code>id_token=&lt;<i>returned_by_Salesforce</i>&gt;</code> - JWT containing 
-                                        information about the user
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.output.includes("signature")) { %>
-                                    <li>
-                                        <code>signature=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Signature of the ID token 
-                                        (client_secret key applied to id<code>:</code>issued_at)
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.output.includes("state")) { %>
-                                    <li>
-                                        <code>state=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Same state as specified
-                                        in the request.
-                                    </li>
-                                <% } %>
-                                <% if (config.first_call.output.includes("scope")) { %>
-                                    <li>
-                                        <code>scope=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Same scope as specified
-                                        in the request, or all scopes from the Connected App if not specified.
-                                    </li>
-                                <% } %>
-                            </ul>
-                        </li>
-                    <% } %>
-                <% } %>
+                            <!-- Validation on the authorization server -->
+                            <% if (call.validation) { %>
+                                <li>
+                                    Salesforce validates the GET request. Successful validation results in a positive response
+                                    and failed validation in a negative response to the callback URL. The following parameters
+                                    are validated:
+                                    <ul>
+                                        <li>
+                                            Authorization code
+                                        </li>
+                                        <li>
+                                            Code verifier
+                                        </li>
+                                        <li>
+                                            Client id
+                                        </li>
+                                        <li>
+                                            Client secret
+                                        </li>
+                                        <li>
+                                            Redirect uri - if it matches with the
+                                            redirect_uri specified in the Connected App
+                                        </li>
+                                    </ul>
+                                </li>
+                            <% } %>
 
-                <% if (config.second_call) { %>
-                    <!-- Show the second call to a Salesforce endpoint -->
-                    <% if (config.second_call.input) { %>
-                        <li>
-                            Upon clicking the button, the user is redirected with an HTTP <%- config.second_call.method %> 
-                            to the Salesforce <%- config.second_call.endpoint_name %> Endpoint at 
-                                <code><%= baseURL %><%= config.second_call.endpoint_url %></code>
-                            with the following parameters:
-                            <ul>
-                                <% if (config.second_call.input.includes("response_type")) { %>
-                                    <li>
-                                        <code>response_type=<%- config.response_type %></code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("grant_type")) { %>
-                                    <li>
-                                        <code>grant_type=<%- config.grant_type %></code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("refresh_token")) { %>
-                                    <li>
-                                        <code>refresh_token=<%- refresh_token %></code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("client_id")) { %>
-                                    <li>
-                                        <code>client_id=<%- clientId %></code> - should match the client ID in the 
-                                        Connected App
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("client_secret")) { %>
-                                    <li>
-                                        <code>client_secret=<%- clientSecret %></code> - should match the client secret in the 
-                                        Connected App
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("redirect_uri")) { %>
-                                    <li>
-                                        <code>redirect_uri=<%- callbackURL %></code> - should match the callback URL in the
-                                        Connected App
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("client_assertion_type")) { %>
-                                    <li>
-                                        <code>client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("client_assertion")) { %>
-                                    <li>
-                                        <code>client_assertion=&lt;<i>generated_on_click</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("assertion_type")) { %>
-                                    <li>
-                                        <code>assertion_type=urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("assertion")) { %>
-                                    <li>
-                                        <code>assertion=&lt;<i>generated_on_click</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("scope")) { %>
-                                    <li>
-                                        <code>scope=<%- scope %> </code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("scope")) { %>
-                                    <li>
-                                        <code>scope=<%- scope %> </code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("code")) { %>
-                                    <li>
-                                        <code>code=&lt;<i>returned_by_Salesforce</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("code_challenge")) { %>
-                                    <li>
-                                        <code>code_challenge=&lt;<i>generated_on_click</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("code_verifier")) { %>
-                                    <li>
-                                        <code>code_verifier=&lt;<i>generated_on_click</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("state")) { %>
-                                    <li>
-                                        <code>state=&lt;<i>generated_on_click</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("nonce")) { %>
-                                    <li>
-                                        <code>nonce=&lt;<i>generated_on_click</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("username")) { %>
-                                    <li>
-                                        <code>username=&lt;<i>entered_by_user</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.input.includes("password")) { %>
-                                    <li>
-                                        <code>password=&lt;<i>entered_by_user</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                            </ul>
-                        </li> 
-                    <% } %>
+                            <!-- Show how the response is handled -->
+                            <% if (call.output) { %>
+                                <li>
+                                    After successful authorization, Salesforce redirects to the callback URL. There are
+                                    different parameters returned in the URL:
+                                    <ul>
+                                        <% if (call.output.includes("code")) { %>
+                                            <li>
+                                                <code>code=&lt;<i>returned_by_Salesforce</i>&gt;</code> - the authorization code.
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("token_type")) { %>
+                                            <li>
+                                                <code>token_type=<%- config.token_type %></code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("instance_url")) { %>
+                                            <li>
+                                                <code>instance_url=<%- baseURL %> </code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("access_token")) { %>
+                                            <li>
+                                                <code>access_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("refresh_token")) { %>
+                                            <li>
+                                                <code>refresh_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("id")) { %>
+                                            <li>
+                                                <code>id=&lt;<i>returned_by_Salesforce</i>&gt;</code> - the identity URL
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("id_token")) { %>
+                                            <li>
+                                                <code>id_token=&lt;<i>returned_by_Salesforce</i>&gt;</code> - JWT containing 
+                                                information about the user
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("signature")) { %>
+                                            <li>
+                                                <code>signature=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Signature of the ID token 
+                                                (client_secret key applied to id<code>:</code>issued_at)
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("state")) { %>
+                                            <li>
+                                                <code>state=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Same state as specified
+                                                in the request.
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("scope")) { %>
+                                            <li>
+                                                <code>scope=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Same scope as specified
+                                                in the request, or all scopes from the Connected App if not specified.
+                                            </li>
+                                        <% } %>
+                                    </ul>
+                                </li>
+                            <% } %>
+                        <% } else if (call.method == "POST") { %>
+                            <!-- Show the second call to a Salesforce endpoint -->
+                            <% if (call.input) { %>
+                                <li>
+                                    The application server launches an HTTP POST request to the Salesforce
+                                    <%- call.endpoint_name %> Endpoint at 
+                                        <code>
+                                            <%= baseURL %><%= call.endpoint_url %>
+                                        </code>
+                                    with the following parameters:
+                                    <ul>
+                                        <% if (call.input.includes("response_type")) { %>
+                                            <li>
+                                                <code>response_type=<%- config.response_type %></code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("grant_type")) { %>
+                                            <li>
+                                                <code>grant_type=<%- config.grant_type %></code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("refresh_token")) { %>
+                                            <li>
+                                                <code>refresh_token=<%- refresh_token %></code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("client_id")) { %>
+                                            <li>
+                                                <code>client_id=<%- clientId %></code> - should match the client ID in the 
+                                                Connected App
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("client_secret")) { %>
+                                            <li>
+                                                <code>client_secret=<%- clientSecret %></code> - should match the client secret in the 
+                                                Connected App
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("redirect_uri")) { %>
+                                            <li>
+                                                <code>redirect_uri=<%- callbackURL %></code> - should match the callback URL in the
+                                                Connected App
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("client_assertion_type")) { %>
+                                            <li>
+                                                <code>client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("client_assertion")) { %>
+                                            <li>
+                                                <code>client_assertion=&lt;<i>generated_on_click</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("assertion_type")) { %>
+                                            <li>
+                                                <code>assertion_type=urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("assertion")) { %>
+                                            <li>
+                                                <code>assertion=&lt;<i>generated_on_click</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("scope")) { %>
+                                            <li>
+                                                <code>scope=<%- scope %> </code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("scope")) { %>
+                                            <li>
+                                                <code>scope=<%- scope %> </code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("code")) { %>
+                                            <li>
+                                                <code>code=&lt;<i>returned_by_Salesforce</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("code_challenge")) { %>
+                                            <li>
+                                                <code>code_challenge=&lt;<i>generated_on_click</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("code_verifier")) { %>
+                                            <li>
+                                                <code>code_verifier=&lt;<i>generated_on_click</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("state")) { %>
+                                            <li>
+                                                <code>state=&lt;<i>generated_on_click</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("nonce")) { %>
+                                            <li>
+                                                <code>nonce=&lt;<i>generated_on_click</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("username")) { %>
+                                            <li>
+                                                <code>username=&lt;<i>entered_by_user</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.input.includes("password")) { %>
+                                            <li>
+                                                <code>password=&lt;<i>entered_by_user</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                    </ul>
+                                </li> 
+                            <% } %>
 
-                    <!-- Interaction of user with the flow -->
-                    <% if (config.second_call.validation) { %>
-                        <li>
-                            The authorization code, code verifier, client id, client secret and redirect uri are all checked. 
-                            After successful authorization, the authorisation server returns the Access Token as a response 
-                            to the POST messsage.
-                        </li>
-                    <% } %>
-                         
-                    <!-- Show how the response is handled -->
-                    <% if (config.second_call.output) { %>
-                        <li>
-                            After successful authorization, Salesforce redirects to the callback URL if it matches with the
-                            redirect_uri specified in the Connected App. There are different parameters returned in the
-                            URL, after a hash sign <code>#</code>:
-                            <ul>
-                                <% if (config.second_call.output.includes("code")) { %>
-                                    <li>
-                                        <code>code=&lt;<i>returned_by_Salesforce</i>&gt;</code> - the authorization code.
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.output.includes("token_type")) { %>
-                                    <li>
-                                        <code>token_type=<%- config.token_type %></code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.output.includes("instance_url")) { %>
-                                    <li>
-                                        <code>instance_url=<%- baseURL %> </code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.output.includes("access_token")) { %>
-                                    <li>
-                                        <code>access_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.output.includes("refresh_token")) { %>
-                                    <li>
-                                        <code>refresh_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.output.includes("id")) { %>
-                                    <li>
-                                        <code>id=&lt;<i>returned_by_Salesforce</i>&gt;</code> - the identity URL
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.output.includes("id_token")) { %>
-                                    <li>
-                                        <code>id_token=&lt;<i>returned_by_Salesforce</i>&gt;</code> - JWT containing 
-                                        information about the user
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.output.includes("signature")) { %>
-                                    <li>
-                                        <code>signature=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Signature of the ID token 
-                                        (client_secret key applied to id<code>:</code>issued_at)
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.output.includes("state")) { %>
-                                    <li>
-                                        <code>state=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Same state as specified
-                                        in the request.
-                                    </li>
-                                <% } %>
-                                <% if (config.second_call.output.includes("scope")) { %>
-                                    <li>
-                                        <code>scope=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Same scope as specified
-                                        in the request, or all scopes from the Connected App if not specified.
-                                    </li>
-                                <% } %>
-                            </ul>
-                        </li>
-                    <% } %>
+                            <!-- Interaction of user with the flow -->
+                            <% if (call.validation) { %>
+                                <li>
+                                    Salesforce validates the POST request. Successful validation results in a positive response
+                                    and failed validation in a negative response. The following parameters are validated:
+                                    <ul>
+                                        <li>
+                                            Authorization code
+                                        </li>
+                                        <li>
+                                            Code verifier
+                                        </li>
+                                        <li>
+                                            Client id
+                                        </li>
+                                        <li>
+                                            Client secret
+                                        </li>
+                                        <li>
+                                            Redirect uri
+                                        </li>
+                                    </ul>
+                                </li>
+                            <% } %>
+                                
+                            <!-- Show how the response is handled -->
+                            <% if (call.output) { %>
+                                <li>
+                                    After a successful validation, Salesforce returns a response to the HTTP POST message
+                                    containing the following values:
+                                    <ul>
+                                        <% if (call.output.includes("code")) { %>
+                                            <li>
+                                                <code>code=&lt;<i>returned_by_Salesforce</i>&gt;</code> - the authorization code.
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("token_type")) { %>
+                                            <li>
+                                                <code>token_type=<%- config.token_type %></code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("instance_url")) { %>
+                                            <li>
+                                                <code>instance_url=<%- baseURL %> </code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("access_token")) { %>
+                                            <li>
+                                                <code>access_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("refresh_token")) { %>
+                                            <li>
+                                                <code>refresh_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("id")) { %>
+                                            <li>
+                                                <code>id=&lt;<i>returned_by_Salesforce</i>&gt;</code> - the identity URL
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("id_token")) { %>
+                                            <li>
+                                                <code>id_token=&lt;<i>returned_by_Salesforce</i>&gt;</code> - JWT containing 
+                                                information about the user
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("signature")) { %>
+                                            <li>
+                                                <code>signature=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Signature of the ID token 
+                                                (client_secret key applied to id<code>:</code>issued_at)
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("state")) { %>
+                                            <li>
+                                                <code>state=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Same state as specified
+                                                in the request.
+                                            </li>
+                                        <% } %>
+                                        <% if (call.output.includes("scope")) { %>
+                                            <li>
+                                                <code>scope=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Same scope as specified
+                                                in the request, or all scopes from the Connected App if not specified.
+                                            </li>
+                                        <% } %>
+                                    </ul>
+                                </li>
+                            <% } %>
+                        <% } %>
+                    <% }); %>
                 <% } %>
 
                 <!-- Query step -->
@@ -402,6 +448,15 @@
                                 a unique identifier for every user-agent request. Only if the actual app sees the same state
                                 being posted on the callback URL endpoint, it will know that the original request was
                                 originated from its context.
+                            </li>
+                        <% } %>
+                        <% if (config.attacks.includes("browser_history")) { %>
+                            <li>
+                                Attackers could leverage the browser history to obtain the access token since it's
+                                returned in plain text in the URL. This is avoided by adding the callback parameters
+                                as part of the <a href="https://www.w3.org/DesignIssues/Fragment.html">fragment 
+                                identifier</a>. This makes it impossible to retrieve the access token by using methods
+                                such as <code>window.history()</code> in JavaScript.
                             </li>
                         <% } %>
                         <% if (config.attacks.includes("embedded_browser")) { %>

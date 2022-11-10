@@ -7,16 +7,19 @@
         "configuration": {
             "response_type": "token",
             "token_type": "Bearer",
-            "first_call": {
-                "method": "GET",
-                "endpoint_name": "Authorization",
-                "endpoint_url": "/services/oauth2/authorize",
-                "input": ["response_type", "client_id", "redirect_uri", "state", "nonce"],
-                "user_authorization": true,
-                "output": ["token_type", "instance_url", "access_token", "refresh_token", "state", "scope"]
-            },
+            "calls": [
+                {
+                    "method": "GET",
+                    "endpoint_name": "Authorization",
+                    "endpoint_url": "/services/oauth2/authorize",
+                    "input": ["response_type", "client_id", "redirect_uri", "state", "nonce"],
+                    "user_authorization": true,
+                    "validation": true,
+                    "output": ["token_type", "instance_url", "access_token", "refresh_token", "state", "scope"]
+                }
+            ],
             "query": true,
-            "attacks": ["access_control", "csrf", "embedded_browser"]
+            "attacks": ["access_control", "csrf", "embedded_browser", "browser_history"]
         }
     },
     {
@@ -28,22 +31,25 @@
             "response_type": "code",
             "token_type": "Bearer",
             "grant_type": "authorization_code",
-            "first_call": {
-                "method": "GET",
-                "endpoint_name": "Authorization",
-                "endpoint_url": "/services/oauth2/authorize",
-                "input": ["response_type", "client_id", "redirect_uri", "code_challenge", "state"],
-                "user_authorization": true,
-                "output": ["code", "state"]
-            },
-            "second_call": {
-                "method": "POST",
-                "endpoint_name": "Token",
-                "endpoint_url": "/services/oauth2/token",
-                "input": ["grant_type", "client_id", "client_secret", "redirect_uri", "code", "code_verifier"],
-                "validation": true,
-                "output": ["token_type", "instance_url", "access_token", "refresh_token"]
-            },
+            "calls": [
+                {
+                    "method": "GET",
+                    "endpoint_name": "Authorization",
+                    "endpoint_url": "/services/oauth2/authorize",
+                    "input": ["response_type", "client_id", "redirect_uri", "code_challenge", "state"],
+                    "user_authorization": true,
+                    "validation": true,
+                    "output": ["code", "state"]
+                },
+                {
+                    "method": "POST",
+                    "endpoint_name": "Token",
+                    "endpoint_url": "/services/oauth2/token",
+                    "input": ["grant_type", "client_id", "client_secret", "redirect_uri", "code", "code_verifier"],
+                    "validation": true,
+                    "output": ["token_type", "instance_url", "access_token", "refresh_token"]
+                }
+            ],
             "query": true,
             "attacks": ["access_control", "csrf", "leaked_secret", "auth_code_interception"]
         }
