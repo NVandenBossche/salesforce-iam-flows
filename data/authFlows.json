@@ -3,6 +3,7 @@
         "name": "user-agent",
         "title": "User Agent Flow",
         "protocol": "OAuth 2.0",
+        "description": "",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/User%20Agent%203000.png",
         "configuration": {
             "response_type": "token",
@@ -26,6 +27,7 @@
         "name": "web-server-client-secret",
         "title": "Web Server Flow with Client Secret and PKCE",
         "protocol": "OAuth 2.0",
+        "description": "",
         "image": "https://cloudsundial.com/sites/default/files/2021-03/Web%20Server%202600.png",
         "configuration": {
             "response_type": "code",
@@ -51,27 +53,88 @@
                 }
             ],
             "query": true,
-            "attacks": ["access_control", "csrf", "leaked_secret", "auth_code_interception"]
+            "attacks": ["access_control", "csrf", "impersonation_secret", "auth_code_interception"]
         }
     },
     {
         "name": "web-server-client-assertion",
         "title": "Web Server Flow with Client Assertion and PKCE",
         "protocol": "OAuth 2.0",
+        "description": "",
         "image": "https://cloudsundial.com/sites/default/files/2021-03/Web%20Server%202600.png",
-        "configuration": ""
+        "configuration": {
+            "response_type": "code",
+            "token_type": "Bearer",
+            "grant_type": "authorization_code",
+            "calls": [
+                {
+                    "method": "GET",
+                    "endpoint_name": "Authorization",
+                    "endpoint_url": "/services/oauth2/authorize",
+                    "input": ["response_type", "client_id", "redirect_uri", "code_challenge", "state"],
+                    "user_authorization": true,
+                    "validation": true,
+                    "output": ["code", "state"]
+                },
+                {
+                    "method": "POST",
+                    "endpoint_name": "Token",
+                    "endpoint_url": "/services/oauth2/token",
+                    "input": [
+                        "grant_type",
+                        "client_id",
+                        "client_assertion_type",
+                        "client_assertion",
+                        "redirect_uri",
+                        "code",
+                        "code_verifier"
+                    ],
+                    "validation": true,
+                    "output": ["token_type", "instance_url", "access_token", "refresh_token"]
+                }
+            ],
+            "query": true,
+            "attacks": ["access_control", "csrf", "impersonation_assertion", "auth_code_interception"]
+        }
     },
     {
         "name": "web-server-pkce-only",
         "title": "Web Server Flow with PKCE Only",
         "protocol": "OAuth 2.0",
+        "description": "Make sure to uncheck the \"Require Secret for Web Server Flow\" flag in the Connected App. Ideal alternative to user agent for mobile flows.",
         "image": "https://cloudsundial.com/sites/default/files/2021-03/Auth%20Code%20with%20PKCE%201880_0.png",
-        "configuration": ""
+        "configuration": {
+            "response_type": "code",
+            "token_type": "Bearer",
+            "grant_type": "authorization_code",
+            "calls": [
+                {
+                    "method": "GET",
+                    "endpoint_name": "Authorization",
+                    "endpoint_url": "/services/oauth2/authorize",
+                    "input": ["response_type", "client_id", "redirect_uri", "code_challenge", "state"],
+                    "user_authorization": true,
+                    "validation": true,
+                    "output": ["code", "state"]
+                },
+                {
+                    "method": "POST",
+                    "endpoint_name": "Token",
+                    "endpoint_url": "/services/oauth2/token",
+                    "input": ["grant_type", "client_id", "redirect_uri", "code", "code_verifier"],
+                    "validation": true,
+                    "output": ["token_type", "instance_url", "access_token", "refresh_token"]
+                }
+            ],
+            "query": true,
+            "attacks": ["access_control", "csrf", "standard_browser", "auth_code_interception"]
+        }
     },
     {
         "name": "refresh-token",
         "title": "Refresh Token Flow",
         "protocol": "OAuth 2.0",
+        "description": "This section covers the OAuth 2.0 Refresh Token flow . Refresh Token flow can only be implemented for OAuth flows with user interaction like Web Server flow and User Agent Flow. Flows like JWT and SAML Bearer don't provide a refresh token even if specified in the scope of the Connected App. ",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/Refresh%20token%203000.png",
         "configuration": ""
     },

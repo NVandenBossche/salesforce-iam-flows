@@ -470,11 +470,26 @@
                                 auth flow (see lower).
                             </li>
                         <% } %>
-                        <% if (config.attacks.includes("leaked_secret")) { %>
+                        <% if (config.attacks.includes("standard_browser")) { %>
+                            <li>
+                                This flow authenticates the client based on the callback URL, just like User Agent 
+                                flow. Unlike the User Agent flow, it leverages a mobile browser that is not embedded,
+                                which provides additional security to the mobile app user because the mobile app
+                                itself doesn't need to be trusted fully with credentials. 
+                            </li>
+                        <% } %>
+                        <% if (config.attacks.includes("impersonation_secret")) { %>
                             <li>
                                 A malicious app pretends it's our server. This is blocked because only our server should
                                 have access to the client secret. That's why it's so important that the client secret
                                 can be well-guarded by the server.
+                            </li>
+                        <% } %>
+                        <% if (config.attacks.includes("impersonation_assertion")) { %>
+                            <li>
+                                A malicious app pretends it's our server. This is blocked because only our server should
+                                have access to the private key that is used to sign the assertion. That's why it's so 
+                                important that private keys are never shared with any system.
                             </li>
                         <% } %>
                         <% if (config.attacks.includes("auth_code_interception")) { %>
