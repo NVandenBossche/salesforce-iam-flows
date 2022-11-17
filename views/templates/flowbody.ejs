@@ -30,7 +30,7 @@
                                         <% } %>
                                         <% if (call.input.includes("refresh_token")) { %>
                                             <li>
-                                                <code>refresh_token=<%- refresh_token %></code>
+                                                <code>refresh_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
                                             </li>
                                         <% } %>
                                         <% if (call.input.includes("client_id")) { %>
@@ -237,7 +237,7 @@
                                         <% } %>
                                         <% if (call.input.includes("refresh_token")) { %>
                                             <li>
-                                                <code>refresh_token=<%- refresh_token %></code>
+                                                <code>refresh_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
                                             </li>
                                         <% } %>
                                         <% if (call.input.includes("client_id")) { %>
@@ -492,6 +492,13 @@
                                 important that private keys are never shared with any system.
                             </li>
                         <% } %>
+                        <% if (config.attacks.includes("impersonation_assertion")) { %>
+                            <li>
+                                A malicious app tries to pretend to be the actual app. This is blocked by applying a
+                                signature to the JWT claims that is based on a private key only known by the actual
+                                app. The corresponding public certificate is uploaded in the connected app. 
+                            </li>
+                        <% } %>
                         <% if (config.attacks.includes("auth_code_interception")) { %>
                             <li>
                                 A malicious app intercepts the authorization code and tries to use it to get an access
@@ -500,6 +507,11 @@
                                 The code verifier is 128 bytes of random data with high entropy that's base64url
                                 encoded. The code challenge is the base64url encoded SHA256 hash value of the code
                                 verifier.
+                            </li>
+                        <% } %>
+                        <% if (config.attacks.includes("refresh_token")) { %>
+                            <li>
+                                The refresh token has the same value as user credentials and should be securely stored. Proper precautions should be taken so that malicious actors cannot access this refresh token from e.g. a database. In case a refresh token is compromised, you can always expire it manually from the Salesforce setup menu. 
                             </li>
                         <% } %>
                     </ol>
