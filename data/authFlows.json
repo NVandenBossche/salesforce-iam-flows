@@ -10,6 +10,7 @@
             "token_type": "Bearer",
             "calls": [
                 {
+                    "type": "async",
                     "method": "GET",
                     "endpoint_name": "Authorization",
                     "endpoint_url": "/services/oauth2/authorize",
@@ -35,6 +36,7 @@
             "grant_type": "authorization_code",
             "calls": [
                 {
+                    "type": "async",
                     "method": "GET",
                     "endpoint_name": "Authorization",
                     "endpoint_url": "/services/oauth2/authorize",
@@ -44,6 +46,7 @@
                     "output": ["code", "state"]
                 },
                 {
+                    "type": "sync",
                     "method": "POST",
                     "endpoint_name": "Token",
                     "endpoint_url": "/services/oauth2/token",
@@ -68,6 +71,7 @@
             "grant_type": "authorization_code",
             "calls": [
                 {
+                    "type": "async",
                     "method": "GET",
                     "endpoint_name": "Authorization",
                     "endpoint_url": "/services/oauth2/authorize",
@@ -77,6 +81,7 @@
                     "output": ["code", "state"]
                 },
                 {
+                    "type": "sync",
                     "method": "POST",
                     "endpoint_name": "Token",
                     "endpoint_url": "/services/oauth2/token",
@@ -109,6 +114,7 @@
             "grant_type": "authorization_code",
             "calls": [
                 {
+                    "type": "async",
                     "method": "GET",
                     "endpoint_name": "Authorization",
                     "endpoint_url": "/services/oauth2/authorize",
@@ -118,6 +124,7 @@
                     "output": ["code", "state"]
                 },
                 {
+                    "type": "sync",
                     "method": "POST",
                     "endpoint_name": "Token",
                     "endpoint_url": "/services/oauth2/token",
@@ -136,35 +143,126 @@
         "protocol": "OAuth 2.0",
         "description": "This section covers the OAuth 2.0 Refresh Token flow . Refresh Token flow can only be implemented for OAuth flows with user interaction like Web Server flow and User Agent Flow. Flows like JWT and SAML Bearer don't provide a refresh token even if specified in the scope of the Connected App. ",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/Refresh%20token%203000.png",
-        "configuration": ""
+        "configuration": {
+            "token_type": "Bearer",
+            "grant_type": "refresh_token",
+            "calls": [
+                {
+                    "type": "sync",
+                    "method": "POST",
+                    "endpoint_name": "Token",
+                    "endpoint_url": "/services/oauth2/token",
+                    "input": ["grant_type", "client_id", "refresh_token", "client_secret"],
+                    "validation": true,
+                    "output": ["token_type", "access_token"]
+                }
+            ],
+            "query": true,
+            "attacks": ["refresh_token"]
+        }
     },
     {
         "name": "jwt-bearer",
         "title": "JWT Bearer Token Flow",
         "protocol": "OAuth 2.0",
+        "description": "Scope can't be specified, it's always determined in the following way: If admins pre-authorize (using profile / permission set), scope parameter is optional. If not specified, all scopes defined in the connected app are granted. If users can self-authorize, scope is not taken into account. You need to first use another flow (like User-Agent or Web-Server) to grant explicit authorization for the scopes you need. This flow needs to return a refresh token. The scope returned by the JWT flow is the combination of all previously granted scopes where a refresh token was returned.",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/JWT%20Bearer%203000.png",
-        "configuration": ""
+        "configuration": {
+            "token_type": "Bearer",
+            "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+            "calls": [
+                {
+                    "type": "sync",
+                    "method": "POST",
+                    "endpoint_name": "Token",
+                    "endpoint_url": "/services/oauth2/token",
+                    "input": ["grant_type", "assertion"],
+                    "validation": true,
+                    "output": ["token_type", "access_token"]
+                }
+            ],
+            "query": true,
+            "attacks": ["access_control", "impersonation_jwt"]
+        }
     },
     {
         "name": "saml-bearer",
         "title": "SAML Bearer Token Flow",
         "protocol": "OAuth 2.0",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/SAML%20Bearer%203000.png",
-        "configuration": ""
+        "configuration": {
+            "token_type": "Bearer",
+            "grant_type": "urn:ietf:params:oauth:grant-type:saml2-bearer",
+            "calls": [
+                {
+                    "type": "sync",
+                    "method": "POST",
+                    "endpoint_name": "Token",
+                    "endpoint_url": "/services/oauth2/token",
+                    "input": ["grant_type", "assertion"],
+                    "validation": true,
+                    "output": ["token_type", "access_token"]
+                }
+            ],
+            "query": true,
+            "attacks": ["access_control", "impersonation_jwt"]
+        }
     },
     {
         "name": "saml-assertion",
         "title": "SAML Assertion Flow",
         "protocol": "Single Sign-On",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/SAML%20Assertion%203000.png",
-        "configuration": ""
+        "configuration": {
+            "token_type": "Bearer",
+            "grant_type": "assertion",
+            "calls": [
+                {
+                    "type": "sync",
+                    "method": "POST",
+                    "endpoint_name": "Token",
+                    "endpoint_url": "/services/oauth2/token",
+                    "input": ["grant_type", "assertion_type", "assertion"],
+                    "validation": true,
+                    "output": ["token_type", "access_token"]
+                }
+            ],
+            "query": true,
+            "attacks": ""
+        }
     },
     {
         "name": "device",
         "title": "Device Authentication Flow",
         "protocol": "OAuth 2.0",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/Device%20Authentication%203000.png",
-        "configuration": ""
+        "configuration": {
+            "response_type": "device_code",
+            "token_type": "Bearer",
+            "grant_type": "device",
+            "calls": [
+                {
+                    "type": "sync",
+                    "method": "POST",
+                    "endpoint_name": "Token",
+                    "endpoint_url": "/services/oauth2/token",
+                    "input": ["response_type", "client_id"],
+                    "validation": true,
+                    "output": ["user_code", "verification_uri", "device_code", "interval"]
+                },
+                {
+                    "type": "poll",
+                    "method": "POST",
+                    "endpoint_name": "Token",
+                    "endpoint_url": "/services/oauth2/token",
+                    "input": ["grant_type", "client_id", "code"],
+                    "validation": true,
+                    "output": ["token_type", "instance_url", "access_token", "refresh_token"]
+                }
+            ],
+            "query": true,
+            "attacks": ""
+        }
     },
     {
         "name": "username-password",
