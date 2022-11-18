@@ -1,0 +1,19 @@
+<!-- Show the first call to a Salesforce endpoint -->
+<% if (call.input) { %>
+    <%- include('input', {call: call}) %> 
+<% } %>
+
+<!-- Interaction of user with the flow -->
+<% if (call.user_authorization) { %>
+    <%- include('userauthorization') %> 
+<% } %>
+
+<!-- Validation on the authorization server -->
+<% if (call.validation) { %>
+    <%- include('validation') %> 
+<% } %>
+                          
+<!-- Show how the response is handled -->
+<% if (call.output) { %>
+    <%- include('output') %> 
+<% } %>

@@ -1,0 +1,5 @@
+Attackers could leverage the browser history to obtain the access token since it's
+returned in plain text in the URL. This is avoided by adding the callback parameters
+as part of the <a href="https://www.w3.org/DesignIssues/Fragment.html">fragment 
+identifier</a>. This makes it impossible to retrieve the access token by using methods
+such as <code>window.history()</code> in JavaScript.

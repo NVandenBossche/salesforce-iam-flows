@@ -1,0 +1,82 @@
+<% if (list.includes("access_control")) { %>
+    <li>
+        A malicious app tries to access resources they are not allowed to. This is blocked by the
+        scope parameter of the Connected App. For example, even if the user has the permission to
+        post on chatter through its permissions, the malicious app will not be able to post on
+        chatter if the
+        <code>chatter_api</code> scope wasn't enabled for the Connected App.
+    </li>
+<% } %>
+<% if (list.includes("csrf")) { %>
+    <li>
+        A malicious app tries to send a user-agent request on behalf of the actual app (Cross-Site
+        Request Forging or CSRF). This is blocked by the state parameter where the actual app sends
+        a unique identifier for every user-agent request. Only if the actual app sees the same state
+        being returned on the callback URL endpoint, it will know that the original request was
+        originated from its context.
+    </li>
+<% } %>
+<% if (list.includes("browser_history")) { %>
+    <li>
+        Attackers could leverage the browser history to obtain the access token since it's
+        returned in plain text in the URL. This is avoided by adding the callback parameters
+        as part of the <a href="https://www.w3.org/DesignIssues/Fragment.html">fragment 
+        identifier</a>. This makes it impossible to retrieve the access token by using methods
+        such as <code>window.history()</code> in JavaScript.
+    </li>
+<% } %>
+<% if (list.includes("embedded_browser")) { %>
+    <li>
+        A malicious, but seemingly harmless app is installed on your phone. It comes with an
+        embedded browser inside the app which is used to launch the User-Agent flow. However, the
+        embedded browser actually captures username and password while typing. This is something
+        very difficult to block and requires educating the user to not type credentials in an
+        embedded browser unless you really trust the app. It's better to work with a Web-Server flow
+        without client secret or assertion where a trusted mobile browser is used for launching the
+        auth flow (see lower).
+    </li>
+<% } %>
+<% if (list.includes("standard_browser")) { %>
+    <li>
+        This flow authenticates the client based on the callback URL, just like User Agent 
+        flow. Unlike the User Agent flow, it leverages a mobile browser that is not embedded,
+        which provides additional security to the mobile app user because the mobile app
+        itself doesn't need to be trusted fully with credentials. 
+    </li>
+<% } %>
+<% if (list.includes("impersonation_secret")) { %>
+    <li>
+        A malicious app pretends it's our server. This is blocked because only our server should
+        have access to the client secret. That's why it's so important that the client secret
+        can be well-guarded by the server.
+    </li>
+<% } %>
+<% if (list.includes("impersonation_assertion")) { %>
+    <li>
+        A malicious app pretends it's our server. This is blocked because only our server should
+        have access to the private key that is used to sign the assertion. That's why it's so 
+        important that private keys are never shared with any system.
+    </li>
+<% } %>
+<% if (list.includes("impersonation_assertion")) { %>
+    <li>
+        A malicious app tries to pretend to be the actual app. This is blocked by applying a
+        signature to the JWT claims that is based on a private key only known by the actual
+        app. The corresponding public certificate is uploaded in the connected app. 
+    </li>
+<% } %>
+<% if (list.includes("auth_code_interception")) { %>
+    <li>
+        A malicious app intercepts the authorization code and tries to use it to get an access
+        token. This is blocked by using the code_challenge parameter in the authorization
+        request, which is then checked against the code_verifier parameter in the token request.
+        The code verifier is 128 bytes of random data with high entropy that's base64url
+        encoded. The code challenge is the base64url encoded SHA256 hash value of the code
+        verifier.
+    </li>
+<% } %>
+<% if (list.includes("refresh_token")) { %>
+    <li>
+        The refresh token has the same value as user credentials and should be securely stored. Proper precautions should be taken so that malicious actors cannot access this refresh token from e.g. a database. In case a refresh token is compromised, you can always expire it manually from the Salesforce setup menu. 
+    </li>
+<% } %>

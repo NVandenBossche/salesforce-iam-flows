@@ -1,0 +1,12 @@
+<% if (type == "async") { %>
+    The user is redirected with an HTTP <%- method %> to the Salesforce <%- endpoint.name %> Endpoint at 
+    <code><%= baseURL %><%= endpoint.url %></code> with the following parameters:
+<% } else if (type == "sync") { %>
+    The application server launches an HTTP <%- method %> request to the Salesforce
+    <%- endpoint.name %> Endpoint at <code><%= baseURL %><%= endpoint.url %></code>
+    with the following parameters:
+<% } else if (type == "poll") { %>
+    The application server polls via HTTP <%- method %> requests the Salesforce
+    <%- endpoint.name %> Endpoint at <code><%= baseURL %><%= endpoint.url %></code>
+    with the following parameters:
+<% } %>

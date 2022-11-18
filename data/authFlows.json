@@ -12,8 +12,10 @@
                 {
                     "type": "async",
                     "method": "GET",
-                    "endpoint_name": "Authorization",
-                    "endpoint_url": "/services/oauth2/authorize",
+                    "endpoint": {
+                        "name": "Authorization",
+                        "url": "/services/oauth2/authorize"
+                    },
                     "input": ["response_type", "client_id", "redirect_uri", "state", "nonce"],
                     "user_authorization": true,
                     "validation": true,
@@ -21,7 +23,7 @@
                 }
             ],
             "query": true,
-            "attacks": ["access_control", "csrf", "embedded_browser", "browser_history"]
+            "attacks": ["accesscontrol", "csrf", "embeddedbrowser", "browserhistory"]
         }
     },
     {
@@ -38,8 +40,10 @@
                 {
                     "type": "async",
                     "method": "GET",
-                    "endpoint_name": "Authorization",
-                    "endpoint_url": "/services/oauth2/authorize",
+                    "endpoint": {
+                        "name": "Authorization",
+                        "url": "/services/oauth2/authorize"
+                    },
                     "input": ["response_type", "client_id", "redirect_uri", "code_challenge", "state"],
                     "user_authorization": true,
                     "validation": true,
@@ -48,15 +52,17 @@
                 {
                     "type": "sync",
                     "method": "POST",
-                    "endpoint_name": "Token",
-                    "endpoint_url": "/services/oauth2/token",
+                    "endpoint": {
+                        "name": "Token",
+                        "url": "/services/oauth2/token"
+                    },
                     "input": ["grant_type", "client_id", "client_secret", "redirect_uri", "code", "code_verifier"],
                     "validation": true,
                     "output": ["token_type", "instance_url", "access_token", "refresh_token"]
                 }
             ],
             "query": true,
-            "attacks": ["access_control", "csrf", "impersonation_secret", "auth_code_interception"]
+            "attacks": ["accesscontrol", "csrf", "impersonationsecret", "codeinterception"]
         }
     },
     {
@@ -73,8 +79,10 @@
                 {
                     "type": "async",
                     "method": "GET",
-                    "endpoint_name": "Authorization",
-                    "endpoint_url": "/services/oauth2/authorize",
+                    "endpoint": {
+                        "name": "Authorization",
+                        "url": "/services/oauth2/authorize"
+                    },
                     "input": ["response_type", "client_id", "redirect_uri", "code_challenge", "state"],
                     "user_authorization": true,
                     "validation": true,
@@ -83,8 +91,10 @@
                 {
                     "type": "sync",
                     "method": "POST",
-                    "endpoint_name": "Token",
-                    "endpoint_url": "/services/oauth2/token",
+                    "endpoint": {
+                        "name": "Token",
+                        "url": "/services/oauth2/token"
+                    },
                     "input": [
                         "grant_type",
                         "client_id",
@@ -99,7 +109,7 @@
                 }
             ],
             "query": true,
-            "attacks": ["access_control", "csrf", "impersonation_assertion", "auth_code_interception"]
+            "attacks": ["accesscontrol", "csrf", "impersonationassertion", "codeinterception"]
         }
     },
     {
@@ -116,8 +126,10 @@
                 {
                     "type": "async",
                     "method": "GET",
-                    "endpoint_name": "Authorization",
-                    "endpoint_url": "/services/oauth2/authorize",
+                    "endpoint": {
+                        "name": "Authorization",
+                        "url": "/services/oauth2/authorize"
+                    },
                     "input": ["response_type", "client_id", "redirect_uri", "code_challenge", "state"],
                     "user_authorization": true,
                     "validation": true,
@@ -126,15 +138,17 @@
                 {
                     "type": "sync",
                     "method": "POST",
-                    "endpoint_name": "Token",
-                    "endpoint_url": "/services/oauth2/token",
+                    "endpoint": {
+                        "name": "Token",
+                        "url": "/services/oauth2/token"
+                    },
                     "input": ["grant_type", "client_id", "redirect_uri", "code", "code_verifier"],
                     "validation": true,
                     "output": ["token_type", "instance_url", "access_token", "refresh_token"]
                 }
             ],
             "query": true,
-            "attacks": ["access_control", "csrf", "standard_browser", "auth_code_interception"]
+            "attacks": ["accesscontrol", "csrf", "standardbrowser", "codeinterception"]
         }
     },
     {
@@ -150,15 +164,17 @@
                 {
                     "type": "sync",
                     "method": "POST",
-                    "endpoint_name": "Token",
-                    "endpoint_url": "/services/oauth2/token",
+                    "endpoint": {
+                        "name": "Token",
+                        "url": "/services/oauth2/token"
+                    },
                     "input": ["grant_type", "client_id", "refresh_token", "client_secret"],
                     "validation": true,
                     "output": ["token_type", "access_token"]
                 }
             ],
             "query": true,
-            "attacks": ["refresh_token"]
+            "attacks": ["refreshtoken"]
         }
     },
     {
@@ -174,15 +190,17 @@
                 {
                     "type": "sync",
                     "method": "POST",
-                    "endpoint_name": "Token",
-                    "endpoint_url": "/services/oauth2/token",
+                    "endpoint": {
+                        "name": "Token",
+                        "url": "/services/oauth2/token"
+                    },
                     "input": ["grant_type", "assertion"],
                     "validation": true,
                     "output": ["token_type", "access_token"]
                 }
             ],
             "query": true,
-            "attacks": ["access_control", "impersonation_jwt"]
+            "attacks": ["accesscontrol", "impersonationjwt"]
         }
     },
     {
@@ -197,15 +215,17 @@
                 {
                     "type": "sync",
                     "method": "POST",
-                    "endpoint_name": "Token",
-                    "endpoint_url": "/services/oauth2/token",
+                    "endpoint": {
+                        "name": "Token",
+                        "url": "/services/oauth2/token"
+                    },
                     "input": ["grant_type", "assertion"],
                     "validation": true,
                     "output": ["token_type", "access_token"]
                 }
             ],
             "query": true,
-            "attacks": ["access_control", "impersonation_jwt"]
+            "attacks": ["accesscontrol", "impersonationjwt"]
         }
     },
     {
@@ -220,8 +240,10 @@
                 {
                     "type": "sync",
                     "method": "POST",
-                    "endpoint_name": "Token",
-                    "endpoint_url": "/services/oauth2/token",
+                    "endpoint": {
+                        "name": "Token",
+                        "url": "/services/oauth2/token"
+                    },
                     "input": ["grant_type", "assertion_type", "assertion"],
                     "validation": true,
                     "output": ["token_type", "access_token"]
@@ -244,8 +266,10 @@
                 {
                     "type": "sync",
                     "method": "POST",
-                    "endpoint_name": "Token",
-                    "endpoint_url": "/services/oauth2/token",
+                    "endpoint": {
+                        "name": "Token",
+                        "url": "/services/oauth2/token"
+                    },
                     "input": ["response_type", "client_id"],
                     "validation": true,
                     "output": ["user_code", "verification_uri", "device_code", "interval"]
@@ -253,8 +277,10 @@
                 {
                     "type": "poll",
                     "method": "POST",
-                    "endpoint_name": "Token",
-                    "endpoint_url": "/services/oauth2/token",
+                    "endpoint": {
+                        "name": "Token",
+                        "url": "/services/oauth2/token"
+                    },
                     "input": ["grant_type", "client_id", "code"],
                     "validation": true,
                     "output": ["token_type", "instance_url", "access_token", "refresh_token"]

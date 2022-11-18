@@ -1,0 +1,7 @@
+A malicious, but seemingly harmless app is installed on your phone. It comes with an
+embedded browser inside the app which is used to launch the User-Agent flow. However, the
+embedded browser actually captures username and password while typing. This is something
+very difficult to block and requires educating the user to not type credentials in an
+embedded browser unless you really trust the app. It's better to work with a Web-Server flow
+without client secret or assertion where a trusted mobile browser is used for launching the
+auth flow (see lower).

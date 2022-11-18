@@ -1,0 +1,95 @@
+<ul>
+    <% if (input.includes("response_type")) { %>
+        <li>
+            <code>response_type=<%- responseType %></code>
+        </li>
+    <% } %>
+    <% if (input.includes("grant_type")) { %>
+        <li>
+            <code>grant_type=<%- grantType %></code>
+        </li>
+    <% } %>
+    <% if (input.includes("refresh_token")) { %>
+        <li>
+            <code>refresh_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
+        </li>
+    <% } %>
+    <% if (input.includes("client_id")) { %>
+        <li>
+            <code>client_id=<%- clientId %></code> - should match the client ID in the 
+            Connected App
+        </li>
+    <% } %>
+    <% if (input.includes("client_secret")) { %>
+        <li>
+            <code>client_secret=<%- clientSecret %></code> - should match the client secret in the 
+            Connected App
+        </li>
+    <% } %>
+    <% if (input.includes("redirect_uri")) { %>
+        <li>
+            <code>redirect_uri=<%- callbackURL %></code> - should match the callback URL in the
+            Connected App
+        </li>
+    <% } %>
+    <% if (input.includes("client_assertion_type")) { %>
+        <li>
+            <code>client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer</code>
+        </li>
+    <% } %>
+    <% if (input.includes("client_assertion")) { %>
+        <li>
+            <code>client_assertion=&lt;<i>generated_on_click</i>&gt;</code>
+        </li>
+    <% } %>
+    <% if (input.includes("assertion_type")) { %>
+        <li>
+            <code>assertion_type=urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser</code>
+        </li>
+    <% } %>
+    <% if (input.includes("assertion")) { %>
+        <li>
+            <code>assertion=&lt;<i>generated_on_click</i>&gt;</code>
+        </li>
+    <% } %>
+    <% if (input.includes("scope")) { %>
+        <li>
+            <code>scope=<%- scope %> </code>
+        </li>
+    <% } %>
+    <% if (input.includes("scope")) { %>
+        <li>
+            <code>scope=<%- scope %> </code>
+        </li>
+    <% } %>
+    <% if (input.includes("code")) { %>
+        <li>
+            <code>code=&lt;<i>returned_by_Salesforce</i>&gt;</code>
+        </li>
+    <% } %>
+    <% if (input.includes("code_challenge")) { %>
+        <li>
+            <code>code_challenge=&lt;<i>generated_on_click</i>&gt;</code>
+        </li>
+    <% } %>
+    <% if (input.includes("state")) { %>
+        <li>
+            <code>state=&lt;<i>generated_on_click</i>&gt;</code>
+        </li>
+    <% } %>
+    <% if (input.includes("nonce")) { %>
+        <li>
+            <code>nonce=&lt;<i>generated_on_click</i>&gt;</code>
+        </li>
+    <% } %>
+    <% if (input.includes("username")) { %>
+        <li>
+            <code>username=&lt;<i>entered_by_user</i>&gt;</code>
+        </li>
+    <% } %>
+    <% if (input.includes("password")) { %>
+        <li>
+            <code>password=&lt;<i>entered_by_user</i>&gt;</code>
+        </li>
+    <% } %>
+</ul>

@@ -1,0 +1,10 @@
+<li>
+    <%- include('outputdescription', {
+        type: call.type,
+        method: call.method
+    }) %> 
+    <%- include('outputlist', {
+        output: call.output, 
+        tokenType: config.token_type
+    }) %> 
+</li>

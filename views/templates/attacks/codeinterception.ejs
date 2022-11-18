@@ -1,0 +1,6 @@
+A malicious app intercepts the authorization code and tries to use it to get an access
+token. This is blocked by using the code_challenge parameter in the authorization
+request, which is then checked against the code_verifier parameter in the token request.
+The code verifier is 128 bytes of random data with high entropy that's base64url
+encoded. The code challenge is the base64url encoded SHA256 hash value of the code
+verifier.

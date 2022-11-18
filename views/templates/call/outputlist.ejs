@@ -1,0 +1,56 @@
+<ul>
+    <% if (output.includes("code")) { %>
+        <li>
+            <code>code=&lt;<i>returned_by_Salesforce</i>&gt;</code> - the authorization code.
+        </li>
+    <% } %>
+    <% if (output.includes("token_type")) { %>
+        <li>
+            <code>token_type=<%- config.token_type %></code>
+        </li>
+    <% } %>
+    <% if (output.includes("instance_url")) { %>
+        <li>
+            <code>instance_url=<%- baseURL %> </code>
+        </li>
+    <% } %>
+    <% if (output.includes("access_token")) { %>
+        <li>
+            <code>access_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
+        </li>
+    <% } %>
+    <% if (output.includes("refresh_token")) { %>
+        <li>
+            <code>refresh_token=&lt;<i>returned_by_Salesforce</i>&gt;</code>
+        </li>
+    <% } %>
+    <% if (output.includes("id")) { %>
+        <li>
+            <code>id=&lt;<i>returned_by_Salesforce</i>&gt;</code> - the identity URL
+        </li>
+    <% } %>
+    <% if (output.includes("id_token")) { %>
+        <li>
+            <code>id_token=&lt;<i>returned_by_Salesforce</i>&gt;</code> - JWT containing 
+            information about the user
+        </li>
+    <% } %>
+    <% if (output.includes("signature")) { %>
+        <li>
+            <code>signature=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Signature of the ID token 
+            (client_secret key applied to id<code>:</code>issued_at)
+        </li>
+    <% } %>
+    <% if (output.includes("state")) { %>
+        <li>
+            <code>state=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Same state as specified
+            in the request.
+        </li>
+    <% } %>
+    <% if (output.includes("scope")) { %>
+        <li>
+            <code>scope=&lt;<i>returned_by_Salesforce</i>&gt;</code> - Same scope as specified
+            in the request, or all scopes from the Connected App if not specified.
+        </li>
+    <% } %>
+</ul>

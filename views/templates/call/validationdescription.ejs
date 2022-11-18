@@ -1,0 +1,11 @@
+<% if (type == "async") { %>
+    Salesforce validates the <%- call.method %> request. Successful validation results in a positive response
+    and failed validation in a negative response, which is returned by Salesforce calling the callback URL. 
+    The following parameters are validated:
+<% } else if (type == "sync") { %>
+    Salesforce validates the <%- call.method %> request. Successful validation results in a positive response
+    and failed validation in a negative response. The following parameters are validated:
+<% } else if (type == "poll") { %>
+    Salesforce validates the <%- call.method %> request. Successful validation results in a positive response
+    and failed validation in a negative response. The following parameters are validated:
+<% } %>
