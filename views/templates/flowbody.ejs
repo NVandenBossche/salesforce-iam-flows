@@ -21,10 +21,10 @@
                 <% } %>
             </ol>
 
-                <!-- List the possible attack vectors -->
-                <% if (config.attacks) { %>
-                    <%- include('attacks/main', {attacks: config.attacks}) %> 
-                <% } %>
+            <!-- List the possible attack vectors -->
+            <% if (config.attacks) { %>
+                <%- include('attacks/main', {attacks: config.attacks}) %> 
+            <% } %>
 
         <% } else { %>
             <p>No details available</p>

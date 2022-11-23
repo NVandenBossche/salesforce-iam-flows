@@ -294,7 +294,26 @@
         "name": "username-password",
         "title": "Username-Password Flow",
         "protocol": "OAuth 2.0",
+        "description": "Enter username and password in the below form. Make sure to paste your security token after the password or to specify login IPs on your user profile. Attention: This is not secure! Don't use critical credentials, instead use a Trailhead Playground!",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/Password%203000.png",
-        "configuration": ""
+        "configuration": {
+            "token_type": "Bearer",
+            "grant_type": "password",
+            "calls": [
+                {
+                    "type": "sync",
+                    "method": "POST",
+                    "endpoint": {
+                        "name": "Token",
+                        "url": "/services/oauth2/token"
+                    },
+                    "input": ["grant_type", "client_id", "client_secret", "username", "password"],
+                    "validation": true,
+                    "output": ["token_type", "instance_url", "access_token"]
+                }
+            ],
+            "query": true,
+            "attacks": ["plaintext"]
+        }
     }
 ]
