@@ -4,3 +4,4 @@ node_modules/
 fontpatcher/
 keys/
 data/axiomSamlAssertion.xml
+data/saml*
