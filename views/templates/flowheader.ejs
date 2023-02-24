@@ -8,6 +8,9 @@
         />
         <figcaption><%= title %> diagram - created by Lawrence Newcombe</figcaption>
     </figure>
+    <% if(user_input) { %>
+        <%- include('userinput/' + user_input.template) %>
+    <% } %>
     <button id="deviceProduction" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('<%= name %>', false)">
         Production
     </button>

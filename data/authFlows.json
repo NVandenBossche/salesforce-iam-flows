@@ -297,6 +297,9 @@
         "description": "Enter username and password in the below form. Make sure to paste your security token after the password or to specify login IPs on your user profile. Attention: This is not secure! Don't use critical credentials, instead use a Trailhead Playground!",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/Password%203000.png",
         "configuration": {
+            "user_input": {
+                "template": "usernamepassword"
+            },
             "token_type": "Bearer",
             "grant_type": "password",
             "calls": [
