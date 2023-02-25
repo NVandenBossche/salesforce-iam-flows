@@ -33,40 +33,16 @@
 
     <body onload="onload()">
         <!-- Navigation pane on top of page -->
-        <%- include('index/nav') %>
+        <%- include('index/nav', {data: data}) %>
 
         <main class="container">
             <!-- Title and description -->
             <%- include('index/intro') %>
 
-            <!-- Test for Template -->
+            <!-- Create a new card for each flow -->
             <% data.forEach(authFlow => { %> 
                 <%- include('templates/singleflow', {authFlow: authFlow}) %> 
             <% }); %>
-
-            <!-- User Agent Flow -->
-            <%- include('index/useragent') %>
-
-            <!-- Web Server Flow -->
-            <%- include('index/webserver') %>
-
-            <!-- Refresh Token Flow -->
-            <%- include('index/refresh') %>
-
-            <!-- JWT Bearer Assertion Flow -->
-            <%- include('index/jwtbearer') %>
-
-            <!-- SAML Bearer Assertion Flow -->
-            <%- include('index/samlbearer') %>
-
-            <!-- SAML Assertion Flow -->
-            <%- include('index/samlassertion') %>
-
-            <!-- Device Flow -->
-            <%- include('index/device') %>
-
-            <!-- Username / Password Flow -->
-            <%- include('index/usernamepassword') %>
         </main>
     </body>
 </html>

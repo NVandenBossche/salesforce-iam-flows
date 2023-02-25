@@ -2,6 +2,7 @@
     {
         "name": "user-agent",
         "title": "User Agent Flow",
+        "short_title": "User Agent",
         "protocol": "OAuth 2.0",
         "description": "",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/User%20Agent%203000.png",
@@ -29,6 +30,7 @@
     {
         "name": "web-server-client-secret",
         "title": "Web Server Flow with Client Secret and PKCE",
+        "short_title": "Web Server Secret",
         "protocol": "OAuth 2.0",
         "description": "",
         "image": "https://cloudsundial.com/sites/default/files/2021-03/Web%20Server%202600.png",
@@ -68,6 +70,7 @@
     {
         "name": "web-server-client-assertion",
         "title": "Web Server Flow with Client Assertion and PKCE",
+        "short_title": "Web Server Assertion",
         "protocol": "OAuth 2.0",
         "description": "",
         "image": "https://cloudsundial.com/sites/default/files/2021-03/Web%20Server%202600.png",
@@ -115,6 +118,7 @@
     {
         "name": "web-server-pkce-only",
         "title": "Web Server Flow with PKCE Only",
+        "short_title": "Web Server PKCE",
         "protocol": "OAuth 2.0",
         "description": "Make sure to uncheck the \"Require Secret for Web Server Flow\" flag in the Connected App. Ideal alternative to user agent for mobile flows.",
         "image": "https://cloudsundial.com/sites/default/files/2021-03/Auth%20Code%20with%20PKCE%201880_0.png",
@@ -154,6 +158,7 @@
     {
         "name": "refresh-token",
         "title": "Refresh Token Flow",
+        "short_title": "Refresh",
         "protocol": "OAuth 2.0",
         "description": "This section covers the OAuth 2.0 Refresh Token flow . Refresh Token flow can only be implemented for OAuth flows with user interaction like Web Server flow and User Agent Flow. Flows like JWT and SAML Bearer don't provide a refresh token even if specified in the scope of the Connected App. ",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/Refresh%20token%203000.png",
@@ -180,6 +185,7 @@
     {
         "name": "jwt-bearer",
         "title": "JWT Bearer Token Flow",
+        "short_title": "JWT",
         "protocol": "OAuth 2.0",
         "description": "Scope can't be specified, it's always determined in the following way: If admins pre-authorize (using profile / permission set), scope parameter is optional. If not specified, all scopes defined in the connected app are granted. If users can self-authorize, scope is not taken into account. You need to first use another flow (like User-Agent or Web-Server) to grant explicit authorization for the scopes you need. This flow needs to return a refresh token. The scope returned by the JWT flow is the combination of all previously granted scopes where a refresh token was returned.",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/JWT%20Bearer%203000.png",
@@ -206,6 +212,7 @@
     {
         "name": "saml-bearer",
         "title": "SAML Bearer Token Flow",
+        "short_title": "SAML Bearer",
         "protocol": "OAuth 2.0",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/SAML%20Bearer%203000.png",
         "configuration": {
@@ -231,6 +238,7 @@
     {
         "name": "saml-assertion",
         "title": "SAML Assertion Flow",
+        "short_title": "SAML Assertion",
         "protocol": "Single Sign-On",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/SAML%20Assertion%203000.png",
         "configuration": {
@@ -256,6 +264,7 @@
     {
         "name": "device",
         "title": "Device Authentication Flow",
+        "short_title": "Device",
         "protocol": "OAuth 2.0",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/Device%20Authentication%203000.png",
         "configuration": {
@@ -293,6 +302,7 @@
     {
         "name": "username-password",
         "title": "Username-Password Flow",
+        "short_title": "Username-Password",
         "protocol": "OAuth 2.0",
         "description": "Enter username and password in the below form. Make sure to paste your security token after the password or to specify login IPs on your user profile. Attention: This is not secure! Don't use critical credentials, instead use a Trailhead Playground!",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/Password%203000.png",

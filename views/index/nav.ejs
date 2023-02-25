@@ -4,35 +4,16 @@
     <div class="container-fluid">
         <div class="collapse navbar-collapse">
             <a class="navbar-brand" href="#">Salesforce OAuth</a>
-            <!-- TODO: Fix navigation to loop -->
+            <!-- TODO: Fix navigation overflow (when too many flows) -->
             <ul class="navbar-nav">
                 <li class="nav-item active">
                     <a class="nav-link" href="#divHome">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#userAgentFlow">User Agent</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#webServer">Web Server</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#refreshToken">Refresh Token</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#jwt">JWT</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#samlBearerAssertion">SAML Bearer Assertion</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#samlAssertion">SAML Assertion</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#deviceFlow">Device Authentication Flow </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#usernamePassword">Username Password</a>
-                </li>
+                <% data.forEach(authFlow => { %> 
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#<%= authFlow.name %>"><%= authFlow.short_title %></a>
+                    </li>
+                <% }); %>
             </ul>
         </div>
     </div>
