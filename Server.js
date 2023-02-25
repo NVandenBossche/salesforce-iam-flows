@@ -16,6 +16,7 @@ const express = require('express'),
     https = require('https'),
     fs = require('fs'),
     rateLimit = require('express-rate-limit'),
+    data = require('./data/authFlows.json'),
     escape = require('escape-html');
 
 // Set global variables, some loaded from environment variables (.env file)
@@ -111,10 +112,10 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
 }
 
 /**
- *	User Agent oAuth Flow. Gets launched when navigating to '/uAgent'.
+ *	User Agent oAuth Flow. Gets launched when navigating to '/user-agent'.
  *  Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  */
-app.get('/uAgent', function (req, res) {
+app.get('/user-agent', function (req, res) {
     console.log('Starting User Agent flow...');
 
     // Instantiate the service to create the URL to call
@@ -144,12 +145,51 @@ app.get('/webServer', function (req, res) {
     handleGetRequest(authorizationUrl, res);
 });
 
+app.get('/web-server-pkce-only', function (req, res) {
+    console.debug('Starting Web Server flow...');
+
+    // Instantiate the service to create the URL to call
+    // TODO: Replace type with interfaces
+    authInstance = new WebServerService(req.query.isSandbox, 'none');
+    const authorizationUrl = authInstance.generateAuthorizationRequest();
+
+    // Launch the request to get the authorization code
+    console.log('Launching authorization code request with URL:\n%s', authorizationUrl);
+    handleGetRequest(authorizationUrl, res);
+});
+
+app.get('/web-server-client-assertion', function (req, res) {
+    console.debug('Starting Web Server flow...');
+
+    // Instantiate the service to create the URL to call
+    // TODO: Replace type with interfaces
+    authInstance = new WebServerService(req.query.isSandbox, 'assertion');
+    const authorizationUrl = authInstance.generateAuthorizationRequest();
+
+    // Launch the request to get the authorization code
+    console.log('Launching authorization code request with URL:\n%s', authorizationUrl);
+    handleGetRequest(authorizationUrl, res);
+});
+
+app.get('/web-server-client-secret', function (req, res) {
+    console.debug('Starting Web Server flow...');
+
+    // Instantiate the service to create the URL to call
+    // TODO: Replace type with interfaces
+    authInstance = new WebServerService(req.query.isSandbox, 'secret');
+    const authorizationUrl = authInstance.generateAuthorizationRequest();
+
+    // Launch the request to get the authorization code
+    console.log('Launching authorization code request with URL:\n%s', authorizationUrl);
+    handleGetRequest(authorizationUrl, res);
+});
+
 /**
- * JWT Bearer Assertion Flow. Gets launched when navigating to '/jwt'.
+ * JWT Bearer Assertion Flow. Gets launched when navigating to '/jwt-bearer'.
  * Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  * Creates a JWT token for the username defined in the environment variables, then posts it to the token endpoint.
  */
-app.get('/jwt', function (req, res) {
+app.get('/jwt-bearer', function (req, res) {
     // Instantiate JWT service and generate post request
     authInstance = new JwtService(req.query.isSandbox);
     let postRequest = authInstance.generateJwtRequest();
@@ -159,11 +199,11 @@ app.get('/jwt', function (req, res) {
 });
 
 /**
- * SAML Bearer Assertion Flow. Gets launched when navigating to '/samlBearer'.
+ * SAML Bearer Assertion Flow. Gets launched when navigating to '/saml-bearer'.
  * Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  * Creates a SAML bearer token for the username defined in the environment variables, then posts it to the token endpoint.
  */
-app.get('/samlBearer', function (req, res) {
+app.get('/saml-bearer', function (req, res) {
     // Instantiate SAML Bearer service and generate post request
     authInstance = new SamlBearerService(req.query.isSandbox);
     let postRequest = authInstance.generateSamlBearerRequest();
@@ -173,11 +213,11 @@ app.get('/samlBearer', function (req, res) {
 });
 
 /**
- * Username Password oAuth Flow. Gets launched when navigating to '/uPwd'.
+ * Username Password oAuth Flow. Gets launched when navigating to '/username-password'.
  * Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  * Sends username and password in the URL as free text to the token endpoint.
  */
-app.post('/uPwd', function (req, res) {
+app.post('/username-password', function (req, res) {
     // Instantiate Username-Password service and generate post request
     authInstance = new UsernamePasswordService(req.query.isSandbox);
     let postRequest = authInstance.generateUsernamePasswordRequest(req.body.sfdcUsername, req.body.sfdcPassword);
@@ -215,12 +255,12 @@ app.get('/devicePol', function (req, res) {
 });
 
 /**
- * Refresh Token Flow. Gets launched when navigating to '/refresh'.
+ * Refresh Token Flow. Gets launched when navigating to '/refresh-token'.
  * Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  * Requires another flow to be run that provided a refresh token, previous to launching this flow.
  * Sends the refresh token to the token endpoint.
  */
-app.get('/refresh', function (req, res) {
+app.get('/refresh-token', function (req, res) {
     // Instantiate Username-Password service and generate post request
     authInstance = new RefreshService(req.query.isSandbox);
     let postRequest = authInstance.generateRefreshRequest(this.refreshToken);
@@ -230,11 +270,11 @@ app.get('/refresh', function (req, res) {
 });
 
 /**
- * SAML assertion flow using Axiom SSO. Gets launched when navigating to '/samlAssert'.
+ * SAML assertion flow using Axiom SSO. Gets launched when navigating to '/saml-assertion'.
  * Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  * Requires a SAML assertion that is stored on the server's file system ('data/axiomSamlAssertino.xml').
  */
-app.get('/samlAssert', function (req, res) {
+app.get('/saml-assertion', function (req, res) {
     // Instantiate Saml Assert service and generate post request
     authInstance = new SamlAssertService(req.query.isSandbox);
 
@@ -262,6 +302,7 @@ app.route(/^\/(index.*)?$/).get(function (req, res) {
         username: username,
         clientId: clientId,
         clientSecret: clientSecret,
+        data: data,
     });
 });
 

@@ -1,0 +1,12 @@
+<li>
+    <%- include('inputdescription', {
+        type: call.type,
+        method: call.method, 
+        endpoint: call.endpoint
+    }) %> 
+    <%- include('inputlist', {
+        input: call.input, 
+        responseType: config.response_type, 
+        grantType: config.grant_type
+    }) %> 
+</li> 

@@ -1,0 +1,33 @@
+<div class="card-body">
+    <button type="button" class="btn btn-info text-white" data-bs-toggle="collapse" data-bs-target="#<%= name %>Collapse">
+        Show/Hide Details
+    </button>
+
+    <div id="<%= name %>Collapse" class="collapse card-body">
+        <% if (config) { %>
+            The application follows these steps.
+            <ol class="smallFont">      
+                <% if (config.calls) { %>
+                    <% config.calls.forEach(call => { %>
+                        <%- include('call/main', {call: call}) %> 
+                    <% }); %>
+                <% } %>
+
+                <!-- Query step -->
+                <% if (config.query) { %>
+                    <li>
+                        The <code>access_token</code> from the response is used to query the Salesforce APIs.
+                    </li>
+                <% } %>
+            </ol>
+
+            <!-- List the possible attack vectors -->
+            <% if (config.attacks) { %>
+                <%- include('attacks/main', {attacks: config.attacks}) %> 
+            <% } %>
+
+        <% } else { %>
+            <p>No details available</p>
+        <% } %>
+    </div>
+</div>

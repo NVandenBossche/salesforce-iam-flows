@@ -42,8 +42,8 @@ class SamlBearerService extends AuthService {
 
         // If persist option is set to true, persist the SAML bearer token and its base64 encoding to file
         if (this.persistTokensToFile) {
-            fs.writeFile(path.resolve('data/samlBearer.xml'), token);
-            fs.writeFile(path.resolve('data/samlBase64.txt'), base64SignedSamlToken);
+            fs.writeFile(path.resolve('data/samlBearer.xml'), token, this.fileWriteCallback);
+            fs.writeFile(path.resolve('data/samlBase64.txt'), base64SignedSamlToken, this.fileWriteCallback);
         }
 
         // Determine the endpoint URL depending on whether this needs to be executed on sandbox or production
@@ -54,6 +54,10 @@ class SamlBearerService extends AuthService {
 
         // Return the POST request created based on the endpoint and body
         return this.createPostRequest(endpointUrl, paramBody);
+    }
+
+    fileWriteCallback(err) {
+        if (err) console.log(err);
     }
 }
 

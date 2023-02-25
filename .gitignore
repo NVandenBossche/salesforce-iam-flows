@@ -3,4 +3,5 @@ node_modules/
 .DS_Store
 fontpatcher/
 keys/
-data/*
+data/axiomSamlAssertion.xml
+data/saml*

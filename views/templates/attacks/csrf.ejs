@@ -1,0 +1,5 @@
+A malicious app tries to send a user-agent request on behalf of the actual app (Cross-Site
+Request Forging or CSRF). This is blocked by the state parameter where the actual app sends
+a unique identifier for every user-agent request. Only if the actual app sees the same state
+being returned on the callback URL endpoint, it will know that the original request was
+originated from its context.

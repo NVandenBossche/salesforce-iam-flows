@@ -1,0 +1,11 @@
+
+<% if (type == "async") { %>
+    After successful authorization, Salesforce redirects to the callback URL. There are
+    different parameters returned in the URL:
+<% } else if (type == "sync") { %>
+    After a successful validation, Salesforce returns a response to the HTTP <%- method %> message
+    containing the following values:
+<% } else if (type == "poll") { %>
+    After a successful validation, Salesforce returns a response to the HTTP <%- method %> message
+    containing the following values:
+<% } %>
