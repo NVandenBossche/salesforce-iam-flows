@@ -113,7 +113,7 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
 
 /**
  *	User Agent oAuth Flow. Gets launched when navigating to '/user-agent'.
- *  Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
+
  */
 app.get('/user-agent', function (req, res) {
     console.log('Starting User Agent flow...');
@@ -174,7 +174,6 @@ app.get('/web-server-client-secret', function (req, res) {
 
 /**
  * JWT Bearer Assertion Flow. Gets launched when navigating to '/jwt-bearer'.
- * Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  * Creates a JWT token for the username defined in the environment variables, then posts it to the token endpoint.
  */
 app.get('/jwt-bearer', function (req, res) {
@@ -188,7 +187,6 @@ app.get('/jwt-bearer', function (req, res) {
 
 /**
  * SAML Bearer Assertion Flow. Gets launched when navigating to '/saml-bearer'.
- * Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  * Creates a SAML bearer token for the username defined in the environment variables, then posts it to the token endpoint.
  */
 app.get('/saml-bearer', function (req, res) {
@@ -202,7 +200,6 @@ app.get('/saml-bearer', function (req, res) {
 
 /**
  * Username Password oAuth Flow. Gets launched when navigating to '/username-password'.
- * Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  * Sends username and password in the URL as free text to the token endpoint.
  */
 app.post('/username-password', function (req, res) {
@@ -216,7 +213,6 @@ app.post('/username-password', function (req, res) {
 
 /**
  * Device Authentication Flow. Gets launched when navigating to '/device'.
- * Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  * Retrieves a device code, user code and verification URI and displays it to the user.
  */
 app.get('/device', function (req, res) {
@@ -244,7 +240,6 @@ app.get('/devicePol', function (req, res) {
 
 /**
  * Refresh Token Flow. Gets launched when navigating to '/refresh-token'.
- * Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  * Requires another flow to be run that provided a refresh token, previous to launching this flow.
  * Sends the refresh token to the token endpoint.
  */
@@ -259,7 +254,6 @@ app.get('/refresh-token', function (req, res) {
 
 /**
  * SAML assertion flow using Axiom SSO. Gets launched when navigating to '/saml-assertion'.
- * Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
  * Requires a SAML assertion that is stored on the server's file system ('data/axiomSamlAssertino.xml').
  */
 app.get('/saml-assertion', function (req, res) {
