@@ -97,6 +97,7 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
         console.log(
             'Rendering the following page: ' + redirect.location + '.\nPayload: ' + JSON.stringify(redirect.payload)
         );
+        redirect.payload.data = data;
         res.render(redirect.location, redirect.payload);
     } else if (error) {
         // If response doesn't return a successful response, show the error page.
