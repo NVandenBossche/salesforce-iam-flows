@@ -129,21 +129,9 @@ app.get('/user-agent', function (req, res) {
 });
 
 /**
- *  Step 1 Web Server Flow - Get Code. Gets launched when navigating to '/webServer'.
- *  Depending on the 'isSandbox' parameter in the URL, the production or sandbox flow is triggered.
+ *  Step 1 Web Server Flow - Get Code. Gets launched when navigating to the endpoint for a particular Web Server flow.
  *  This is the first step in the flow, where the authorization code is retrieved from the authorization endpoint.
  */
-app.get('/webServer', function (req, res) {
-    console.debug('Starting Web Server flow...');
-
-    // Instantiate the service to create the URL to call
-    authInstance = new WebServerService(req.query.type);
-    const authorizationUrl = authInstance.generateAuthorizationRequest();
-
-    // Launch the request to get the authorization code
-    console.log('Launching authorization code request with URL:\n%s', authorizationUrl);
-    handleGetRequest(authorizationUrl, res);
-});
 
 app.get('/web-server-pkce-only', function (req, res) {
     console.debug('Starting Web Server flow...');
