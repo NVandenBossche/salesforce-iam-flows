@@ -24,8 +24,8 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/jsforce/1.9.1/jsforce.min.js"></script>
     </head>
     <body onload="onload()">
-        <!-- Navigation bar -->
-        <%- include('queryresult/nav.ejs') %>
+        <!-- Navigation pane on top of page -->
+        <%- include('index/nav', {data: data}) %>
         <!-- Query result page -->
         <%- include('queryresult/main.ejs') %>
     </body>
