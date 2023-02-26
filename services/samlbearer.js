@@ -6,8 +6,8 @@ var saml = require('saml').Saml20,
     base64url = require('base64-url');
 
 class SamlBearerService extends AuthService {
-    constructor(isSandbox) {
-        super(isSandbox);
+    constructor() {
+        super();
     }
 
     /**

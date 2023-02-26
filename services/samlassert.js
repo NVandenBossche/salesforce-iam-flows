@@ -4,8 +4,8 @@ var fs = require('fs'),
     path = require('path');
 
 class SamlAssertService extends AuthService {
-    constructor(isSandbox) {
-        super(isSandbox);
+    constructor() {
+        super();
     }
 
     generateSamlAssertRequest() {
@@ -18,11 +18,14 @@ class SamlAssertService extends AuthService {
         let assertionXml;
         try {
             assertionXml = fs.readFileSync(path.resolve(fileLocation), 'utf8');
-        }
-        // If exception, re-throw with more helpful message to be displayed to user
-        catch(e) {
+        } catch (e) {
+            // If exception, re-throw with more helpful message to be displayed to user
             console.log(e);
-            throw new Error('Could not load Axiom SAML from '+fileLocation+'- check the instructions for this flow ensure the assertion file has been delpoyed');
+            throw new Error(
+                'Could not load Axiom SAML from ' +
+                    fileLocation +
+                    '- check the instructions for this flow ensure the assertion file has been delpoyed'
+            );
         }
         let base64AssertionXml = Buffer.from(assertionXml).toString('base64');
 

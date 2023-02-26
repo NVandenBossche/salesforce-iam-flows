@@ -3,8 +3,8 @@ const { AuthService } = require('./auth');
 var base64url = require('base64-url');
 
 class RefreshService extends AuthService {
-    constructor(isSandbox) {
-        super(isSandbox);
+    constructor() {
+        super();
     }
 
     generateRefreshRequest(refreshToken) {

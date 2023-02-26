@@ -11,11 +11,8 @@
     <% if(user_input) { %>
         <%- include('userinput/' + user_input.template) %>
     <% } else { %>
-        <button id="deviceProduction" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('<%= name %>', false)">
-            Production
-        </button>
-        <button id="deviceSandbox" role="button" class="btn btn-primary btn-lg" onclick="launchFlow('device', true)">
-            Sandbox
-        </button>
+        <a id="launchFlow" role="button" class="btn btn-primary btn-lg" href="/<%= name %>">
+            Launch Flow
+        </a>
     <% } %>
 </div>

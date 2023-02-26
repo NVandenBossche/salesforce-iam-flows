@@ -3,8 +3,8 @@ const { AuthService } = require('./auth');
 var request = require('request');
 
 class DeviceService extends AuthService {
-    constructor(isSandbox) {
-        super(isSandbox);
+    constructor() {
+        super();
     }
 
     generateDeviceRequest() {
@@ -42,7 +42,7 @@ class DeviceService extends AuthService {
 
         if (verificationUri) {
             // If verification URI is present, we are in device flow and need to keep polling
-            redirect = {}
+            redirect = {};
             redirect.location = 'deviceOAuth';
             redirect.payload = {
                 verification_uri: verificationUri,
