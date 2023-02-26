@@ -335,7 +335,7 @@ app.get('/oauthcallback', function (req, res) {
  * Access token is stored in session cookies, so no need to pass it on.
  */
 app.get('/queryresult', function (req, res) {
-    res.render('queryresult');
+    res.render('queryresult', { data: data });
 });
 
 /**
