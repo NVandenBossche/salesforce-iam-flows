@@ -1,8 +1,8 @@
 const { AuthService } = require('./auth');
 
 class UserAgentService extends AuthService {
-    constructor(isSandbox) {
-        super(isSandbox);
+    constructor() {
+        super();
     }
 
     generateUserAgentRequest() {

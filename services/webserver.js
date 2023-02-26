@@ -5,8 +5,8 @@ var crypto = require('crypto'),
     base64url = require('base64-url');
 
 class WebServerService extends AuthService {
-    constructor(isSandbox, webServerType) {
-        super(isSandbox);
+    constructor(webServerType) {
+        super();
         this.webServerType = webServerType;
         this.codeVerifier = this.generateCodeVerifier();
         this.codeChallenge = this.generateCodeChallenge(this.codeVerifier);

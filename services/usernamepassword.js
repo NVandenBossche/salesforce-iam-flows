@@ -1,8 +1,8 @@
 const { AuthService } = require('./auth');
 
 class UsernamePasswordService extends AuthService {
-    constructor(isSandbox) {
-        super(isSandbox);
+    constructor() {
+        super();
     }
 
     generateUsernamePasswordRequest(username, password) {

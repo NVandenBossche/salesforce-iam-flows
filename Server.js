@@ -119,7 +119,7 @@ app.get('/user-agent', function (req, res) {
     console.log('Starting User Agent flow...');
 
     // Instantiate the service to create the URL to call
-    authInstance = new UserAgentService(req.query.isSandbox);
+    authInstance = new UserAgentService();
     const userAgentUrlWithParameters = authInstance.generateUserAgentRequest();
 
     // Launch the HTTP GET request based on the constructed URL with parameters
@@ -137,7 +137,7 @@ app.get('/webServer', function (req, res) {
     console.debug('Starting Web Server flow...');
 
     // Instantiate the service to create the URL to call
-    authInstance = new WebServerService(req.query.isSandbox, req.query.type);
+    authInstance = new WebServerService(req.query.type);
     const authorizationUrl = authInstance.generateAuthorizationRequest();
 
     // Launch the request to get the authorization code
@@ -150,7 +150,7 @@ app.get('/web-server-pkce-only', function (req, res) {
 
     // Instantiate the service to create the URL to call
     // TODO: Replace type with interfaces
-    authInstance = new WebServerService(req.query.isSandbox, 'none');
+    authInstance = new WebServerService('none');
     const authorizationUrl = authInstance.generateAuthorizationRequest();
 
     // Launch the request to get the authorization code
@@ -163,7 +163,7 @@ app.get('/web-server-client-assertion', function (req, res) {
 
     // Instantiate the service to create the URL to call
     // TODO: Replace type with interfaces
-    authInstance = new WebServerService(req.query.isSandbox, 'assertion');
+    authInstance = new WebServerService('assertion');
     const authorizationUrl = authInstance.generateAuthorizationRequest();
 
     // Launch the request to get the authorization code
@@ -176,7 +176,7 @@ app.get('/web-server-client-secret', function (req, res) {
 
     // Instantiate the service to create the URL to call
     // TODO: Replace type with interfaces
-    authInstance = new WebServerService(req.query.isSandbox, 'secret');
+    authInstance = new WebServerService('secret');
     const authorizationUrl = authInstance.generateAuthorizationRequest();
 
     // Launch the request to get the authorization code
@@ -191,7 +191,7 @@ app.get('/web-server-client-secret', function (req, res) {
  */
 app.get('/jwt-bearer', function (req, res) {
     // Instantiate JWT service and generate post request
-    authInstance = new JwtService(req.query.isSandbox);
+    authInstance = new JwtService();
     let postRequest = authInstance.generateJwtRequest();
 
     // Handle the response of the post request
@@ -205,7 +205,7 @@ app.get('/jwt-bearer', function (req, res) {
  */
 app.get('/saml-bearer', function (req, res) {
     // Instantiate SAML Bearer service and generate post request
-    authInstance = new SamlBearerService(req.query.isSandbox);
+    authInstance = new SamlBearerService();
     let postRequest = authInstance.generateSamlBearerRequest();
 
     // Handle the response of the post request
@@ -219,7 +219,7 @@ app.get('/saml-bearer', function (req, res) {
  */
 app.post('/username-password', function (req, res) {
     // Instantiate Username-Password service and generate post request
-    authInstance = new UsernamePasswordService(req.query.isSandbox);
+    authInstance = new UsernamePasswordService();
     let postRequest = authInstance.generateUsernamePasswordRequest(req.body.sfdcUsername, req.body.sfdcPassword);
 
     // Handle the response of the post request
@@ -233,7 +233,7 @@ app.post('/username-password', function (req, res) {
  */
 app.get('/device', function (req, res) {
     // Instantiate Device service and generate post request
-    authInstance = new DeviceService(req.query.isSandbox);
+    authInstance = new DeviceService();
     let postRequest = authInstance.generateDeviceRequest();
 
     // Handle the response of the post request
@@ -262,7 +262,7 @@ app.get('/devicePol', function (req, res) {
  */
 app.get('/refresh-token', function (req, res) {
     // Instantiate Username-Password service and generate post request
-    authInstance = new RefreshService(req.query.isSandbox);
+    authInstance = new RefreshService();
     let postRequest = authInstance.generateRefreshRequest(this.refreshToken);
 
     // Handle the response of the post request
@@ -276,7 +276,7 @@ app.get('/refresh-token', function (req, res) {
  */
 app.get('/saml-assertion', function (req, res) {
     // Instantiate Saml Assert service and generate post request
-    authInstance = new SamlAssertService(req.query.isSandbox);
+    authInstance = new SamlAssertService();
 
     let postRequest;
     try {

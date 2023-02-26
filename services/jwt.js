@@ -3,8 +3,8 @@ const { AuthService } = require('./auth');
 var base64url = require('base64-url');
 
 class JwtService extends AuthService {
-    constructor(isSandbox) {
-        super(isSandbox);
+    constructor() {
+        super();
     }
 
     /**

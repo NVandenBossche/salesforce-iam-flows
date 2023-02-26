@@ -11,7 +11,7 @@ class AuthService {
         this.baseURL = process.env.BASE_URL;
         this.username = process.env.USERNAME;
         this.persistTokensToFile = process.env.PERSIST === 'true';
-        this.isSandbox = false;
+        this.isSandbox = this.baseURL.includes('.sandbox.my.salesforce.com');
         this.state = '';
         this.apiVersion = '45.0';
     }
