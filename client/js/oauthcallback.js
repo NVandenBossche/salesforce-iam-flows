@@ -19,7 +19,7 @@ function getParameterList() {
  * @param {Map<String, String>} paramKeyValueMap
  */
 function processUserAgentCallback(paramKeyValueMap) {
-    let apiVersion = '45.0';
+    let apiVersion = process.env.SFDC_API_VERSION
     let accessToken = decodeURIComponent(paramKeyValueMap['access_token']);
     let instanceUrl = decodeURIComponent(paramKeyValueMap['instance_url']);
     let idUrl = decodeURIComponent(paramKeyValueMap['id']);
