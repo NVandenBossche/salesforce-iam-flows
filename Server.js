@@ -124,9 +124,10 @@ app.get('/user-agent', function (req, res) {
     const userAgentUrlWithParameters = authInstance.generateUserAgentRequest();
 
     // Launch the HTTP GET request based on the constructed URL with parameters
-    console.log('Sending GET request: ' + userAgentUrlWithParameters);
-    handleGetRequest(userAgentUrlWithParameters, res);
-    console.log('Once user authorizes the app, a redirect will be performed to the oauthcallback page');
+    res.render('launchedFlow', { data: data, authFlow: data[0] });
+    // console.log('Sending GET request: ' + userAgentUrlWithParameters);
+    // handleGetRequest(userAgentUrlWithParameters, res);
+    // console.log('Once user authorizes the app, a redirect will be performed to the oauthcallback page');
 });
 
 /**
