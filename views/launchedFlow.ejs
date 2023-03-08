@@ -31,6 +31,9 @@
             integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
             crossorigin="anonymous"
         ></script>
+        <script>
+            var authFlow = <%-JSON.stringify(authFlow)%>;
+         </script>
         <script src="js/oidc-playground.js"></script>
     </head>
 
@@ -39,7 +42,7 @@
         <%- include('index/nav', {data: data}) %>
 
         <main class="container">
-            <div class="card bg-light px-5 my-2">
+            <div class="card bg-light px-5 my-2" data-flow="<%= authFlow %>">
                 <div class="row">
                     <div class="col-md-5">
                         <%- include('flowexecution/flowprogress', {authFlow: authFlow}) %>

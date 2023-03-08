@@ -1,4 +1,4 @@
-var totalSteps = 4;
+var totalSteps = 2 + authFlow.configuration.calls.length * 2;
 var currentStep = 1;
 
 function prev() {

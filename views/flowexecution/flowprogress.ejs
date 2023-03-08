@@ -30,7 +30,7 @@
                 <input
                     class="form-control inline-input"
                     id="login_host"
-                    value="https://login.salesforce.com"
+                    value="<%= baseURL %>"
                     type="text"
                 />
             </div>
@@ -42,9 +42,8 @@
                 <input
                     class="form-control inline-input"
                     id="client_id"
-                    placeholder="client_id"
                     type="text"
-                    value="3MVG99OxTyEMCQ3gXuX31lysX3RQP4.Vj3EVzlMsVbxFvUe7VjZ0WcjWvGlAU7BPJFZBSyBGPiGyHhojZ2BE3"
+                    value="<%= clientId %>"
                 />
             </div>
         </div>
@@ -55,9 +54,8 @@
                 <input
                     class="form-control inline-input"
                     id="client_secret"
-                    placeholder="client_secret"
-                    type="password"
-                    value="4138410547411729368"
+                    type="text"
+                    value="<%= clientSecret %>"
                 />
             </div>
         </div>
@@ -66,10 +64,10 @@
                 <label>Redirect URI (Callback URL)</label>
                 <input
                     class="form-control inline-input"
-                    id=""
+                    id="callback_url"
                     readonly="readonly"
                     type="text"
-                    value="https://openidconnect.herokuapp.com/callback"
+                    value="<%= callbackURL %>"
                 />
             </div>
         </div>
