@@ -3,7 +3,7 @@ body {
 }
 
 .container {
-    margin-top: 3.5rem;
+    margin-top: 4rem;
     padding: 0px 24px;
 }
 
@@ -34,7 +34,7 @@ body {
     overflow: hidden;
     border-top: 3px solid #e5e8ed;
     position: relative;
-    top: 72px;
+    top: 82px;
     /* z-index: 1; */
 }
 .wizard-steps li:first-child:before {
@@ -65,7 +65,7 @@ body {
     padding: 9px 15px;
     background-color: #fff;
     position: relative;
-    top: 60px;
+    top: 70px;
     /* z-index: 2; */
     display: inline;
 }
