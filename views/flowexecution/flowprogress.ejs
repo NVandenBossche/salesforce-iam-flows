@@ -1,6 +1,6 @@
 <div class="wizard">
     <ul class="wizard-steps">
-        <li data-target="#step1" class="active">
+        <li data-target="#step1">
             <span class="step">1</span>
             <span class="title">Connected App</span>
         </li>
@@ -19,7 +19,7 @@
     </ul>
 </div>
 <div class="step-content">
-    <div class="step-pane row active" id="step1">
+    <div class="step-pane row" id="step1">
         <div class="alert alert-info" role="alert">
             Create a Connected App in your Dev Org.
         </div>
@@ -29,8 +29,7 @@
                 <label>Login Host</label>
                 <input
                     class="form-control inline-input"
-                    id="login_host"
-                    value="<%= baseURL %>"
+                    id="baseurl"
                     type="text"
                 />
             </div>
@@ -41,9 +40,8 @@
 
                 <input
                     class="form-control inline-input"
-                    id="client_id"
+                    id="clientid"
                     type="text"
-                    value="<%= clientId %>"
                 />
             </div>
         </div>
@@ -53,9 +51,8 @@
 
                 <input
                     class="form-control inline-input"
-                    id="client_secret"
+                    id="clientsecret"
                     type="text"
-                    value="<%= clientSecret %>"
                 />
             </div>
         </div>
@@ -64,10 +61,9 @@
                 <label>Redirect URI (Callback URL)</label>
                 <input
                     class="form-control inline-input"
-                    id="callback_url"
+                    id="callbackurl"
                     readonly="readonly"
                     type="text"
-                    value="<%= callbackURL %>"
                 />
             </div>
         </div>
@@ -79,7 +75,6 @@
                 <input
                     class="form-control inline-input"
                     id="code"
-                    value="aPrxHstICvfqxw3z7JcpzRkgdro2X8ykHg9JBR_D8aOZoQFNTWR5j9_OU4UXGMlRVi1tLXsmDA=="
                     type="text"
                 />
             </div>
@@ -91,8 +86,17 @@
                 <label>Access Token</label>
                 <input
                     class="form-control inline-input"
-                    id="access_token"
-                    value="00D24000000I77v!AQ8AQHoJFUiCfCZrYwYoIpVeAGXxMP2McRMvgZXQMvtmWGpGxNeitXJQ2Rpp.kaNFZknEbU7mer9BJFPkCF4fpvpNes9.4kI"
+                    id="accesstoken"
+                    type="text"
+                />
+            </div>
+        </div>
+        <div class="field-box">
+            <div class="col-md-12">
+                <label>Refresh Token</label>
+                <input
+                    class="form-control inline-input"
+                    id="refreshtoken"
                     type="text"
                 />
             </div>
@@ -100,16 +104,7 @@
         <div class="field-box">
             <div class="col-md-12">
                 <label>ID Token</label>
-                <textarea class="form-control" rows="12">
-                    {
-                        "at_hash": "CMuFZfqNxI_esh9GhiIBHg",
-                        "aud": "3MVG99OxTyEMCQ3gXuX31lysX3RQP4.Vj3EVzlMsVbxFvUe7VjZ0WcjWvGlAU7BPJFZBSyBGPiGyHhojZ2BE3",
-                        "exp": 1677438421,
-                        "iat": 1677438301,
-                        "iss": "https://login.salesforce.com",
-                        "sub": "https://login.salesforce.com/id/00D24000000I77vEAC/00524000000QgrlAAC"
-                    }
-                </textarea>
+                <textarea class="form-control" rows="12" id="idtoken"></textarea>
             </div>
         </div>
         <div class="field-box">
@@ -123,7 +118,7 @@
     </div>
 </div>
 <div class="wizard-actions">
-    <button type="button" class="btn btn-sm btn-primary hidden" id="previous-button" onclick="prev()">
+    <button type="button" class="btn btn-sm btn-primary" id="previous-button" onclick="prev()">
         <i class="fa-solid fa-chevron-left"></i> 
         Prev
     </button>

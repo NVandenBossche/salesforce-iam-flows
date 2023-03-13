@@ -1,5 +1,29 @@
-var totalSteps = 2 + authFlow.configuration.calls.length * 2;
+// Total steps is start + number of calls + finish
+var totalSteps = 2 + authFlow.configuration.calls.length;
 var currentStep = 1;
+var flow = 'stepbystep-webserver';
+
+(async function initiate() {
+    // Retrieve current state from the server
+    const response = await fetch('/state');
+    const state = await response.json();
+
+    // Parse the state object
+    currentStep = state.step;
+    $('#baseurl').val(state.baseURL);
+    $('#clientid').val(state.clientId);
+    $('#clientsecret').val(state.clientSecret);
+    $('#callbackurl').val(state.callbackURL);
+    $('#code').val(state.authCode);
+    $('#accesstoken').val(state.accessToken);
+    $('#refreshtoken').val(state.refreshToken);
+    $('#idtoken').val(state.idToken);
+    $('#request > textarea').val(state.request);
+    $('#response > textarea').val(state.response);
+
+    // Activate the current step
+    activateStep(currentStep);
+})();
 
 function prev() {
     console.log('Previous Step...');
@@ -13,7 +37,17 @@ function prev() {
     activateStep(currentStep);
 }
 
-function next() {
+async function next() {
+    // Execute call corresponding to current step
+    // Look to the first call in the authFlow
+    let callToExecute = authFlow.configuration.calls[currentStep - 1];
+    console.log(JSON.stringify(callToExecute));
+    $('#request > textarea').html(JSON.stringify(callToExecute));
+
+    const response = await fetch('/' + flow);
+    const text = await response.text();
+    console.log(text);
+
     // Deactivate current step
     deactivateStep(currentStep);
 
@@ -22,6 +56,8 @@ function next() {
 
     // Activate previous step
     activateStep(currentStep);
+
+    $('#response > textarea').html(text);
 }
 
 function activateStep(stepNumber) {
@@ -50,6 +86,8 @@ function deactivateStep(stepNumber) {
     let inactiveContent = $('#step' + stepNumber);
     inactiveStep.removeClass('active');
     inactiveContent.removeClass('active');
+    $('#request > textarea').html('');
+    $('#response > textarea').html('');
 
     // Show Previous button if we are on the first step
     if (stepNumber === 1) {

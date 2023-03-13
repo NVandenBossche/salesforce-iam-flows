@@ -30,9 +30,20 @@ const clientId = process.env.CLIENT_ID,
         max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
         standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
         legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-    });
+    }),
+    flowClasses = {
+        'user-agent': UserAgentService,
+        'web-server': WebServerService,
+        'refresh-token': RefreshService,
+        'jwt-bearer': JwtService,
+        'saml-bearer': SamlBearerService,
+        'saml-assertion': SamlAssertService,
+        'username-password': UsernamePasswordService,
+        device: DeviceService,
+    };
 
-var authInstance;
+// Global variable containing the instance
+let authInstance;
 
 // Set default view engine to ejs. This will be used when calling res.render().
 app.set('view engine', 'ejs');
@@ -112,6 +123,40 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
     }
 }
 
+app.get('/launch/:flow', (req, res) => {
+    console.log('Launching ' + req.params.flow);
+    authInstance = new flowClasses[req.params.flow]();
+    res.render('launchedFlow', {
+        data: data,
+        authFlow: data[1],
+    });
+});
+
+app.get('/state', (req, res) => {
+    let step = authInstance.currentStep;
+    const flowState = {
+        step: step,
+        baseURL: baseURL,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        callbackURL: callbackURL,
+        authCode: 'aPrxHstICvfqxw3z7JcpzRkgdn3TbHefKD4PKdGJ6xvgiElVTXNn5QtZy6Ytc65ybj5WOAgLHw==',
+        accessToken:
+            '00D24000000I77v!AQ8AQApTaL033oDoKYmGB5YM40RQJOkTDneMipdBM61D1wod43mAda6uJuG9KpD2EBrCMRjfuBiygHHw5PaSe4OvDgtH.q9s',
+        refreshToken:
+            'REFRESH-00D24000000I77v!AQ8AQApTaL033oDoKYmGB5YM40RQJOkTDneMipdBM61D1wod43mAda6uJuG9KpD2EBrCMRjfuBiygHHw5PaSe4OvDgtH.q9s',
+        idToken:
+            '{"at_hash": "Ax6le6S6aMjO2NvL_Wjf2A","aud": "3MVG99OxTyEMCQ3gXuX31lysX3RQP4.Vj3EVzlMsVbxFvUe7VjZ0WcjWvGlAU7BPJFZBSyBGPiGyHhojZ2BE3","exp": 1678736857,"iat": 1678736737,"iss": "https://login.salesforce.com","sub": "https://login.salesforce.com/id/00D24000000I77vEAC/00524000000QgrlAAC"}',
+        request: '',
+        response: '',
+    };
+    res.send(flowState);
+});
+
+app.get('/stepbystep-webserver', (req, res) => {
+    res.send('fakeresponse');
+});
+
 /**
  *	User Agent oAuth Flow. Gets launched when navigating to '/user-agent'.
 
@@ -125,8 +170,10 @@ app.get('/user-agent', function (req, res) {
 
     // Launch the HTTP GET request based on the constructed URL with parameters
     res.render('launchedFlow', {
+        step: 1,
+        response: '',
         data: data,
-        authFlow: data[0],
+        authFlow: data[1],
         callbackURL: callbackURL,
         baseURL: baseURL,
         username: username,
@@ -136,6 +183,14 @@ app.get('/user-agent', function (req, res) {
     // console.log('Sending GET request: ' + userAgentUrlWithParameters);
     // handleGetRequest(userAgentUrlWithParameters, res);
     // console.log('Once user authorizes the app, a redirect will be performed to the oauthcallback page');
+});
+
+app.get('/execute-user-agent', (req, res) => {
+    authInstance = new WebServerService('secret');
+    const authorizationUrl = authInstance.generateAuthorizationRequest();
+
+    // Launch the request to get the authorization code
+    handleGetRequest(authorizationUrl, res);
 });
 
 /**
@@ -312,16 +367,48 @@ app.get('/oauthcallback', function (req, res) {
     if (code) {
         // If an authorization code is returned, check the state and continue web-server flow.
         if (returnedState === originalState) {
+            res.render('launchedFlow', {
+                step: 2,
+                response: req.originalUrl,
+                data: data,
+                authFlow: data[1],
+                callbackURL: callbackURL,
+                baseURL: baseURL,
+                username: username,
+                clientId: clientId,
+                clientSecret: clientSecret,
+            });
+
             // Web Server instance was already created during first step of the flow, just send the request
-            let postRequest = authInstance.generateTokenRequest(code);
+            // let postRequest = authInstance.generateTokenRequest(code);
 
             // Send the request to the endpoint and specify callback function
-            console.debug(
-                'Launching access token request with URL:\n%s\n...and body:\n%s',
-                postRequest.url,
-                postRequest.body
-            );
-            handlePostRequest(postRequest, res);
+            // console.debug(
+            //     'Launching access token request with URL:\n%s\n...and body:\n%s',
+            //     postRequest.url,
+            //     postRequest.body
+            // );
+            // request(postRequest, function (error, remoteResponse, remoteBody) {
+            //     // Handle error or process response
+            //     if (error) {
+            //         res.status(500).end('Error occurred: ' + JSON.stringify(error));
+            //     } else {
+            //         // let { error, accessTokenHeader, refreshToken, redirect } = authInstance.processCallback(remoteBody);
+            //         // processResponse(error, accessTokenHeader, refreshToken, redirect, res);
+            //         res.render('launchedFlow', {
+            //             step: 2,
+            //             response: remoteBody,
+            //             data: data,
+            //             authFlow: data[1],
+            //             callbackURL: callbackURL,
+            //             baseURL: baseURL,
+            //             username: username,
+            //             clientId: clientId,
+            //             clientSecret: clientSecret,
+            //         });
+            //     }
+            // });
+            //handlePostRequest(postRequest, res);
         } else {
             res.status(500).end(
                 'Error occurred: ' +
