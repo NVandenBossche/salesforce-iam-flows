@@ -123,14 +123,32 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
     }
 }
 
-app.get('/launch/:flow/:variant?', (req, res) => {
-    let flowName = req.params.flow;
-    let variant = req.params.variant;
+app.get('/launch/:id', (req, res) => {
+    // Get the unique identifier of the flow
+    const flowId = req.params.id;
+
+    // Retrieve the data for the flow based on Id
+    let flowData;
+    for (const flow of data) {
+        if (flow.id === flowId) {
+            flowData = flow;
+            break;
+        }
+    }
+
+    // Launch specified flow with specified variant
+    let flowName = flowData.flow;
+    let variant = flowData.variant;
 
     console.log('Launching ' + flowName + ' with variant ' + variant);
-    flowName = 'user-agent';
+    //flowName = 'user-agent';
 
-    authInstance = new flowClasses[flowName]();
+    if (variant) {
+        authInstance = new flowClasses[flowName](variant);
+    } else {
+        authInstance = new flowClasses[flowName]();
+    }
+
     res.render('launchedFlow', {
         data: data,
         authFlow: data[1],
@@ -178,7 +196,7 @@ app.get('/user-agent', function (req, res) {
         step: 1,
         response: '',
         data: data,
-        authFlow: data[1],
+        authFlow: data['user-agent'],
         callbackURL: callbackURL,
         baseURL: baseURL,
         username: username,

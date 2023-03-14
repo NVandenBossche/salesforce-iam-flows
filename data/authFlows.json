@@ -1,6 +1,6 @@
 [
     {
-        "name": "user-agent",
+        "id": "user-agent",
         "flow": "user-agent",
         "title": "User Agent Flow",
         "short_title": "User Agent",
@@ -29,7 +29,7 @@
         }
     },
     {
-        "name": "web-server-client-secret",
+        "id": "web-server-client-secret",
         "flow": "web-server",
         "variant": "client-secret",
         "title": "Web Server Flow with Client Secret and PKCE",
@@ -71,7 +71,7 @@
         }
     },
     {
-        "name": "web-server-client-assertion",
+        "id": "web-server-client-assertion",
         "flow": "web-server",
         "variant": "client-assertion",
         "title": "Web Server Flow with Client Assertion and PKCE",
@@ -121,7 +121,7 @@
         }
     },
     {
-        "name": "web-server-pkce-only",
+        "id": "web-server-pkce-only",
         "flow": "web-server",
         "variant": "pkce-only",
         "title": "Web Server Flow with PKCE Only",
@@ -163,7 +163,7 @@
         }
     },
     {
-        "name": "refresh-token",
+        "id": "refresh-token",
         "flow": "refresh-token",
         "title": "Refresh Token Flow",
         "short_title": "Refresh",
@@ -191,7 +191,7 @@
         }
     },
     {
-        "name": "jwt-bearer",
+        "id": "jwt-bearer",
         "flow": "jwt-bearer",
         "title": "JWT Bearer Token Flow",
         "short_title": "JWT",
@@ -219,7 +219,7 @@
         }
     },
     {
-        "name": "saml-bearer",
+        "id": "saml-bearer",
         "flow": "saml-bearer",
         "title": "SAML Bearer Token Flow",
         "short_title": "SAML Bearer",
@@ -246,7 +246,7 @@
         }
     },
     {
-        "name": "saml-assertion",
+        "id": "saml-assertion",
         "flow": "saml-assertion",
         "title": "SAML Assertion Flow",
         "short_title": "SAML Assertion",
@@ -273,7 +273,7 @@
         }
     },
     {
-        "name": "device",
+        "id": "device",
         "flow": "device",
         "title": "Device Authentication Flow",
         "short_title": "Device",
@@ -312,7 +312,7 @@
         }
     },
     {
-        "name": "username-password",
+        "id": "username-password",
         "flow": "username-password",
         "title": "Username-Password Flow",
         "short_title": "Username-Password",
