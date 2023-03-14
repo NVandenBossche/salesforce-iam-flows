@@ -123,9 +123,14 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
     }
 }
 
-app.get('/launch/:flow', (req, res) => {
-    console.log('Launching ' + req.params.flow);
-    authInstance = new flowClasses[req.params.flow]();
+app.get('/launch/:flow/:variant?', (req, res) => {
+    let flowName = req.params.flow;
+    let variant = req.params.variant;
+
+    console.log('Launching ' + flowName + ' with variant ' + variant);
+    flowName = 'user-agent';
+
+    authInstance = new flowClasses[flowName]();
     res.render('launchedFlow', {
         data: data,
         authFlow: data[1],

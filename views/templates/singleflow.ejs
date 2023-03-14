@@ -1,7 +1,8 @@
 <div class="p-5 mb-4 bg-light text-dark border rounded-3" id="<%= authFlow.name %>">
     <div class="card">
         <%- include('flowheader', {
-            name: authFlow.name,
+            flow: authFlow.flow,
+            variant: authFlow.variant,
             title: authFlow.title, 
             image: authFlow.image, 
             protocol: authFlow.protocol,

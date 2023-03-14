@@ -1,6 +1,7 @@
 [
     {
         "name": "user-agent",
+        "flow": "user-agent",
         "title": "User Agent Flow",
         "short_title": "User Agent",
         "protocol": "OAuth 2.0",
@@ -29,6 +30,8 @@
     },
     {
         "name": "web-server-client-secret",
+        "flow": "web-server",
+        "variant": "client-secret",
         "title": "Web Server Flow with Client Secret and PKCE",
         "short_title": "Web Server Secret",
         "protocol": "OAuth 2.0",
@@ -69,6 +72,8 @@
     },
     {
         "name": "web-server-client-assertion",
+        "flow": "web-server",
+        "variant": "client-assertion",
         "title": "Web Server Flow with Client Assertion and PKCE",
         "short_title": "Web Server Assertion",
         "protocol": "OAuth 2.0",
@@ -117,6 +122,8 @@
     },
     {
         "name": "web-server-pkce-only",
+        "flow": "web-server",
+        "variant": "pkce-only",
         "title": "Web Server Flow with PKCE Only",
         "short_title": "Web Server PKCE",
         "protocol": "OAuth 2.0",
@@ -157,6 +164,7 @@
     },
     {
         "name": "refresh-token",
+        "flow": "refresh-token",
         "title": "Refresh Token Flow",
         "short_title": "Refresh",
         "protocol": "OAuth 2.0",
@@ -184,6 +192,7 @@
     },
     {
         "name": "jwt-bearer",
+        "flow": "jwt-bearer",
         "title": "JWT Bearer Token Flow",
         "short_title": "JWT",
         "protocol": "OAuth 2.0",
@@ -211,6 +220,7 @@
     },
     {
         "name": "saml-bearer",
+        "flow": "saml-bearer",
         "title": "SAML Bearer Token Flow",
         "short_title": "SAML Bearer",
         "protocol": "OAuth 2.0",
@@ -237,6 +247,7 @@
     },
     {
         "name": "saml-assertion",
+        "flow": "saml-assertion",
         "title": "SAML Assertion Flow",
         "short_title": "SAML Assertion",
         "protocol": "Single Sign-On",
@@ -263,6 +274,7 @@
     },
     {
         "name": "device",
+        "flow": "device",
         "title": "Device Authentication Flow",
         "short_title": "Device",
         "protocol": "OAuth 2.0",
@@ -301,6 +313,7 @@
     },
     {
         "name": "username-password",
+        "flow": "username-password",
         "title": "Username-Password Flow",
         "short_title": "Username-Password",
         "protocol": "OAuth 2.0",
