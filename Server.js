@@ -143,15 +143,17 @@ app.get('/launch/:id', (req, res) => {
     console.log('Launching ' + flowName + ' with variant ' + variant);
     //flowName = 'user-agent';
 
+    // Set up the auth flow instance
     if (variant) {
         authInstance = new flowClasses[flowName](variant);
     } else {
         authInstance = new flowClasses[flowName]();
     }
 
+    // Render the flow launch page
     res.render('launchedFlow', {
         data: data,
-        authFlow: data[1],
+        authFlow: flowData,
     });
 });
 
@@ -177,6 +179,7 @@ app.get('/state', (req, res) => {
 });
 
 app.get('/stepbystep-webserver', (req, res) => {
+    authInstance.executeNextStep();
     res.send('fakeresponse');
 });
 

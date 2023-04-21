@@ -1,15 +1,19 @@
 const { AuthService } = require('./auth');
 
-var crypto = require('crypto'),
+const crypto = require('crypto'),
     CryptoJS = require('crypto-js'),
     base64url = require('base64-url');
 
 class WebServerService extends AuthService {
+    // #orderedCalls = [this.generateAuthorizationRequest, this.generateTokenRequest];
+    #currentCall = 0;
+
     constructor(webServerType) {
         super();
         this.webServerType = webServerType;
         this.codeVerifier = this.generateCodeVerifier();
         this.codeChallenge = this.generateCodeChallenge(this.codeVerifier);
+        this.orderedCalls = [this.generateAuthorizationRequest, this.generateTokenRequest];
     }
 
     /**
@@ -48,7 +52,7 @@ class WebServerService extends AuthService {
         return this.signJwtClaims(assertionData);
     }
 
-    generateAuthorizationRequest() {
+    generateAuthorizationRequest = () => {
         // Set parameter values for retrieving authorization code
         let responseType = 'code';
         let scope = 'full%20refresh_token';
@@ -74,7 +78,7 @@ class WebServerService extends AuthService {
             this.codeChallenge;
 
         return authorizationUrl;
-    }
+    };
 
     /**
      * Step 2 Web Server Flow - Get access token using authorization code.
@@ -82,7 +86,7 @@ class WebServerService extends AuthService {
      * This is the second step in the flow where the access token is retrieved by passing the previously
      * obtained authorization code to the token endpoint.
      */
-    generateTokenRequest(code) {
+    generateTokenRequest = (code) => {
         // Set parameter values for retrieving access token
         let grantType = 'authorization_code';
         let endpointUrl = this.getTokenEndpoint();
@@ -103,9 +107,9 @@ class WebServerService extends AuthService {
         console.log('---' + this.webServerType + '---');
 
         // Add additional parameters in case of 'Client secret' or 'Client assertion' flow
-        if (this.webServerType === 'secret') {
+        if (this.webServerType === 'client-secret') {
             paramBody += '&client_secret=' + this.clientSecret;
-        } else if (this.webServerType === 'assertion') {
+        } else if (this.webServerType === 'client-assertion') {
             console.log('Web server type: assertion');
             paramBody += '&client_assertion=' + this.createClientAssertion();
             paramBody += '&client_assertion_type=' + 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
@@ -113,6 +117,11 @@ class WebServerService extends AuthService {
 
         // Create the full POST request with all required parameters
         return this.createPostRequest(endpointUrl, paramBody);
+    };
+
+    executeNextStep() {
+        let functionToExecute = this.orderedCalls[this.#currentCall++];
+        console.log('Function output: ' + JSON.stringify(functionToExecute()));
     }
 }
 
