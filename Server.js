@@ -326,6 +326,9 @@ app.get('/oauthcallback', function (req, res) {
     } else {
         // If no authorization code is returned, render oauthcallback.
         // We need client-side Javascript to get to the fragment (after #) of the URL.
+        res.header({
+            'Set-Cookie': ['APIVer=' + process.env.API_VERSION],
+        });
         res.render('oauthcallback');
     }
 });
