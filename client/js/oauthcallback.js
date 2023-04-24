@@ -19,14 +19,12 @@ function getParameterList() {
  * @param {Map<String, String>} paramKeyValueMap
  */
 function processUserAgentCallback(paramKeyValueMap) {
-    let apiVersion = process.env.SFDC_API_VERSION
     let accessToken = decodeURIComponent(paramKeyValueMap['access_token']);
     let instanceUrl = decodeURIComponent(paramKeyValueMap['instance_url']);
     let idUrl = decodeURIComponent(paramKeyValueMap['id']);
 
     if (accessToken) {
         Cookies.set('AccToken', accessToken, { sameSite: 'strict' });
-        Cookies.set('APIVer', apiVersion, { sameSite: 'strict' });
         Cookies.set('InstURL', instanceUrl, { sameSite: 'strict' });
         Cookies.set('idURL', idUrl, { sameSite: 'strict' });
 
