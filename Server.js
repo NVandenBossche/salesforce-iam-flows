@@ -140,14 +140,18 @@ app.get('/launch/:id', (req, res) => {
     let flowName = flowData.flow;
     let variant = flowData.variant;
 
-    console.log('Launching ' + flowName + ' with variant ' + variant);
-    //flowName = 'user-agent';
-
-    // Set up the auth flow instance
-    if (variant) {
-        authInstance = new flowClasses[flowName](variant);
+    if (authInstance && authInstance.isActiveCallback()) {
+        authInstance.setActiveCallback(false);
     } else {
-        authInstance = new flowClasses[flowName]();
+        console.log('Launching ' + flowName + ' with variant ' + variant);
+        //flowName = 'user-agent';
+
+        // Set up the auth flow instance
+        if (variant) {
+            authInstance = new flowClasses[flowName](variant);
+        } else {
+            authInstance = new flowClasses[flowName]();
+        }
     }
 
     // Render the flow launch page
@@ -158,6 +162,7 @@ app.get('/launch/:id', (req, res) => {
 });
 
 app.get('/state', (req, res) => {
+    console.log('Current step: %s', authInstance.currentStep);
     let step = authInstance.currentStep;
     const flowState = {
         step: step,
@@ -165,22 +170,28 @@ app.get('/state', (req, res) => {
         clientId: clientId,
         clientSecret: clientSecret,
         callbackURL: callbackURL,
-        authCode: 'aPrxHstICvfqxw3z7JcpzRkgdn3TbHefKD4PKdGJ6xvgiElVTXNn5QtZy6Ytc65ybj5WOAgLHw==',
+        authCode: authInstance.code,
         accessToken:
             '00D24000000I77v!AQ8AQApTaL033oDoKYmGB5YM40RQJOkTDneMipdBM61D1wod43mAda6uJuG9KpD2EBrCMRjfuBiygHHw5PaSe4OvDgtH.q9s',
         refreshToken:
             'REFRESH-00D24000000I77v!AQ8AQApTaL033oDoKYmGB5YM40RQJOkTDneMipdBM61D1wod43mAda6uJuG9KpD2EBrCMRjfuBiygHHw5PaSe4OvDgtH.q9s',
         idToken:
             '{"at_hash": "Ax6le6S6aMjO2NvL_Wjf2A","aud": "3MVG99OxTyEMCQ3gXuX31lysX3RQP4.Vj3EVzlMsVbxFvUe7VjZ0WcjWvGlAU7BPJFZBSyBGPiGyHhojZ2BE3","exp": 1678736857,"iat": 1678736737,"iss": "https://login.salesforce.com","sub": "https://login.salesforce.com/id/00D24000000I77vEAC/00524000000QgrlAAC"}',
-        request: '',
-        response: '',
+        request: authInstance.getCurrentRequest(),
+        response: authInstance.getCurrentResponse(),
     };
     res.send(flowState);
 });
 
-app.get('/stepbystep-webserver', (req, res) => {
-    authInstance.executeNextStep();
-    res.send('fakeresponse');
+app.get('/stepbystep-webserver', async (req, res) => {
+    let outcome;
+    if (req.query.direction === 'next') {
+        outcome = await authInstance.executeNextStep();
+        res.send(outcome);
+    } else if (req.query.direction === 'previous') {
+        outcome = authInstance.returnToPreviousStep();
+        res.send(outcome);
+    }
 });
 
 /**
@@ -390,20 +401,25 @@ app.get('/oauthcallback', function (req, res) {
 
     console.debug('Callback received with code %s and state %s', code, returnedState);
 
+    authInstance.setActiveCallback(true);
+    authInstance.setCurrentResponse(req.originalUrl);
+
     if (code) {
         // If an authorization code is returned, check the state and continue web-server flow.
         if (returnedState === originalState) {
-            res.render('launchedFlow', {
-                step: 2,
-                response: req.originalUrl,
-                data: data,
-                authFlow: data[1],
-                callbackURL: callbackURL,
-                baseURL: baseURL,
-                username: username,
-                clientId: clientId,
-                clientSecret: clientSecret,
-            });
+            authInstance.code = code;
+            res.redirect('/launch/web-server-client-secret');
+            // res.render('launchedFlow', {
+            //     step: 2,
+            //     response: req.originalUrl,
+            //     data: data,
+            //     authFlow: data[1],
+            //     callbackURL: callbackURL,
+            //     baseURL: baseURL,
+            //     username: username,
+            //     clientId: clientId,
+            //     clientSecret: clientSecret,
+            // });
 
             // Web Server instance was already created during first step of the flow, just send the request
             // let postRequest = authInstance.generateTokenRequest(code);

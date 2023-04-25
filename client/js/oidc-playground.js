@@ -25,8 +25,13 @@ var flow = 'stepbystep-webserver';
     activateStep(currentStep);
 })();
 
-function prev() {
+async function prev() {
     console.log('Previous Step...');
+
+    const response = await fetch('/' + flow + '?direction=previous');
+    const jsonResponse = await response.json();
+    console.log(jsonResponse);
+
     // Deactivate current step
     deactivateStep(currentStep);
 
@@ -44,20 +49,37 @@ async function next() {
     console.log(JSON.stringify(callToExecute));
     $('#request > textarea').html(JSON.stringify(callToExecute));
 
-    const response = await fetch('/' + flow);
-    const text = await response.text();
-    console.log(text);
+    const response = await fetch('/' + flow + '?direction=next');
+    const jsonResponse = await response.json();
 
-    // Deactivate current step
-    deactivateStep(currentStep);
+    if (jsonResponse.redirect) {
+        window.location = jsonResponse.request;
+    } else {
+        // Deactivate current step
+        deactivateStep(currentStep);
 
-    // Increase step by 1
-    currentStep++;
+        // Increase step by 1
+        currentStep++;
 
-    // Activate previous step
-    activateStep(currentStep);
+        // Activate previous step
+        activateStep(currentStep);
 
-    $('#response > textarea').html(text);
+        //if (JSON.stringify(response) !== '{}') {
+        $('#request > textarea').val(JSON.stringify(jsonResponse.request));
+        $('#response > textarea').val(JSON.stringify(jsonResponse.response));
+        if (jsonResponse.response) {
+            if (jsonResponse.response.access_token) {
+                $('#accesstoken').val(jsonResponse.response.access_token);
+            }
+            if (jsonResponse.response.refresh_token) {
+                $('#refreshtoken').val(jsonResponse.response.refresh_token);
+            }
+            if (jsonResponse.response.id_token) {
+                $('#idtoken').val(jsonResponse.response.id_token);
+            }
+        }
+        //}
+    }
 }
 
 function activateStep(stepNumber) {

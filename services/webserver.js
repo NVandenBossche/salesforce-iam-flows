@@ -2,11 +2,17 @@ const { AuthService } = require('./auth');
 
 const crypto = require('crypto'),
     CryptoJS = require('crypto-js'),
-    base64url = require('base64-url');
+    request = require('request'),
+    base64url = require('base64-url'),
+    fetch = require('node-fetch');
 
 class WebServerService extends AuthService {
-    // #orderedCalls = [this.generateAuthorizationRequest, this.generateTokenRequest];
     #currentCall = 0;
+    #activeCallback = false;
+    code;
+    #currentRequest;
+    #currentResponse;
+    redirect;
 
     constructor(webServerType) {
         super();
@@ -77,7 +83,10 @@ class WebServerService extends AuthService {
             '&code_challenge=' +
             this.codeChallenge;
 
-        return authorizationUrl;
+        this.#currentRequest = authorizationUrl;
+        this.redirect = true;
+
+        return this.#currentResponse;
     };
 
     /**
@@ -86,7 +95,7 @@ class WebServerService extends AuthService {
      * This is the second step in the flow where the access token is retrieved by passing the previously
      * obtained authorization code to the token endpoint.
      */
-    generateTokenRequest = (code) => {
+    generateTokenRequest = async () => {
         // Set parameter values for retrieving access token
         let grantType = 'authorization_code';
         let endpointUrl = this.getTokenEndpoint();
@@ -100,7 +109,7 @@ class WebServerService extends AuthService {
             '&grant_type=' +
             grantType +
             '&code=' +
-            code +
+            this.code +
             '&code_verifier=' +
             this.codeVerifier;
 
@@ -115,13 +124,85 @@ class WebServerService extends AuthService {
             paramBody += '&client_assertion_type=' + 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
         }
 
+        this.#currentRequest = this.createPostRequest(endpointUrl, paramBody);
+        this.redirect = false;
+
+        console.debug(
+            'Launching access token request with URL:\n%s\n...and body:\n%s',
+            this.#currentRequest.url,
+            this.#currentRequest.body
+        );
+
+        // const response = await request(this.#currentRequest);
+        // const responseJSON = await response.json();
+        // console.log(responseJSON);
+        // if (response.error) {
+        //     this.#currentResponse = response.error;
+        // } else {
+        //     this.#currentResponse = response.remoteBody;
+        // }
+
+        console.log(this.#currentRequest);
+        const response = await fetch(this.#currentRequest.url, {
+            method: this.#currentRequest.method,
+            headers: this.#currentRequest.headers,
+            body: this.#currentRequest.body,
+        });
+        const data = await response.json();
+        console.log(data);
+
+        // request(this.#currentRequest, (error, remoteResponse, remoteBody) => {
+        //     // Handle error or process response
+        //     if (error) {
+        //         this.#currentResponse = error;
+        //     } else {
+        //         this.#currentResponse = remoteBody;
+        //     }
+        // });
+
+        this.#currentResponse = data;
+
         // Create the full POST request with all required parameters
-        return this.createPostRequest(endpointUrl, paramBody);
+        return data;
     };
 
-    executeNextStep() {
+    async executeNextStep() {
         let functionToExecute = this.orderedCalls[this.#currentCall++];
-        console.log('Function output: ' + JSON.stringify(functionToExecute()));
+        await functionToExecute();
+        return {
+            request: this.#currentRequest,
+            response: this.#currentResponse,
+            redirect: this.redirect,
+        };
+    }
+
+    get currentStep() {
+        return this.#currentCall + 1;
+    }
+
+    getCurrentRequest() {
+        return this.#currentRequest;
+    }
+
+    getCurrentResponse() {
+        return this.#currentResponse;
+    }
+
+    setCurrentResponse(response) {
+        this.#currentResponse = response;
+    }
+
+    setActiveCallback(activeCallback) {
+        this.#activeCallback = activeCallback;
+    }
+
+    isActiveCallback() {
+        return this.#activeCallback;
+    }
+
+    returnToPreviousStep() {
+        this.#currentCall--;
+        return true;
     }
 }
 
