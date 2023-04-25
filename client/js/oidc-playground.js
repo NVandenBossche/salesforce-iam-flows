@@ -1,7 +1,7 @@
 // Total steps is start + number of calls + finish
 var totalSteps = 2 + authFlow.configuration.calls.length;
 var currentStep = 1;
-var flow = 'stepbystep-webserver';
+var endpoint = 'execute-step';
 
 (async function initiate() {
     // Retrieve current state from the server
@@ -28,7 +28,7 @@ var flow = 'stepbystep-webserver';
 async function prev() {
     console.log('Previous Step...');
 
-    const response = await fetch('/' + flow + '?direction=previous');
+    const response = await fetch('/' + endpoint + '?direction=previous');
     const jsonResponse = await response.json();
     console.log(jsonResponse);
 
@@ -48,7 +48,7 @@ async function next() {
     let callToExecute = authFlow.configuration.calls[currentStep - 1];
     $('#request > textarea').html(JSON.stringify(callToExecute));
 
-    const response = await fetch('/' + flow + '?direction=next');
+    const response = await fetch('/' + endpoint + '?direction=next');
     const jsonResponse = await response.json();
 
     if (jsonResponse.redirect) {

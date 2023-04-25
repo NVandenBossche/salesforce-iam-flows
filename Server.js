@@ -183,15 +183,14 @@ app.get('/state', (req, res) => {
     res.send(flowState);
 });
 
-app.get('/stepbystep-webserver', async (req, res) => {
+app.get('/execute-step', async (req, res) => {
     let outcome;
     if (req.query.direction === 'next') {
         outcome = await authInstance.executeNextStep();
-        res.send(outcome);
     } else if (req.query.direction === 'previous') {
         outcome = authInstance.returnToPreviousStep();
-        res.send(outcome);
     }
+    res.send(outcome);
 });
 
 /**
