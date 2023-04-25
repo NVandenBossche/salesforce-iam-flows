@@ -123,14 +123,9 @@ class WebServerService extends AuthService {
             paramBody += '&client_assertion_type=' + 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
         }
 
+        // Create the current POST request based on the constructed body
         this.#currentRequest = this.createPostRequest(endpointUrl, paramBody);
         this.redirect = false;
-
-        console.debug(
-            'Launching access token request with URL:\n%s\n...and body:\n%s',
-            this.#currentRequest.url,
-            this.#currentRequest.body
-        );
 
         // Use fetch to execute the POST request
         const response = await fetch(this.#currentRequest.url, {
@@ -147,16 +142,18 @@ class WebServerService extends AuthService {
      * Performs a query against the Salesforce instance using the access token.
      */
     performQuery = async () => {
+        // Set up a JSforce connection
         const connection = new jsforce.Connection({
             instanceUrl: this.baseURL,
             accessToken: this.#currentResponse.access_token,
             version: this.apiVersion,
         });
+
+        // Define the query and perform the query
         const query = 'Select Id, Name From Account LIMIT 10';
-
         const queryResponse = await connection.query(query);
-        console.log(JSON.stringify(queryResponse));
 
+        // Set the current request and response
         this.#currentRequest = [this.baseURL, 'services/data', 'v' + this.apiVersion, 'query?q=' + query].join('/');
         this.#currentResponse = queryResponse;
     };

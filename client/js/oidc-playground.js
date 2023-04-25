@@ -46,7 +46,6 @@ async function next() {
     // Execute call corresponding to current step
     // Look to the first call in the authFlow
     let callToExecute = authFlow.configuration.calls[currentStep - 1];
-    console.log(JSON.stringify(callToExecute));
     $('#request > textarea').html(JSON.stringify(callToExecute));
 
     const response = await fetch('/' + flow + '?direction=next');
@@ -64,7 +63,6 @@ async function next() {
         // Activate previous step
         activateStep(currentStep);
 
-        //if (JSON.stringify(response) !== '{}') {
         $('#request > textarea').val(JSON.stringify(jsonResponse.request, null, 2));
         $('#response > textarea').val(JSON.stringify(jsonResponse.response, null, 2));
         if (jsonResponse.response) {
