@@ -65,8 +65,8 @@ async function next() {
         activateStep(currentStep);
 
         //if (JSON.stringify(response) !== '{}') {
-        $('#request > textarea').val(JSON.stringify(jsonResponse.request));
-        $('#response > textarea').val(JSON.stringify(jsonResponse.response));
+        $('#request > textarea').val(JSON.stringify(jsonResponse.request, null, 2));
+        $('#response > textarea').val(JSON.stringify(jsonResponse.response, null, 2));
         if (jsonResponse.response) {
             if (jsonResponse.response.access_token) {
                 $('#accesstoken').val(jsonResponse.response.access_token);
