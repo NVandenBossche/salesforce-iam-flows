@@ -108,8 +108,8 @@ function deactivateStep(stepNumber) {
     let inactiveContent = $('#step' + stepNumber);
     inactiveStep.removeClass('active');
     inactiveContent.removeClass('active');
-    $('#request > textarea').html('');
-    $('#response > textarea').html('');
+    $('#request > textarea').val('');
+    $('#response > textarea').val('');
 
     // Show Previous button if we are on the first step
     if (stepNumber === 1) {

@@ -2,9 +2,9 @@ const { AuthService } = require('./auth');
 
 const crypto = require('crypto'),
     CryptoJS = require('crypto-js'),
-    request = require('request'),
     base64url = require('base64-url'),
-    fetch = require('node-fetch');
+    fetch = require('node-fetch'),
+    jsforce = require('jsforce');
 
 class WebServerService extends AuthService {
     #currentCall = 0;
@@ -19,7 +19,7 @@ class WebServerService extends AuthService {
         this.webServerType = webServerType;
         this.codeVerifier = this.generateCodeVerifier();
         this.codeChallenge = this.generateCodeChallenge(this.codeVerifier);
-        this.orderedCalls = [this.generateAuthorizationRequest, this.generateTokenRequest];
+        this.orderedCalls = [this.generateAuthorizationRequest, this.generateTokenRequest, this.performQuery];
     }
 
     /**
@@ -83,14 +83,13 @@ class WebServerService extends AuthService {
             '&code_challenge=' +
             this.codeChallenge;
 
+        // Set the currentRequest with redirect = true to indicate to the front-end that a redirect is needed.
         this.#currentRequest = authorizationUrl;
         this.redirect = true;
-
-        return this.#currentResponse;
     };
 
     /**
-     * Step 2 Web Server Flow - Get access token using authorization code.
+     * Second step of the Web Server Flow - Get access token using authorization code.
      * Gets launched as part of the callback actions from the first step of the web server flow.
      * This is the second step in the flow where the access token is retrieved by passing the previously
      * obtained authorization code to the token endpoint.
@@ -133,42 +132,46 @@ class WebServerService extends AuthService {
             this.#currentRequest.body
         );
 
-        // const response = await request(this.#currentRequest);
-        // const responseJSON = await response.json();
-        // console.log(responseJSON);
-        // if (response.error) {
-        //     this.#currentResponse = response.error;
-        // } else {
-        //     this.#currentResponse = response.remoteBody;
-        // }
-
-        console.log(this.#currentRequest);
+        // Use fetch to execute the POST request
         const response = await fetch(this.#currentRequest.url, {
             method: this.#currentRequest.method,
             headers: this.#currentRequest.headers,
             body: this.#currentRequest.body,
         });
-        const data = await response.json();
-        console.log(data);
 
-        // request(this.#currentRequest, (error, remoteResponse, remoteBody) => {
-        //     // Handle error or process response
-        //     if (error) {
-        //         this.#currentResponse = error;
-        //     } else {
-        //         this.#currentResponse = remoteBody;
-        //     }
-        // });
-
-        this.#currentResponse = data;
-
-        // Create the full POST request with all required parameters
-        return data;
+        // Store the JSON response in the currentResponse variable
+        this.#currentResponse = await response.json();
     };
 
+    /**
+     * Performs a query against the Salesforce instance using the access token.
+     */
+    performQuery = async () => {
+        const connection = new jsforce.Connection({
+            instanceUrl: this.baseURL,
+            accessToken: this.#currentResponse.access_token,
+            version: this.apiVersion,
+        });
+        const query = 'Select Id, Name From Account LIMIT 10';
+
+        const queryResponse = await connection.query(query);
+        console.log(JSON.stringify(queryResponse));
+
+        this.#currentRequest = [this.baseURL, 'services/data', 'v' + this.apiVersion, 'query?q=' + query].join('/');
+        this.#currentResponse = queryResponse;
+    };
+
+    /**
+     * Executes the next step in the flow. The order of the steps is defined in the orderedCalls function array.
+     *
+     * @returns A JSON object containing the request, response, and whether a redirect is required.
+     */
     async executeNextStep() {
+        // Retrieve and execute the function based on the step number
         let functionToExecute = this.orderedCalls[this.#currentCall++];
         await functionToExecute();
+
+        // The function will set the currentRequest, currentResponse and redirect parameters. Then return them.
         return {
             request: this.#currentRequest,
             response: this.#currentResponse,
