@@ -194,7 +194,7 @@ body {
 }
 
 #request textarea, #response textarea {
-    height: 100px;
+    height: 200px;
     padding-top: 2rem;
     font-family: monospace;
     font-size: small;
