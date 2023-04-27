@@ -124,6 +124,7 @@ function processResponse(error, accessTokenHeader, refreshToken, redirect, res) 
 }
 
 app.get('/launch/:id', (req, res) => {
+    console.log('Launching %s...', req.params.id);
     // Get the unique identifier of the flow
     const flowId = req.params.id;
 
@@ -144,7 +145,6 @@ app.get('/launch/:id', (req, res) => {
         authInstance.setActiveCallback(false);
     } else {
         console.log('Launching ' + flowName + ' with variant ' + variant);
-        //flowName = 'user-agent';
 
         // Set up the auth flow instance
         if (variant) {
@@ -177,8 +177,8 @@ app.get('/state', (req, res) => {
             'REFRESH-00D24000000I77v!AQ8AQApTaL033oDoKYmGB5YM40RQJOkTDneMipdBM61D1wod43mAda6uJuG9KpD2EBrCMRjfuBiygHHw5PaSe4OvDgtH.q9s',
         idToken:
             '{"at_hash": "Ax6le6S6aMjO2NvL_Wjf2A","aud": "3MVG99OxTyEMCQ3gXuX31lysX3RQP4.Vj3EVzlMsVbxFvUe7VjZ0WcjWvGlAU7BPJFZBSyBGPiGyHhojZ2BE3","exp": 1678736857,"iat": 1678736737,"iss": "https://login.salesforce.com","sub": "https://login.salesforce.com/id/00D24000000I77vEAC/00524000000QgrlAAC"}',
-        request: authInstance.getCurrentRequest(),
-        response: authInstance.getCurrentResponse(),
+        request: authInstance.currentRequest,
+        response: authInstance.currentResponse,
     };
     res.send(flowState);
 });
@@ -401,24 +401,13 @@ app.get('/oauthcallback', function (req, res) {
     console.debug('Callback received with code %s and state %s', code, returnedState);
 
     authInstance.setActiveCallback(true);
-    authInstance.setCurrentResponse(req.originalUrl);
+    authInstance.currentResponse = req.originalUrl;
 
     if (code) {
         // If an authorization code is returned, check the state and continue web-server flow.
         if (returnedState === originalState) {
             authInstance.code = code;
             res.redirect('/launch/web-server-client-secret');
-            // res.render('launchedFlow', {
-            //     step: 2,
-            //     response: req.originalUrl,
-            //     data: data,
-            //     authFlow: data[1],
-            //     callbackURL: callbackURL,
-            //     baseURL: baseURL,
-            //     username: username,
-            //     clientId: clientId,
-            //     clientSecret: clientSecret,
-            // });
 
             // Web Server instance was already created during first step of the flow, just send the request
             // let postRequest = authInstance.generateTokenRequest(code);

@@ -3,16 +3,11 @@ const { AuthService } = require('./auth');
 const crypto = require('crypto'),
     CryptoJS = require('crypto-js'),
     base64url = require('base64-url'),
-    fetch = require('node-fetch'),
-    jsforce = require('jsforce');
+    fetch = require('node-fetch');
 
 class WebServerService extends AuthService {
-    #currentCall = 0;
     #activeCallback = false;
     code;
-    #currentRequest;
-    #currentResponse;
-    redirect;
 
     constructor(webServerType) {
         super();
@@ -84,7 +79,7 @@ class WebServerService extends AuthService {
             this.codeChallenge;
 
         // Set the currentRequest with redirect = true to indicate to the front-end that a redirect is needed.
-        this.#currentRequest = authorizationUrl;
+        this.currentRequest = authorizationUrl;
         this.redirect = true;
     };
 
@@ -124,73 +119,21 @@ class WebServerService extends AuthService {
         }
 
         // Create the current POST request based on the constructed body
-        this.#currentRequest = this.createPostRequest(endpointUrl, paramBody);
+        this.currentRequest = this.createPostRequest(endpointUrl, paramBody);
         this.redirect = false;
 
         // Use fetch to execute the POST request
-        const response = await fetch(this.#currentRequest.url, {
-            method: this.#currentRequest.method,
-            headers: this.#currentRequest.headers,
-            body: this.#currentRequest.body,
+        const response = await fetch(this.currentRequest.url, {
+            method: this.currentRequest.method,
+            headers: this.currentRequest.headers,
+            body: this.currentRequest.body,
         });
 
         // Store the JSON response in the currentResponse variable
-        this.#currentResponse = await response.json();
+        console.log(this.currentResponse);
+        this.currentResponse = await response.json();
+        this.accessToken = this.currentResponse.access_token;
     };
-
-    /**
-     * Performs a query against the Salesforce instance using the access token.
-     */
-    performQuery = async () => {
-        // Set up a JSforce connection
-        const connection = new jsforce.Connection({
-            instanceUrl: this.baseURL,
-            accessToken: this.#currentResponse.access_token,
-            version: this.apiVersion,
-        });
-
-        // Define the query and perform the query
-        const query = 'Select Id, Name From Account LIMIT 10';
-        const queryResponse = await connection.query(query);
-
-        // Set the current request and response
-        this.#currentRequest = [this.baseURL, 'services/data', 'v' + this.apiVersion, 'query?q=' + query].join('/');
-        this.#currentResponse = queryResponse;
-    };
-
-    /**
-     * Executes the next step in the flow. The order of the steps is defined in the orderedCalls function array.
-     *
-     * @returns A JSON object containing the request, response, and whether a redirect is required.
-     */
-    async executeNextStep() {
-        // Retrieve and execute the function based on the step number
-        let functionToExecute = this.orderedCalls[this.#currentCall++];
-        await functionToExecute();
-
-        // The function will set the currentRequest, currentResponse and redirect parameters. Then return them.
-        return {
-            request: this.#currentRequest,
-            response: this.#currentResponse,
-            redirect: this.redirect,
-        };
-    }
-
-    get currentStep() {
-        return this.#currentCall + 1;
-    }
-
-    getCurrentRequest() {
-        return this.#currentRequest;
-    }
-
-    getCurrentResponse() {
-        return this.#currentResponse;
-    }
-
-    setCurrentResponse(response) {
-        this.#currentResponse = response;
-    }
 
     setActiveCallback(activeCallback) {
         this.#activeCallback = activeCallback;
@@ -198,11 +141,6 @@ class WebServerService extends AuthService {
 
     isActiveCallback() {
         return this.#activeCallback;
-    }
-
-    returnToPreviousStep() {
-        this.#currentCall--;
-        return true;
     }
 }
 

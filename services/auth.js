@@ -1,14 +1,15 @@
 var fs = require('fs'),
     path = require('path'),
     nJwt = require('njwt'),
-    CryptoJS = require('crypto-js');
+    CryptoJS = require('crypto-js'),
+    jsforce = require('jsforce');
 
 class AuthService {
-    #currentStep;
-
-    get currentStep() {
-        return this.#currentStep;
-    }
+    orderedCalls;
+    currentStep;
+    currentRequest;
+    currentResponse;
+    redirect;
 
     constructor() {
         this.clientId = process.env.CLIENT_ID;
@@ -19,7 +20,7 @@ class AuthService {
         this.persistTokensToFile = process.env.PERSIST === 'true';
         this.state = '';
         this.apiVersion = '45.0';
-        this.#currentStep = 1;
+        this.currentStep = 1;
     }
 
     /**
@@ -141,6 +142,50 @@ class AuthService {
             error = 'An error occurred. For more details, see the response from Salesforce: ' + remoteBody;
         }
         return { error, accessTokenHeader, refreshToken };
+    }
+
+    /**
+     * Performs a query against the Salesforce instance using the access token.
+     */
+    performQuery = async () => {
+        // Set up a JSforce connection
+        const connection = new jsforce.Connection({
+            instanceUrl: this.baseURL,
+            accessToken: this.accessToken,
+            version: this.apiVersion,
+        });
+
+        // Define the query and perform the query
+        const query = 'Select Id, Name From Account LIMIT 10';
+        const queryResponse = await connection.query(query);
+
+        // Set the current request and response
+        this.currentRequest = [this.baseURL, 'services/data', 'v' + this.apiVersion, 'query?q=' + query].join('/');
+        this.currentResponse = queryResponse;
+    };
+
+    /**
+     * Executes the next step in the flow. The order of the steps is defined in the orderedCalls function array.
+     *
+     * @returns A JSON object containing the request, response, and whether a redirect is required.
+     */
+    async executeNextStep() {
+        // Retrieve and execute the function based on the step number
+        let functionToExecute = this.orderedCalls[this.currentStep - 1];
+        this.currentStep++;
+        await functionToExecute();
+
+        // The function will set the currentRequest, currentResponse and redirect parameters. Then return them.
+        return {
+            request: this.currentRequest,
+            response: this.currentResponse,
+            redirect: this.redirect,
+        };
+    }
+
+    returnToPreviousStep() {
+        this.currentStep--;
+        return true;
     }
 }
 
