@@ -10,6 +10,8 @@ class AuthService {
     currentRequest;
     currentResponse;
     redirect;
+    accessToken;
+    refreshToken;
 
     constructor() {
         this.clientId = process.env.CLIENT_ID;
@@ -162,6 +164,7 @@ class AuthService {
         // Set the current request and response
         this.currentRequest = [this.baseURL, 'services/data', 'v' + this.apiVersion, 'query?q=' + query].join('/');
         this.currentResponse = queryResponse;
+        this.redirect = false;
     };
 
     /**

@@ -4,8 +4,27 @@ var currentStep = 1;
 var endpoint = 'execute-step';
 
 (async function initiate() {
-    // Retrieve current state from the server
-    const response = await fetch('/state');
+    let stateUrl = '/state';
+
+    if (window.location.hash) {
+        console.log('User Agent...');
+        let parameters = window.location.hash.substring(1).split('&');
+        let response = {};
+
+        parameters.forEach(function (parameter) {
+            let keyValue = parameter.split('=');
+            response[keyValue[0]] = decodeURIComponent(keyValue[1]);
+        });
+
+        const accessToken = response['access_token'];
+        const refreshToken = response['refresh_token'];
+        const idToken = response['id'];
+
+        stateUrl += '?accessToken=' + accessToken + '&refreshToken=' + refreshToken;
+    }
+
+    // Retrieve current state from the server. For user-agent, we need to pass the access token in this call.
+    const response = await fetch(stateUrl);
     const state = await response.json();
 
     // Parse the state object
@@ -76,7 +95,6 @@ async function next() {
                 $('#idtoken').val(jsonResponse.response.id_token);
             }
         }
-        //}
     }
 }
 

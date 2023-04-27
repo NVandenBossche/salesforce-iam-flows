@@ -163,7 +163,11 @@ app.get('/launch/:id', (req, res) => {
 
 app.get('/state', (req, res) => {
     console.log('Current step: %s', authInstance.currentStep);
-    let step = authInstance.currentStep;
+    const step = authInstance.currentStep;
+
+    authInstance.accessToken = req.query.accessToken;
+    authInstance.refreshToken = req.query.refreshToken;
+
     const flowState = {
         step: step,
         baseURL: baseURL,
@@ -171,10 +175,8 @@ app.get('/state', (req, res) => {
         clientSecret: clientSecret,
         callbackURL: callbackURL,
         authCode: authInstance.code,
-        accessToken:
-            '00D24000000I77v!AQ8AQApTaL033oDoKYmGB5YM40RQJOkTDneMipdBM61D1wod43mAda6uJuG9KpD2EBrCMRjfuBiygHHw5PaSe4OvDgtH.q9s',
-        refreshToken:
-            'REFRESH-00D24000000I77v!AQ8AQApTaL033oDoKYmGB5YM40RQJOkTDneMipdBM61D1wod43mAda6uJuG9KpD2EBrCMRjfuBiygHHw5PaSe4OvDgtH.q9s',
+        accessToken: authInstance.accessToken,
+        refreshToken: authInstance.refreshToken,
         idToken:
             '{"at_hash": "Ax6le6S6aMjO2NvL_Wjf2A","aud": "3MVG99OxTyEMCQ3gXuX31lysX3RQP4.Vj3EVzlMsVbxFvUe7VjZ0WcjWvGlAU7BPJFZBSyBGPiGyHhojZ2BE3","exp": 1678736857,"iat": 1678736737,"iss": "https://login.salesforce.com","sub": "https://login.salesforce.com/id/00D24000000I77vEAC/00524000000QgrlAAC"}',
         request: authInstance.currentRequest,
@@ -408,37 +410,6 @@ app.get('/oauthcallback', function (req, res) {
         if (returnedState === originalState) {
             authInstance.code = code;
             res.redirect('/launch/web-server-client-secret');
-
-            // Web Server instance was already created during first step of the flow, just send the request
-            // let postRequest = authInstance.generateTokenRequest(code);
-
-            // Send the request to the endpoint and specify callback function
-            // console.debug(
-            //     'Launching access token request with URL:\n%s\n...and body:\n%s',
-            //     postRequest.url,
-            //     postRequest.body
-            // );
-            // request(postRequest, function (error, remoteResponse, remoteBody) {
-            //     // Handle error or process response
-            //     if (error) {
-            //         res.status(500).end('Error occurred: ' + JSON.stringify(error));
-            //     } else {
-            //         // let { error, accessTokenHeader, refreshToken, redirect } = authInstance.processCallback(remoteBody);
-            //         // processResponse(error, accessTokenHeader, refreshToken, redirect, res);
-            //         res.render('launchedFlow', {
-            //             step: 2,
-            //             response: remoteBody,
-            //             data: data,
-            //             authFlow: data[1],
-            //             callbackURL: callbackURL,
-            //             baseURL: baseURL,
-            //             username: username,
-            //             clientId: clientId,
-            //             clientSecret: clientSecret,
-            //         });
-            //     }
-            // });
-            //handlePostRequest(postRequest, res);
         } else {
             res.status(500).end(
                 'Error occurred: ' +
@@ -452,7 +423,8 @@ app.get('/oauthcallback', function (req, res) {
     } else {
         // If no authorization code is returned, render oauthcallback.
         // We need client-side Javascript to get to the fragment (after #) of the URL.
-        res.render('oauthcallback');
+        res.redirect('/launch/user-agent');
+        //res.render('oauthcallback');
     }
 });
 
