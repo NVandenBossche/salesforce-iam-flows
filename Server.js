@@ -152,6 +152,10 @@ app.get('/launch/:id', (req, res) => {
         } else {
             authInstance = new flowClasses[flowName]();
         }
+
+        if (this.refreshToken) {
+            authInstance.refreshToken = this.refreshToken;
+        }
     }
 
     // Render the flow launch page
@@ -167,6 +171,9 @@ app.get('/state', (req, res) => {
 
     authInstance.accessToken = req.query.accessToken;
     authInstance.refreshToken = req.query.refreshToken;
+
+    //TODO: find a better solution to share state across authInstance.
+    this.refreshToken = authInstance.refreshToken;
 
     const flowState = {
         step: step,
