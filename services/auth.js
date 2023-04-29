@@ -6,12 +6,14 @@ var fs = require('fs'),
 
 class AuthService {
     orderedCalls;
-    currentStep;
+    currentStep = 1;
     currentRequest;
     currentResponse;
     redirect;
     accessToken;
     refreshToken;
+    #activeCallback = false;
+    state = '';
 
     constructor() {
         this.clientId = process.env.CLIENT_ID;
@@ -20,9 +22,7 @@ class AuthService {
         this.baseURL = process.env.BASE_URL;
         this.username = process.env.USERNAME;
         this.persistTokensToFile = process.env.PERSIST === 'true';
-        this.state = '';
         this.apiVersion = '45.0';
-        this.currentStep = 1;
     }
 
     /**
@@ -189,6 +189,14 @@ class AuthService {
     returnToPreviousStep() {
         this.currentStep--;
         return true;
+    }
+
+    setActiveCallback(activeCallback) {
+        this.#activeCallback = activeCallback;
+    }
+
+    isActiveCallback() {
+        return this.#activeCallback;
     }
 }
 

@@ -1,8 +1,6 @@
 const { AuthService } = require('./auth');
 
 class UserAgentService extends AuthService {
-    #activeCallback;
-
     constructor() {
         super();
         this.orderedCalls = [this.generateUserAgentRequest, this.performQuery];
@@ -27,14 +25,6 @@ class UserAgentService extends AuthService {
         this.currentRequest = authorizationUrl;
         this.redirect = true;
     };
-
-    setActiveCallback(activeCallback) {
-        this.#activeCallback = activeCallback;
-    }
-
-    isActiveCallback() {
-        return this.#activeCallback;
-    }
 }
 
 exports.UserAgentService = UserAgentService;

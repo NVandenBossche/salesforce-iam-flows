@@ -6,7 +6,6 @@ const crypto = require('crypto'),
     fetch = require('node-fetch');
 
 class WebServerService extends AuthService {
-    #activeCallback = false;
     code;
 
     constructor(webServerType) {
@@ -134,14 +133,6 @@ class WebServerService extends AuthService {
         this.currentResponse = await response.json();
         this.accessToken = this.currentResponse.access_token;
     };
-
-    setActiveCallback(activeCallback) {
-        this.#activeCallback = activeCallback;
-    }
-
-    isActiveCallback() {
-        return this.#activeCallback;
-    }
 }
 
 exports.WebServerService = WebServerService;
