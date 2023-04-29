@@ -132,6 +132,7 @@ class WebServerService extends AuthService {
         console.log(this.currentResponse);
         this.currentResponse = await response.json();
         this.accessToken = this.currentResponse.access_token;
+        this.refreshToken = this.currentResponse.refresh_token;
     };
 }
 
