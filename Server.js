@@ -402,7 +402,7 @@ app.route(/^\/(index.*)?$/).get(function (req, res) {
  * Handle OAuth callback from Salesforce and parse the result.
  * Result is parsed in oauthcallback.ejs.
  */
-app.get('/oauthcallback', function (req, res) {
+app.get('/services/oauth2/success', function (req, res) {
     let code = req.query.code;
     let returnedState = escape(req.query.state);
     let originalState = authInstance ? authInstance.state : undefined;
