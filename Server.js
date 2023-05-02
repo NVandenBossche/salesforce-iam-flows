@@ -144,7 +144,9 @@ app.get('/launch/:id', (req, res) => {
     if (authInstance && authInstance.isActiveCallback()) {
         authInstance.setActiveCallback(false);
     } else {
-        console.log('Launching ' + flowName + ' with variant ' + variant);
+        const refreshToken = authInstance ? authInstance.refreshToken : undefined;
+
+        console.log('Launching ' + flowName + ' with variant ' + variant + ' and refresh token: ' + refreshToken);
 
         // Set up the auth flow instance
         if (variant) {
@@ -153,9 +155,7 @@ app.get('/launch/:id', (req, res) => {
             authInstance = new flowClasses[flowName]();
         }
 
-        if (this.refreshToken) {
-            authInstance.refreshToken = this.refreshToken;
-        }
+        authInstance.refreshToken = refreshToken;
     }
 
     // Render the flow launch page
@@ -169,11 +169,14 @@ app.get('/state', (req, res) => {
     console.log('Current step: %s', authInstance.currentStep);
     const step = authInstance.currentStep;
 
-    authInstance.accessToken = req.query.accessToken;
-    authInstance.refreshToken = req.query.refreshToken;
-
-    //TODO: find a better solution to share state across authInstance.
-    this.refreshToken = authInstance.refreshToken;
+    const newAccessToken = req.query.accessToken;
+    if (newAccessToken) {
+        authInstance.accessToken = newAccessToken;
+    }
+    const newRefreshToken = req.query.refreshToken;
+    if (newRefreshToken) {
+        authInstance.refreshToken = newRefreshToken;
+    }
 
     const flowState = {
         step: step,
