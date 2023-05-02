@@ -251,6 +251,7 @@
         "title": "SAML Assertion Flow",
         "short_title": "SAML Assertion",
         "protocol": "Single Sign-On",
+        "description": "Before starting this flow, make sure you go to https://axiomsso.herokuapp.com/RequestSamlResponse.action to generate a SAML response. Paste the plain-text version in a file at /data/authFlows.json",
         "image": "https://cloudsundial.com/sites/default/files/2020-05/SAML%20Assertion%203000.png",
         "configuration": {
             "token_type": "Bearer",

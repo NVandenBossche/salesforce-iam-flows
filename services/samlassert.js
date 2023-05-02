@@ -1,14 +1,16 @@
 const { AuthService } = require('./auth');
 
 var fs = require('fs'),
-    path = require('path');
+    path = require('path'),
+    fetch = require('node-fetch');
 
 class SamlAssertService extends AuthService {
     constructor() {
         super();
+        this.orderedCalls = [this.generateSamlAssertRequest, this.performQuery];
     }
 
-    generateSamlAssertRequest() {
+    generateSamlAssertRequest = async () => {
         // Set parameters for the SAML request body
         const assertionType = 'urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser';
         let endpointUrl = this.getTokenEndpoint();
@@ -30,7 +32,7 @@ class SamlAssertService extends AuthService {
         let base64AssertionXml = Buffer.from(assertionXml).toString('base64');
 
         // Construct the request body containing grant type, assertion type and assertion. All should be URL encoded.
-        let samlParamBody =
+        let paramBody =
             'grant_type=' +
             encodeURIComponent('assertion') +
             '&assertion_type=' +
@@ -38,8 +40,21 @@ class SamlAssertService extends AuthService {
             '&assertion=' +
             encodeURIComponent(base64AssertionXml);
 
-        return this.createPostRequest(endpointUrl, samlParamBody);
-    }
+        // Create the current POST request based on the constructed body
+        this.currentRequest = this.createPostRequest(endpointUrl, paramBody);
+        this.redirect = false;
+
+        // Use fetch to execute the POST request
+        const response = await fetch(this.currentRequest.url, {
+            method: this.currentRequest.method,
+            headers: this.currentRequest.headers,
+            body: this.currentRequest.body,
+        });
+
+        // Store the JSON response in the currentResponse variable
+        this.currentResponse = await response.json();
+        this.accessToken = this.currentResponse.access_token;
+    };
 }
 
 exports.SamlAssertService = SamlAssertService;
