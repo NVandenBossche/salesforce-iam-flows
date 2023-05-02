@@ -23,7 +23,7 @@ var endpoint = 'execute-step';
         stateUrl += '?accessToken=' + accessToken + '&refreshToken=' + refreshToken;
     }
 
-    // Retrieve current state from the server. For user-agent, we need to pass the access token in this call.
+    // Retrieve current state from the server. For user-agent, we need to pass the access token to the server in this call.
     const response = await fetch(stateUrl);
     const state = await response.json();
 
