@@ -43,7 +43,7 @@ const clientId = process.env.CLIENT_ID,
     };
 
 // Global variable containing the instance
-let authInstance;
+let authInstance, inputUsername, inputPassword;
 
 // Set default view engine to ejs. This will be used when calling res.render().
 app.set('view engine', 'ejs');
@@ -151,6 +151,8 @@ app.get('/launch/:id', (req, res) => {
         // Set up the auth flow instance
         if (variant) {
             authInstance = new flowClasses[flowName](variant);
+        } else if (inputUsername && inputPassword) {
+            authInstance = new flowClasses[flowName](inputUsername, inputPassword);
         } else {
             authInstance = new flowClasses[flowName]();
         }
@@ -317,11 +319,9 @@ app.get('/saml-bearer', function (req, res) {
  */
 app.post('/username-password', function (req, res) {
     // Instantiate Username-Password service and generate post request
-    authInstance = new UsernamePasswordService();
-    let postRequest = authInstance.generateUsernamePasswordRequest(req.body.sfdcUsername, req.body.sfdcPassword);
-
-    // Handle the response of the post request
-    handlePostRequest(postRequest, res);
+    inputUsername = req.body.sfdcUsername;
+    inputPassword = req.body.sfdcPassword;
+    res.redirect('/launch/username-password');
 });
 
 /**
