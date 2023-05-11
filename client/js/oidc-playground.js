@@ -37,8 +37,8 @@ var endpoint = 'execute-step';
     $('#accesstoken').val(state.accessToken);
     $('#refreshtoken').val(state.refreshToken);
     $('#idtoken').val(state.idToken);
-    $('#request > textarea').val(state.request);
-    $('#response > textarea').val(state.response);
+    $('#request > textarea').val(JSON.stringify(state.request, null, 2));
+    $('#response > textarea').val(JSON.stringify(state.response, null, 2));
 
     // Activate the current step
     activateStep(currentStep);

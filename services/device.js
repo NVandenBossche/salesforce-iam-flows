@@ -1,21 +1,45 @@
 const { AuthService } = require('./auth');
 
-var request = require('request');
+var request = require('request'),
+    fetch = require('node-fetch');
 
 class DeviceService extends AuthService {
+    #deviceCode;
+    #userCode;
+    #interval;
+    #verificationUrl;
+
     constructor() {
         super();
+        this.orderedCalls = [this.generateDeviceRequest, this.generateCallbackRequest, this.performQuery];
     }
 
-    generateDeviceRequest() {
+    generateDeviceRequest = async () => {
         // Define parameters
         const responseType = 'device_code';
         let endpointUrl = this.getTokenEndpoint();
         let paramBody = 'client_id=' + this.clientId + '&response_type=' + responseType;
 
-        // Create post request to be sent to the token endpoint
-        return this.createPostRequest(endpointUrl, paramBody);
-    }
+        // Create the current POST request based on the constructed body
+        this.currentRequest = this.createPostRequest(endpointUrl, paramBody);
+        this.redirect = false;
+
+        // Use fetch to execute the POST request
+        const response = await fetch(this.currentRequest.url, {
+            method: this.currentRequest.method,
+            headers: this.currentRequest.headers,
+            body: this.currentRequest.body,
+        });
+
+        // Store the JSON response in the currentResponse variable
+        this.currentResponse = await response.json();
+
+        // Parse the output
+        this.#deviceCode = this.currentResponse.device_code;
+        this.#userCode = this.currentResponse.user_code;
+        this.#interval = this.currentResponse.interval;
+        this.#verificationUrl = this.currentResponse.verification_uri;
+    };
 
     generatePollingRequest(deviceCode) {
         // Retrieve query parameters for further processing
@@ -23,10 +47,16 @@ class DeviceService extends AuthService {
 
         // Set parameters for POST request
         let endpointUrl = this.getTokenEndpoint();
-        let paramBody = 'client_id=' + this.clientId + '&grant_type=' + grantType + '&code=' + deviceCode;
+        let paramBody = 'client_id=' + this.clientId + '&grant_type=' + grantType + '&code=' + this.#deviceCode;
 
         return this.createPostRequest(endpointUrl, paramBody);
     }
+
+    generateCallbackRequest = async () => {
+        this.redirect = true;
+        this.currentRequest =
+            '/devicecallback?' + 'verification_uri=' + this.#verificationUrl + '&user_code=' + this.#userCode;
+    };
 
     processCallback(remoteBody) {
         // Return value for redirect
@@ -57,37 +87,49 @@ class DeviceService extends AuthService {
     }
 
     // TODO: Add timeout after x minutes
-    pollContinually() {
-        let postRequest = this.generatePollingRequest(this.deviceCode);
-        let interval = this.interval;
-        let deviceResponse;
-        let _this = this;
+    pollContinually = async () => {
+        let postRequest = this.generatePollingRequest(this.#deviceCode);
+        let interval = this.#interval;
+        let pollResponse;
 
-        return new Promise((resolve, reject) => {
-            function pollSalesforceForAuthorization() {
-                request(postRequest, function (error, remoteResponse, remoteBody) {
-                    // Handle error or process response
-                    if (error) {
-                        reject(JSON.stringify(error));
-                    } else {
-                        console.log('RemoteBody: ' + remoteBody);
-                        deviceResponse = _this.parseResults(remoteBody);
-                        keepPolling();
-                    }
-                });
+        while (true) {
+            pollResponse = await this.singlePoll(postRequest);
+            if (!pollResponse.error) {
+                break;
             }
+            await this.sleep(interval * 1000);
+        }
 
-            function keepPolling() {
-                if (deviceResponse && deviceResponse.accessTokenHeader) {
-                    resolve(deviceResponse);
-                } else {
-                    setTimeout(pollSalesforceForAuthorization, interval * 1000);
-                }
-            }
+        console.log('Store current request:');
+        console.log(postRequest);
+        this.currentRequest = postRequest;
+        console.log('Store current response:');
+        console.log(pollResponse);
+        this.currentResponse = pollResponse;
+        this.accessToken = pollResponse.access_token;
+        this.refreshToken = pollResponse.refresh_token;
+        this.redirect = false;
 
-            keepPolling();
+        return pollResponse;
+    };
+
+    singlePoll = async (postRequest) => {
+        // Use fetch to execute the POST request
+        const response = await fetch(postRequest.url, {
+            method: postRequest.method,
+            headers: postRequest.headers,
+            body: postRequest.body,
         });
-    }
+        const jsonResponse = await response.json();
+
+        return jsonResponse;
+    };
+
+    sleep = async (milliseconds) => {
+        await new Promise((resolve) => {
+            return setTimeout(resolve, milliseconds);
+        });
+    };
 }
 
 exports.DeviceService = DeviceService;

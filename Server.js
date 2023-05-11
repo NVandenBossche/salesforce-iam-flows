@@ -142,6 +142,7 @@ app.get('/launch/:id', (req, res) => {
     let variant = flowData.variant;
 
     if (authInstance && authInstance.isActiveCallback()) {
+        console.log('Active callback, so keeping the current authInstance...');
         authInstance.setActiveCallback(false);
     } else {
         const refreshToken = authInstance ? authInstance.refreshToken : undefined;
@@ -194,6 +195,9 @@ app.get('/state', (req, res) => {
         request: authInstance.currentRequest,
         response: authInstance.currentResponse,
     };
+
+    console.log(flowState.request);
+
     res.send(flowState);
 });
 
@@ -342,13 +346,13 @@ app.get('/device', function (req, res) {
  * This method is called every time we poll the token endpoint to see if the device
  * was authorized. It only loads the page in case a response was received
  */
-app.get('/devicePol', function (req, res) {
+app.get('/devicePol', async (req, res) => {
     console.log('Starting polling for authorization...');
-    // Asynchrous polling of the endpoint using a promise. Set device response on success.
-    authInstance.pollContinually().then((response) => {
-        console.log('Authorization granted by user.');
-        processResponse(response.error, response.accessTokenHeader, response.refreshToken, response.redirect, res);
-    });
+
+    authInstance.setActiveCallback(true);
+
+    await authInstance.pollContinually();
+    res.redirect('/launch/device');
 });
 
 /**
@@ -436,6 +440,15 @@ app.get('/services/oauth2/success', function (req, res) {
         res.redirect('/launch/user-agent');
         //res.render('oauthcallback');
     }
+});
+
+app.get('/devicecallback', (req, res) => {
+    console.log(req.query);
+    res.render('deviceOAuth', {
+        verification_uri: req.query.verification_uri,
+        user_code: req.query.user_code,
+        data: data,
+    });
 });
 
 /**
