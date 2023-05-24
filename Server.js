@@ -176,9 +176,9 @@ app.get('/state', (req, res) => {
     if (newAccessToken) {
         authInstance.accessToken = newAccessToken;
     }
-    const newRefreshToken = req.query.refreshToken;
-    if (newRefreshToken) {
-        authInstance.refreshToken = newRefreshToken;
+    const newIdToken = req.query.idToken;
+    if (newIdToken) {
+        authInstance.idToken = newIdToken;
     }
 
     const flowState = {
@@ -190,8 +190,7 @@ app.get('/state', (req, res) => {
         authCode: authInstance.code,
         accessToken: authInstance.accessToken,
         refreshToken: authInstance.refreshToken,
-        idToken:
-            '{"at_hash": "Ax6le6S6aMjO2NvL_Wjf2A","aud": "3MVG99OxTyEMCQ3gXuX31lysX3RQP4.Vj3EVzlMsVbxFvUe7VjZ0WcjWvGlAU7BPJFZBSyBGPiGyHhojZ2BE3","exp": 1678736857,"iat": 1678736737,"iss": "https://login.salesforce.com","sub": "https://login.salesforce.com/id/00D24000000I77vEAC/00524000000QgrlAAC"}',
+        idToken: authInstance.idToken,
         request: authInstance.currentRequest,
         response: authInstance.currentResponse,
     };
