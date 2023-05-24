@@ -108,6 +108,7 @@ class DeviceService extends AuthService {
         this.currentResponse = pollResponse;
         this.accessToken = pollResponse.access_token;
         this.refreshToken = pollResponse.refresh_token;
+        this.idToken = pollResponse.id_token;
         this.redirect = false;
 
         return pollResponse;
