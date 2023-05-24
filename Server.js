@@ -212,42 +212,6 @@ app.get('/execute-step', async (req, res) => {
 });
 
 /**
- *	User Agent oAuth Flow. Gets launched when navigating to '/user-agent'.
-
- */
-app.get('/user-agent', function (req, res) {
-    console.log('Starting User Agent flow...');
-
-    // Instantiate the service to create the URL to call
-    authInstance = new UserAgentService();
-    const userAgentUrlWithParameters = authInstance.generateUserAgentRequest();
-
-    // Launch the HTTP GET request based on the constructed URL with parameters
-    res.render('launchedFlow', {
-        step: 1,
-        response: '',
-        data: data,
-        authFlow: data['user-agent'],
-        callbackURL: callbackURL,
-        baseURL: baseURL,
-        username: username,
-        clientId: clientId,
-        clientSecret: clientSecret,
-    });
-    // console.log('Sending GET request: ' + userAgentUrlWithParameters);
-    // handleGetRequest(userAgentUrlWithParameters, res);
-    // console.log('Once user authorizes the app, a redirect will be performed to the oauthcallback page');
-});
-
-app.get('/execute-user-agent', (req, res) => {
-    authInstance = new WebServerService('secret');
-    const authorizationUrl = authInstance.generateAuthorizationRequest();
-
-    // Launch the request to get the authorization code
-    handleGetRequest(authorizationUrl, res);
-});
-
-/**
  *  Step 1 Web Server Flow - Get Code. Gets launched when navigating to the endpoint for a particular Web Server flow.
  *  This is the first step in the flow, where the authorization code is retrieved from the authorization endpoint.
  */
@@ -438,7 +402,6 @@ app.get('/services/oauth2/success', function (req, res) {
         // If no authorization code is returned, render oauthcallback.
         // We need client-side Javascript to get to the fragment (after #) of the URL.
         res.redirect('/launch/user-agent');
-        //res.render('oauthcallback');
     }
 });
 
