@@ -3,11 +3,13 @@ const { AuthService } = require('./auth');
 var saml = require('saml').Saml20,
     fs = require('fs'),
     path = require('path'),
-    base64url = require('base64-url');
+    base64url = require('base64-url'),
+    fetch = require('node-fetch');
 
 class SamlBearerService extends AuthService {
     constructor() {
         super();
+        this.orderedCalls = [this.generateSamlBearerRequest, this.performQuery];
     }
 
     /**
@@ -34,11 +36,11 @@ class SamlBearerService extends AuthService {
         return saml.create(samlClaims);
     }
 
-    generateSamlBearerRequest() {
+    generateSamlBearerRequest = async () => {
         // Set parameters for the SAML request body
         const assertionType = 'urn:ietf:params:oauth:grant-type:saml2-bearer';
-        let token = this.getSignedSamlToken();
-        let base64SignedSamlToken = base64url.encode(token);
+        const token = this.getSignedSamlToken();
+        const base64SignedSamlToken = base64url.encode(token);
 
         // If persist option is set to true, persist the SAML bearer token and its base64 encoding to file
         if (this.persistTokensToFile) {
@@ -47,14 +49,26 @@ class SamlBearerService extends AuthService {
         }
 
         // Determine the endpoint URL depending on whether this needs to be executed on sandbox or production
-        let endpointUrl = this.getTokenEndpoint();
+        const endpointUrl = this.getTokenEndpoint();
 
         // Set the body of the POST request by defining the grant_type and assertion parameters
-        let paramBody = 'grant_type=' + assertionType + '&assertion=' + base64SignedSamlToken;
+        const paramBody = 'grant_type=' + assertionType + '&assertion=' + base64SignedSamlToken;
 
-        // Return the POST request created based on the endpoint and body
-        return this.createPostRequest(endpointUrl, paramBody);
-    }
+        // Create the current POST request based on the constructed body
+        this.currentRequest = this.createPostRequest(endpointUrl, paramBody);
+        this.redirect = false;
+
+        // Use fetch to execute the POST request
+        const response = await fetch(this.currentRequest.url, {
+            method: this.currentRequest.method,
+            headers: this.currentRequest.headers,
+            body: this.currentRequest.body,
+        });
+
+        // Store the JSON response in the currentResponse variable
+        this.currentResponse = await response.json();
+        this.accessToken = this.currentResponse.access_token;
+    };
 
     fileWriteCallback(err) {
         if (err) console.log(err);

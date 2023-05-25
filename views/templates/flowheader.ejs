@@ -11,7 +11,7 @@
     <% if(user_input) { %>
         <%- include('userinput/' + user_input.template) %>
     <% } else { %>
-        <a id="launchFlow" role="button" class="btn btn-primary btn-lg" href="/<%= name %>">
+        <a id="launchFlow" role="button" class="btn btn-primary btn-lg" href="/launch/<%= id %>">
             Launch Flow
         </a>
     <% } %>

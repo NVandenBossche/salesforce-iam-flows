@@ -1,7 +1,7 @@
-<div class="p-5 mb-4 bg-light text-dark border rounded-3" id="<%= authFlow.name %>">
+<div class="p-5 mb-4 bg-light text-dark border rounded-3" id="<%= authFlow.id %>">
     <div class="card">
         <%- include('flowheader', {
-            name: authFlow.name,
+            id: authFlow.id,
             title: authFlow.title, 
             image: authFlow.image, 
             protocol: authFlow.protocol,
@@ -9,7 +9,7 @@
             user_input: authFlow.configuration.user_input
         }) %> 
         <%- include('flowbody', {
-            name: authFlow.name,
+            id: authFlow.id,
             config: authFlow.configuration
         }) %>
     </div>

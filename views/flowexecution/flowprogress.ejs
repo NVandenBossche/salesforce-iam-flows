@@ -1,0 +1,153 @@
+<div class="wizard">
+    <ul class="wizard-steps">
+        <li data-target="#step1">
+            <span class="step">1</span>
+            <span class="title">Connected App</span>
+        </li>
+        <% if (authFlow.configuration.calls.length === 2) { %>
+            <li data-target="#step2">
+                <span class="step">2</span>
+                <span class="title">Exchange Auth Code</span>
+            </li>
+            <li data-target="#step3">
+                <span class="step">3</span>
+                <span class="title">Run Query</span>
+            </li>
+            <li data-target="#step4">
+                <span class="step">4</span>
+                <span class="title">Success!</span>
+            </li>
+        <% } else { %>
+            <li data-target="#step2">
+                <span class="step">2</span>
+                <span class="title">Run Query</span>
+            </li>
+            <li data-target="#step3">
+                <span class="step">3</span>
+                <span class="title">Success!</span>
+            </li>
+        <% } %>
+    </ul>
+</div>
+<div class="step-content">
+    <div class="step-pane row" id="step1">
+        <div class="alert alert-info" role="alert">
+            Create a Connected App in your Dev Org.
+        </div>
+        <div class="alert alert-danger" style="display: none">Unexpected error. Please try again later.</div>
+        <div class="field-box">
+            <div class="col-md-12">
+                <label>Login Host</label>
+                <input
+                    class="form-control inline-input"
+                    id="baseurl"
+                    type="text"
+                />
+            </div>
+        </div>
+        <div class="field-box">
+            <div class="col-md-12">
+                <label>Client ID</label>
+
+                <input
+                    class="form-control inline-input"
+                    id="clientid"
+                    type="text"
+                />
+            </div>
+        </div>
+        <div class="field-box">
+            <div class="col-md-12">
+                <label>Client Secret</label>
+
+                <input
+                    class="form-control inline-input"
+                    id="clientsecret"
+                    type="text"
+                />
+            </div>
+        </div>
+        <div class="field-box">
+            <div class="col-md-12">
+                <label>Redirect URI (Callback URL)</label>
+                <input
+                    class="form-control inline-input"
+                    id="callbackurl"
+                    readonly="readonly"
+                    type="text"
+                />
+            </div>
+        </div>
+    </div>
+    <% if (authFlow.configuration.calls.length === 2) { %>
+        <div class="step-pane row" id="step2">
+            <div class="field-box">
+                <div class="col-md-12">
+                    <label>Authorization Code</label>
+                    <input
+                        class="form-control inline-input"
+                        id="code"
+                        type="text"
+                    />
+                </div>
+            </div>
+        </div>
+    <% } %>
+    <% if (authFlow.configuration.calls.length === 2) { %>
+        <div class="step-pane row" id="step3">
+    <% } else { %>
+        <div class="step-pane row" id="step2">
+    <% } %>
+            <div class="field-box">
+                <div class="col-md-12">
+                    <label>Access Token</label>
+                    <input
+                        class="form-control inline-input"
+                        id="accesstoken"
+                        type="text"
+                    />
+                </div>
+            </div>
+            <div class="field-box">
+                <div class="col-md-12">
+                    <label>Refresh Token</label>
+                    <input
+                        class="form-control inline-input"
+                        id="refreshtoken"
+                        type="text"
+                    />
+                </div>
+            </div>
+            <div class="field-box">
+                <div class="col-md-12">
+                    <label>ID Token</label>
+                    <textarea class="form-control" rows="12" id="idtoken"></textarea>
+                </div>
+            </div>
+            <div class="field-box">
+                <div class="col-md-12">
+                    <label>Audience Matches Client ID : true</label>
+                </div>
+            </div>
+        </div>
+    <% if (authFlow.configuration.calls.length === 2) { %>
+        <div class="step-pane row" id="step4">
+    <% } else { %>
+        <div class="step-pane row" id="step3">
+    <% } %>
+            No wonder thou wert victorious. I shalt abdicate.
+        </div>
+</div>
+<div class="wizard-actions">
+    <button type="button" class="btn btn-sm btn-primary" id="previous-button" onclick="prev()">
+        <i class="fa-solid fa-chevron-left"></i> 
+        Prev
+    </button>
+    <button type="button" class="btn btn-sm btn-primary" id="next-button" onclick="next()" data-last="Finish" style="display: inline-block;">
+        Next 
+        <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <button type="button" class="btn btn-sm btn-primary success btn-finish">
+        Validate!
+    </button>
+</div>

@@ -1,10 +1,12 @@
 const { AuthService } = require('./auth');
 
-var base64url = require('base64-url');
+var base64url = require('base64-url'),
+    fetch = require('node-fetch');
 
 class JwtService extends AuthService {
     constructor() {
         super();
+        this.orderedCalls = [this.generateJwtRequest, this.performQuery];
     }
 
     /**
@@ -22,16 +24,28 @@ class JwtService extends AuthService {
         return this.signJwtClaims(claims);
     }
 
-    generateJwtRequest() {
+    generateJwtRequest = async () => {
         // Set parameters for POST request
         const grantType = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
         let endpointUrl = this.getTokenEndpoint();
         let token = this.getSignedJwt();
         let paramBody = 'grant_type=' + base64url.escape(grantType) + '&assertion=' + token;
 
-        // Construct POST request based on body and endpoint
-        return this.createPostRequest(endpointUrl, paramBody);
-    }
+        // Create the current POST request based on the constructed body
+        this.currentRequest = this.createPostRequest(endpointUrl, paramBody);
+        this.redirect = false;
+
+        // Use fetch to execute the POST request
+        const response = await fetch(this.currentRequest.url, {
+            method: this.currentRequest.method,
+            headers: this.currentRequest.headers,
+            body: this.currentRequest.body,
+        });
+
+        // Store the JSON response in the currentResponse variable
+        this.currentResponse = await response.json();
+        this.accessToken = this.currentResponse.access_token;
+    };
 }
 
 exports.JwtService = JwtService;

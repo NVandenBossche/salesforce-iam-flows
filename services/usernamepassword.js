@@ -1,11 +1,19 @@
 const { AuthService } = require('./auth');
 
+const fetch = require('node-fetch');
+
 class UsernamePasswordService extends AuthService {
-    constructor() {
+    #username;
+    #password;
+
+    constructor(username, password) {
         super();
+        this.orderedCalls = [this.generateUsernamePasswordRequest, this.performQuery];
+        this.#username = username;
+        this.#password = password;
     }
 
-    generateUsernamePasswordRequest(username, password) {
+    generateUsernamePasswordRequest = async () => {
         // Construct parameters for POST request
         const grantType = 'password';
         let endpointUrl = this.getTokenEndpoint();
@@ -19,13 +27,25 @@ class UsernamePasswordService extends AuthService {
             '&client_secret=' +
             this.clientSecret +
             '&username=' +
-            username +
+            this.#username +
             '&password=' +
-            encodeURIComponent(password); // Encode in case password contains special characters
+            encodeURIComponent(this.#password); // Encode in case password contains special characters
 
-        // Set the request parameters for the token endpoint
-        return this.createPostRequest(endpointUrl, paramBody);
-    }
+        // Create the current POST request based on the constructed body
+        this.currentRequest = this.createPostRequest(endpointUrl, paramBody);
+        this.redirect = false;
+
+        // Use fetch to execute the POST request
+        const response = await fetch(this.currentRequest.url, {
+            method: this.currentRequest.method,
+            headers: this.currentRequest.headers,
+            body: this.currentRequest.body,
+        });
+
+        // Store the JSON response in the currentResponse variable
+        this.currentResponse = await response.json();
+        this.accessToken = this.currentResponse.access_token;
+    };
 }
 
 exports.UsernamePasswordService = UsernamePasswordService;

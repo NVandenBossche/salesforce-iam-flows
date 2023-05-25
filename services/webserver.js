@@ -1,15 +1,19 @@
 const { AuthService } = require('./auth');
 
-var crypto = require('crypto'),
+const crypto = require('crypto'),
     CryptoJS = require('crypto-js'),
-    base64url = require('base64-url');
+    base64url = require('base64-url'),
+    fetch = require('node-fetch');
 
 class WebServerService extends AuthService {
+    code;
+
     constructor(webServerType) {
         super();
         this.webServerType = webServerType;
         this.codeVerifier = this.generateCodeVerifier();
         this.codeChallenge = this.generateCodeChallenge(this.codeVerifier);
+        this.orderedCalls = [this.generateAuthorizationRequest, this.generateTokenRequest, this.performQuery];
     }
 
     /**
@@ -48,7 +52,7 @@ class WebServerService extends AuthService {
         return this.signJwtClaims(assertionData);
     }
 
-    generateAuthorizationRequest() {
+    generateAuthorizationRequest = () => {
         // Set parameter values for retrieving authorization code
         let responseType = 'code';
         let scope = 'full%20refresh_token';
@@ -73,16 +77,18 @@ class WebServerService extends AuthService {
             '&code_challenge=' +
             this.codeChallenge;
 
-        return authorizationUrl;
-    }
+        // Set the currentRequest with redirect = true to indicate to the front-end that a redirect is needed.
+        this.currentRequest = authorizationUrl;
+        this.redirect = true;
+    };
 
     /**
-     * Step 2 Web Server Flow - Get access token using authorization code.
+     * Second step of the Web Server Flow - Get access token using authorization code.
      * Gets launched as part of the callback actions from the first step of the web server flow.
      * This is the second step in the flow where the access token is retrieved by passing the previously
      * obtained authorization code to the token endpoint.
      */
-    generateTokenRequest(code) {
+    generateTokenRequest = async () => {
         // Set parameter values for retrieving access token
         let grantType = 'authorization_code';
         let endpointUrl = this.getTokenEndpoint();
@@ -96,24 +102,38 @@ class WebServerService extends AuthService {
             '&grant_type=' +
             grantType +
             '&code=' +
-            code +
+            this.code +
             '&code_verifier=' +
             this.codeVerifier;
 
         console.log('---' + this.webServerType + '---');
 
         // Add additional parameters in case of 'Client secret' or 'Client assertion' flow
-        if (this.webServerType === 'secret') {
+        if (this.webServerType === 'client-secret') {
             paramBody += '&client_secret=' + this.clientSecret;
-        } else if (this.webServerType === 'assertion') {
+        } else if (this.webServerType === 'client-assertion') {
             console.log('Web server type: assertion');
             paramBody += '&client_assertion=' + this.createClientAssertion();
             paramBody += '&client_assertion_type=' + 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
         }
 
-        // Create the full POST request with all required parameters
-        return this.createPostRequest(endpointUrl, paramBody);
-    }
+        // Create the current POST request based on the constructed body
+        this.currentRequest = this.createPostRequest(endpointUrl, paramBody);
+        this.redirect = false;
+
+        // Use fetch to execute the POST request
+        const response = await fetch(this.currentRequest.url, {
+            method: this.currentRequest.method,
+            headers: this.currentRequest.headers,
+            body: this.currentRequest.body,
+        });
+
+        // Store the JSON response in the currentResponse variable
+        console.log(this.currentResponse);
+        this.currentResponse = await response.json();
+        this.accessToken = this.currentResponse.access_token;
+        this.refreshToken = this.currentResponse.refresh_token;
+    };
 }
 
 exports.WebServerService = WebServerService;
