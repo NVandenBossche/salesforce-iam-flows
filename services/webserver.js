@@ -106,13 +106,10 @@ class WebServerService extends AuthService {
             '&code_verifier=' +
             this.codeVerifier;
 
-        console.log('---' + this.webServerType + '---');
-
         // Add additional parameters in case of 'Client secret' or 'Client assertion' flow
         if (this.webServerType === 'client-secret') {
             paramBody += '&client_secret=' + this.clientSecret;
         } else if (this.webServerType === 'client-assertion') {
-            console.log('Web server type: assertion');
             paramBody += '&client_assertion=' + this.createClientAssertion();
             paramBody += '&client_assertion_type=' + 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
         }
@@ -129,7 +126,6 @@ class WebServerService extends AuthService {
         });
 
         // Store the JSON response in the currentResponse variable
-        console.log(this.currentResponse);
         this.currentResponse = await response.json();
         this.accessToken = this.currentResponse.access_token;
         this.refreshToken = this.currentResponse.refresh_token;

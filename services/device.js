@@ -72,11 +72,7 @@ class DeviceService extends AuthService {
             await this.sleep(interval * 1000);
         }
 
-        console.log('Store current request:');
-        console.log(postRequest);
         this.currentRequest = postRequest;
-        console.log('Store current response:');
-        console.log(pollResponse);
         this.currentResponse = pollResponse;
         this.accessToken = pollResponse.access_token;
         this.refreshToken = pollResponse.refresh_token;

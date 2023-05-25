@@ -77,7 +77,6 @@ app.route(/^\/(index.*)?$/).get(function (req, res) {
 });
 
 app.get('/launch/:id', (req, res) => {
-    console.log('Launching %s...', req.params.id);
     // Get the unique identifier of the flow
     const flowId = req.params.id;
 
@@ -95,12 +94,9 @@ app.get('/launch/:id', (req, res) => {
     let variant = flowData.variant;
 
     if (authInstance && authInstance.isActiveCallback()) {
-        console.log('Active callback, so keeping the current authInstance...');
         authInstance.setActiveCallback(false);
     } else {
         const refreshToken = authInstance ? authInstance.refreshToken : undefined;
-
-        console.log('Launching ' + flowName + ' with variant ' + variant + ' and refresh token: ' + refreshToken);
 
         // Set up the auth flow instance
         if (variant) {
@@ -122,7 +118,6 @@ app.get('/launch/:id', (req, res) => {
 });
 
 app.get('/state', (req, res) => {
-    console.log('Current step: %s', authInstance.currentStep);
     const step = authInstance.currentStep;
 
     const newAccessToken = req.query.accessToken;
@@ -147,8 +142,6 @@ app.get('/state', (req, res) => {
         request: authInstance.currentRequest,
         response: authInstance.currentResponse,
     };
-
-    console.log(flowState.request);
 
     res.send(flowState);
 });
@@ -179,8 +172,6 @@ app.post('/username-password', function (req, res) {
  * was authorized. It only loads the page in case a response was received
  */
 app.get('/devicePol', async (req, res) => {
-    console.log('Starting polling for authorization...');
-
     authInstance.setActiveCallback(true);
 
     await authInstance.pollContinually();
@@ -224,7 +215,6 @@ app.get('/services/oauth2/success', function (req, res) {
 });
 
 app.get('/devicecallback', (req, res) => {
-    console.log(req.query);
     res.render('deviceOAuth', {
         verification_uri: req.query.verification_uri,
         user_code: req.query.user_code,

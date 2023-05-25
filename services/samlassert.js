@@ -22,7 +22,6 @@ class SamlAssertService extends AuthService {
             assertionXml = fs.readFileSync(path.resolve(fileLocation), 'utf8');
         } catch (e) {
             // If exception, re-throw with more helpful message to be displayed to user
-            console.log(e);
             throw new Error(
                 'Could not load Axiom SAML from ' +
                     fileLocation +

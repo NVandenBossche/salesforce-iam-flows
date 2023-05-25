@@ -7,7 +7,6 @@ var endpoint = 'execute-step';
     let stateUrl = '/state';
 
     if (window.location.hash) {
-        console.log('User Agent...');
         let parameters = window.location.hash.substring(1).split('&');
         let response = {};
 
@@ -44,11 +43,8 @@ var endpoint = 'execute-step';
 })();
 
 async function prev() {
-    console.log('Previous Step...');
-
     const response = await fetch('/' + endpoint + '?direction=previous');
     const jsonResponse = await response.json();
-    console.log(jsonResponse);
 
     // Deactivate current step
     deactivateStep(currentStep);
