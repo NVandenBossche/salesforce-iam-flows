@@ -22,7 +22,7 @@ class AuthService {
         this.baseURL = process.env.BASE_URL;
         this.username = process.env.USERNAME;
         this.persistTokensToFile = process.env.PERSIST === 'true';
-        this.apiVersion = '45.0';
+        this.apiVersion = process.env.API_VERSION;
     }
 
     /**
