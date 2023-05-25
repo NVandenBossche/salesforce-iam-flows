@@ -63,65 +63,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('port', process.env.PORT);
 
 /**
- * Send the GET request and process the response.
- *
- * @param {JSON Object} getRequest The JSON object containing details on the GET request.
- * @param {*} res The response object from Node.js.
+ * Display the home page.
  */
-function handleGetRequest(getRequest, res) {
-    request({ method: 'GET', url: getRequest }).pipe(res);
-}
-
-/**
- * Send the POST request and process the response. Show an error if anything goes wrong.
- *
- * @param {JSON Object} postRequest The JSON object containing details on the POST request.
- * @param {*} res The response object from Node.js.
- */
-function handlePostRequest(postRequest, res) {
-    request(postRequest, function (error, remoteResponse, remoteBody) {
-        // Handle error or process response
-        if (error) {
-            res.status(500).end('Error occurred: ' + JSON.stringify(error));
-        } else {
-            let { error, accessTokenHeader, refreshToken, redirect } = authInstance.processCallback(remoteBody);
-            processResponse(error, accessTokenHeader, refreshToken, redirect, res);
-        }
+app.route(/^\/(index.*)?$/).get(function (req, res) {
+    res.render('index', {
+        callbackURL: callbackURL,
+        baseURL: baseURL,
+        username: username,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        data: data,
     });
-}
-
-/**
- * Process the response from the GET / POST request. There are 3 possible input combinations.
- * 1. The page needs to be redirected.
- * 2. There was an error returned that needs to be displayed to the page.
- * 3. An access token was returned and we can query the resource server.
- *
- * @param {String} error The error that's returned from the GET or POST request.
- * @param {JSON Object} accessTokenHeader The header variables containing the cookies that will set the access token.
- * @param {String} refreshToken The refresh token (if any).
- * @param {JSON Object} redirect Contains information about redirect (location and payload).
- * @param {} res The response object from Node.js.
- */
-function processResponse(error, accessTokenHeader, refreshToken, redirect, res) {
-    if (redirect) {
-        // Page needs to be rerendered to retry retrieving access token (device flow)
-        console.log(
-            'Rendering the following page: ' + redirect.location + '.\nPayload: ' + JSON.stringify(redirect.payload)
-        );
-        redirect.payload.data = data;
-        res.render(redirect.location, redirect.payload);
-    } else if (error) {
-        // If response doesn't return a successful response, show the error page.
-        console.log('No successful response from request. Showing error page with error: ' + error);
-        res.status(500).end(error);
-    } else {
-        // If response returns successful response, we set the access token in the cookies and store the refresh token
-        console.log('Setting access token in cookies to use it in client-side JavaScript...');
-        this.refreshToken = refreshToken;
-        res.writeHead(302, accessTokenHeader);
-        res.end();
-    }
-}
+});
 
 app.get('/launch/:id', (req, res) => {
     console.log('Launching %s...', req.params.id);
@@ -211,76 +164,6 @@ app.get('/execute-step', async (req, res) => {
 });
 
 /**
- *  Step 1 Web Server Flow - Get Code. Gets launched when navigating to the endpoint for a particular Web Server flow.
- *  This is the first step in the flow, where the authorization code is retrieved from the authorization endpoint.
- */
-
-app.get('/web-server-pkce-only', function (req, res) {
-    console.debug('Starting Web Server flow...');
-
-    // Instantiate the service to create the URL to call
-    // TODO: Replace type with interfaces
-    authInstance = new WebServerService('none');
-    const authorizationUrl = authInstance.generateAuthorizationRequest();
-
-    // Launch the request to get the authorization code
-    console.log('Launching authorization code request with URL:\n%s', authorizationUrl);
-    handleGetRequest(authorizationUrl, res);
-});
-
-app.get('/web-server-client-assertion', function (req, res) {
-    console.debug('Starting Web Server flow...');
-
-    // Instantiate the service to create the URL to call
-    // TODO: Replace type with interfaces
-    authInstance = new WebServerService('assertion');
-    const authorizationUrl = authInstance.generateAuthorizationRequest();
-
-    // Launch the request to get the authorization code
-    console.log('Launching authorization code request with URL:\n%s', authorizationUrl);
-    handleGetRequest(authorizationUrl, res);
-});
-
-app.get('/web-server-client-secret', function (req, res) {
-    console.debug('Starting Web Server flow...');
-
-    // Instantiate the service to create the URL to call
-    // TODO: Replace type with interfaces
-    authInstance = new WebServerService('secret');
-    const authorizationUrl = authInstance.generateAuthorizationRequest();
-
-    // Launch the request to get the authorization code
-    console.log('Launching authorization code request with URL:\n%s', authorizationUrl);
-    handleGetRequest(authorizationUrl, res);
-});
-
-/**
- * JWT Bearer Assertion Flow. Gets launched when navigating to '/jwt-bearer'.
- * Creates a JWT token for the username defined in the environment variables, then posts it to the token endpoint.
- */
-app.get('/jwt-bearer', function (req, res) {
-    // Instantiate JWT service and generate post request
-    authInstance = new JwtService();
-    let postRequest = authInstance.generateJwtRequest();
-
-    // Handle the response of the post request
-    handlePostRequest(postRequest, res);
-});
-
-/**
- * SAML Bearer Assertion Flow. Gets launched when navigating to '/saml-bearer'.
- * Creates a SAML bearer token for the username defined in the environment variables, then posts it to the token endpoint.
- */
-app.get('/saml-bearer', function (req, res) {
-    // Instantiate SAML Bearer service and generate post request
-    authInstance = new SamlBearerService();
-    let postRequest = authInstance.generateSamlBearerRequest();
-
-    // Handle the response of the post request
-    handlePostRequest(postRequest, res);
-});
-
-/**
  * Username Password oAuth Flow. Gets launched when navigating to '/username-password'.
  * Sends username and password in the URL as free text to the token endpoint.
  */
@@ -289,20 +172,6 @@ app.post('/username-password', function (req, res) {
     inputUsername = req.body.sfdcUsername;
     inputPassword = req.body.sfdcPassword;
     res.redirect('/launch/username-password');
-});
-
-/**
- * Device Authentication Flow. Gets launched when navigating to '/device'.
- * Retrieves a device code, user code and verification URI and displays it to the user.
- */
-app.get('/device', function (req, res) {
-    // Instantiate Device service and generate post request
-    authInstance = new DeviceService();
-    let postRequest = authInstance.generateDeviceRequest();
-
-    // Handle the response of the post request
-    console.log('Sending request to get device code...');
-    handlePostRequest(postRequest, res);
 });
 
 /**
@@ -316,56 +185,6 @@ app.get('/devicePol', async (req, res) => {
 
     await authInstance.pollContinually();
     res.redirect('/launch/device');
-});
-
-/**
- * Refresh Token Flow. Gets launched when navigating to '/refresh-token'.
- * Requires another flow to be run that provided a refresh token, previous to launching this flow.
- * Sends the refresh token to the token endpoint.
- */
-app.get('/refresh-token', function (req, res) {
-    // Instantiate Username-Password service and generate post request
-    authInstance = new RefreshService();
-    let postRequest = authInstance.generateRefreshRequest(this.refreshToken);
-
-    // Handle the response of the post request
-    handlePostRequest(postRequest, res);
-});
-
-/**
- * SAML assertion flow using Axiom SSO. Gets launched when navigating to '/saml-assertion'.
- * Requires a SAML assertion that is stored on the server's file system ('data/axiomSamlAssertino.xml').
- */
-app.get('/saml-assertion', function (req, res) {
-    // Instantiate Saml Assert service and generate post request
-    authInstance = new SamlAssertService();
-
-    let postRequest;
-    try {
-        postRequest = authInstance.generateSamlAssertRequest();
-    } catch (error) {
-        console.log('Error from generateSamlAssertRequest(): ' + error);
-        res.status(500).end('Error occurred: ' + error.message);
-    }
-
-    if (postRequest) {
-        // Handle the response of the post request
-        handlePostRequest(postRequest, res);
-    }
-});
-
-/**
- * Display the home page.
- */
-app.route(/^\/(index.*)?$/).get(function (req, res) {
-    res.render('index', {
-        callbackURL: callbackURL,
-        baseURL: baseURL,
-        username: username,
-        clientId: clientId,
-        clientSecret: clientSecret,
-        data: data,
-    });
 });
 
 /**
@@ -411,14 +230,6 @@ app.get('/devicecallback', (req, res) => {
         user_code: req.query.user_code,
         data: data,
     });
-});
-
-/**
- * Use the access token to execute a query using Salesforce REST API.
- * Access token is stored in session cookies, so no need to pass it on.
- */
-app.get('/queryresult', function (req, res) {
-    res.render('queryresult', { data: data });
 });
 
 /**
