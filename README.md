@@ -95,6 +95,7 @@ Update the Config Vars of your Heroku app (Settings > Config Vars) for the follo
 -   BASE_URL = myDomain URL of your Salesforce org
 -   CALLBACK_URL = callback URL added to your connected app
 -   USERNAME = Salesforce username
+-   API_VERSION = Salesforce API version (e.g. 57.0)
 -   PERSIST = false
 
 You can set "PERSIST" to "true" if you're running the application locally and you'd like to persist the response from the SAML Assertion flow.
