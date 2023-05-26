@@ -1,7 +1,6 @@
 var fs = require('fs'),
     path = require('path'),
     nJwt = require('njwt'),
-    CryptoJS = require('crypto-js'),
     jsforce = require('jsforce');
 
 class AuthService {
