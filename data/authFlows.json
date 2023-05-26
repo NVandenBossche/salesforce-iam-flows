@@ -1,5 +1,5 @@
-[
-    {
+{
+    "user-agent": {
         "id": "user-agent",
         "flow": "user-agent",
         "title": "User Agent Flow",
@@ -28,7 +28,7 @@
             "attacks": ["accesscontrol", "csrf", "embeddedbrowser", "browserhistory"]
         }
     },
-    {
+    "web-server-client-secret": {
         "id": "web-server-client-secret",
         "flow": "web-server",
         "variant": "client-secret",
@@ -70,7 +70,7 @@
             "attacks": ["accesscontrol", "csrf", "impersonationsecret", "codeinterception"]
         }
     },
-    {
+    "web-server-client-assertion": {
         "id": "web-server-client-assertion",
         "flow": "web-server",
         "variant": "client-assertion",
@@ -120,7 +120,7 @@
             "attacks": ["accesscontrol", "csrf", "impersonationassertion", "codeinterception"]
         }
     },
-    {
+    "web-server-pkce-only": {
         "id": "web-server-pkce-only",
         "flow": "web-server",
         "variant": "pkce-only",
@@ -162,7 +162,7 @@
             "attacks": ["accesscontrol", "csrf", "standardbrowser", "codeinterception"]
         }
     },
-    {
+    "refresh-token": {
         "id": "refresh-token",
         "flow": "refresh-token",
         "title": "Refresh Token Flow",
@@ -190,7 +190,7 @@
             "attacks": ["refreshtoken"]
         }
     },
-    {
+    "jwt-bearer": {
         "id": "jwt-bearer",
         "flow": "jwt-bearer",
         "title": "JWT Bearer Token Flow",
@@ -218,7 +218,7 @@
             "attacks": ["accesscontrol", "impersonationjwt"]
         }
     },
-    {
+    "saml-bearer": {
         "id": "saml-bearer",
         "flow": "saml-bearer",
         "title": "SAML Bearer Token Flow",
@@ -245,7 +245,7 @@
             "attacks": ["accesscontrol", "impersonationjwt"]
         }
     },
-    {
+    "saml-assertion": {
         "id": "saml-assertion",
         "flow": "saml-assertion",
         "title": "SAML Assertion Flow",
@@ -273,7 +273,7 @@
             "attacks": ""
         }
     },
-    {
+    "device": {
         "id": "device",
         "flow": "device",
         "title": "Device Authentication Flow",
@@ -312,7 +312,7 @@
             "attacks": ""
         }
     },
-    {
+    "username-password": {
         "id": "username-password",
         "flow": "username-password",
         "title": "Username-Password Flow",
@@ -343,4 +343,4 @@
             "attacks": ["plaintext"]
         }
     }
-]
+}
