@@ -40,7 +40,7 @@ class DeviceService extends AuthService {
         this.#verificationUrl = this.currentResponse.verification_uri;
     };
 
-    generatePollingRequest(deviceCode) {
+    generatePollingRequest() {
         // Retrieve query parameters for further processing
         const grantType = 'device';
 
@@ -59,7 +59,7 @@ class DeviceService extends AuthService {
 
     // TODO: Add timeout after x minutes
     pollContinually = async () => {
-        let postRequest = this.generatePollingRequest(this.#deviceCode);
+        let postRequest = this.generatePollingRequest();
         let interval = this.#interval;
         let pollResponse;
 
