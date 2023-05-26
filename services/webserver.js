@@ -13,7 +13,7 @@ class WebServerService extends AuthService {
         this.webServerType = webServerType;
         this.codeVerifier = this.generateCodeVerifier();
         this.codeChallenge = this.generateCodeChallenge(this.codeVerifier);
-        this.orderedCalls = [this.generateAuthorizationRequest, this.generateTokenRequest, this.performQuery];
+        this.orderedCalls = [this.executeAuthorizationCodeRequest, this.executeWebServerFlow, this.performQuery];
     }
 
     /**
@@ -53,7 +53,7 @@ class WebServerService extends AuthService {
         return this.signJwtClaims(assertionData);
     }
 
-    generateAuthorizationRequest = () => {
+    executeAuthorizationCodeRequest = () => {
         // Set parameter values for retrieving authorization code
         let responseType = 'code';
         let scope = 'full%20refresh_token';
@@ -89,7 +89,7 @@ class WebServerService extends AuthService {
      * This is the second step in the flow where the access token is retrieved by passing the previously
      * obtained authorization code to the token endpoint.
      */
-    generateTokenRequest = async () => {
+    executeWebServerFlow = async () => {
         // Set parameter values for retrieving access token
         let grantType = 'authorization_code';
         let endpointUrl = this.getTokenEndpoint();

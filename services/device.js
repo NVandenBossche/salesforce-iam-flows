@@ -10,10 +10,10 @@ class DeviceService extends AuthService {
 
     constructor() {
         super();
-        this.orderedCalls = [this.generateDeviceRequest, this.generateCallbackRequest, this.performQuery];
+        this.orderedCalls = [this.executeDeviceFlow, this.generateCallbackRequest, this.performQuery];
     }
 
-    generateDeviceRequest = async () => {
+    executeDeviceFlow = async () => {
         // Define parameters
         const responseType = 'device_code';
         let endpointUrl = this.getTokenEndpoint();

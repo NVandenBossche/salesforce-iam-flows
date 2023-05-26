@@ -7,10 +7,10 @@ var fs = require('fs'),
 class SamlAssertService extends AuthService {
     constructor() {
         super();
-        this.orderedCalls = [this.generateSamlAssertRequest, this.performQuery];
+        this.orderedCalls = [this.executeSamlAssertionFlow, this.performQuery];
     }
 
-    generateSamlAssertRequest = async () => {
+    executeSamlAssertionFlow = async () => {
         // Set parameters for the SAML request body
         const assertionType = 'urn:oasis:names:tc:SAML:2.0:profiles:SSO:browser';
         let endpointUrl = this.getTokenEndpoint();

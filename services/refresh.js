@@ -6,10 +6,10 @@ const base64url = require('base64-url'),
 class RefreshService extends AuthService {
     constructor() {
         super();
-        this.orderedCalls = [this.generateRefreshRequest, this.performQuery];
+        this.orderedCalls = [this.executeRefreshTokenFlow, this.performQuery];
     }
 
-    generateRefreshRequest = async () => {
+    executeRefreshTokenFlow = async () => {
         // Set parameters for POST request
         const grantType = 'refresh_token';
         let endpointUrl = this.getTokenEndpoint();

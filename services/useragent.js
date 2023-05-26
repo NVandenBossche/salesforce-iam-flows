@@ -3,10 +3,10 @@ const { AuthService } = require('./auth');
 class UserAgentService extends AuthService {
     constructor() {
         super();
-        this.orderedCalls = [this.generateUserAgentRequest, this.performQuery];
+        this.orderedCalls = [this.executeUserAgentFlow, this.performQuery];
     }
 
-    generateUserAgentRequest = async () => {
+    executeUserAgentFlow = async () => {
         // Set response type and get url of authorization endpoint
         let responseType = 'token';
         let endpointUrl = this.getAuthorizeEndpoint();

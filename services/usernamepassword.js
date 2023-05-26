@@ -8,12 +8,12 @@ class UsernamePasswordService extends AuthService {
 
     constructor(username, password) {
         super();
-        this.orderedCalls = [this.generateUsernamePasswordRequest, this.performQuery];
+        this.orderedCalls = [this.executeUsernamePasswordFlow, this.performQuery];
         this.#username = username;
         this.#password = password;
     }
 
-    generateUsernamePasswordRequest = async () => {
+    executeUsernamePasswordFlow = async () => {
         // Construct parameters for POST request
         const grantType = 'password';
         let endpointUrl = this.getTokenEndpoint();

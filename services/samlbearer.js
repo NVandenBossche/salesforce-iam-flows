@@ -9,7 +9,7 @@ var saml = require('saml').Saml20,
 class SamlBearerService extends AuthService {
     constructor() {
         super();
-        this.orderedCalls = [this.generateSamlBearerRequest, this.performQuery];
+        this.orderedCalls = [this.executeSamlBearerTokenFlow, this.performQuery];
     }
 
     /**
@@ -36,7 +36,7 @@ class SamlBearerService extends AuthService {
         return saml.create(samlClaims);
     }
 
-    generateSamlBearerRequest = async () => {
+    executeSamlBearerTokenFlow = async () => {
         // Set parameters for the SAML request body
         const assertionType = 'urn:ietf:params:oauth:grant-type:saml2-bearer';
         const token = this.getSignedSamlToken();
