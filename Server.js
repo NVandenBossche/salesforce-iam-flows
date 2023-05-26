@@ -16,6 +16,7 @@ const express = require('express'),
     fs = require('fs'),
     rateLimit = require('express-rate-limit'),
     data = require('./data/authFlows.json'),
+    flowsList = Object.values(data),
     escape = require('escape-html');
 
 // Set global variables, some loaded from environment variables (.env file)
@@ -71,22 +72,13 @@ app.route(/^\/(index.*)?$/).get(function (req, res) {
         username: username,
         clientId: clientId,
         clientSecret: clientSecret,
-        data: data,
+        data: flowsList,
     });
 });
 
 app.get('/launch/:id', (req, res) => {
-    // Get the unique identifier of the flow
-    const flowId = req.params.id;
-
-    // Retrieve the data for the flow based on Id
-    let flowData;
-    for (const flow of data) {
-        if (flow.id === flowId) {
-            flowData = flow;
-            break;
-        }
-    }
+    // Retrieve the data for the flow based on the id in the query parameters
+    const flowData = data[req.params.id];
 
     // Launch specified flow with specified variant
     let flowName = flowData.flow;
@@ -117,7 +109,7 @@ app.get('/launch/:id', (req, res) => {
 
     // Render the flow launch page
     res.render('launchedFlow', {
-        data: data,
+        data: flowsList,
         authFlow: flowData,
     });
 });
@@ -223,7 +215,7 @@ app.get('/devicecallback', (req, res) => {
     res.render('deviceOAuth', {
         verification_uri: req.query.verification_uri,
         user_code: req.query.user_code,
-        data: data,
+        data: flowsList,
     });
 });
 
@@ -235,7 +227,7 @@ app.listen(app.get('port'), function () {
 });
 
 // Load files with private key and corresponding public certificate
-var options = {
+const options = {
     key: fs.readFileSync('./key.pem', 'utf8'),
     cert: fs.readFileSync('./server.crt', 'utf8'),
 };
