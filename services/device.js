@@ -1,7 +1,6 @@
 const { AuthService } = require('./auth');
 
-var request = require('request'),
-    fetch = require('node-fetch');
+var fetch = require('node-fetch');
 
 class DeviceService extends AuthService {
     #deviceCode;

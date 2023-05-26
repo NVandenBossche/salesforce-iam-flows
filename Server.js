@@ -9,7 +9,6 @@ const { SamlAssertService } = require('./services/samlassert');
 
 // Load dependencies
 const express = require('express'),
-    request = require('request'),
     bodyParser = require('body-parser'),
     morgan = require('morgan'),
     app = express(),
