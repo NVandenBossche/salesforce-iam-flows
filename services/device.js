@@ -58,13 +58,13 @@ class DeviceService extends AuthService {
     };
 
     // TODO: Add timeout after x minutes
-    pollContinually = async () => {
+    pollTokenEndpoint = async () => {
         let postRequest = this.generatePollingRequest();
         let interval = this.#interval;
         let pollResponse;
 
         while (true) {
-            pollResponse = await this.singlePoll(postRequest);
+            pollResponse = await this.postToEndpoint(postRequest);
             if (!pollResponse.error) {
                 break;
             }
@@ -81,7 +81,8 @@ class DeviceService extends AuthService {
         return pollResponse;
     };
 
-    singlePoll = async (postRequest) => {
+    // Post to the token endpoint and return response
+    postToEndpoint = async (postRequest) => {
         // Use fetch to execute the POST request
         const response = await fetch(postRequest.url, {
             method: postRequest.method,
@@ -93,9 +94,10 @@ class DeviceService extends AuthService {
         return jsonResponse;
     };
 
-    sleep = async (milliseconds) => {
+    // Sleep function to wait specified amount of ms
+    sleep = async (timeInMs) => {
         await new Promise((resolve) => {
-            return setTimeout(resolve, milliseconds);
+            return setTimeout(resolve, timeInMs);
         });
     };
 }

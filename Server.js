@@ -173,7 +173,7 @@ app.post('/username-password', function (req, res) {
 app.get('/devicePol', async (req, res) => {
     authInstance.setActiveCallback(true);
 
-    await authInstance.pollContinually();
+    await authInstance.pollTokenEndpoint();
     res.redirect('/launch/device');
 });
 
