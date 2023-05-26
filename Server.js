@@ -92,11 +92,17 @@ app.get('/launch/:id', (req, res) => {
     let flowName = flowData.flow;
     let variant = flowData.variant;
 
-    if (authInstance && authInstance.isActiveCallback()) {
+    // If the authInstance variable is already set, retrieve the refreshToken and reset the activeCallback flag
+    let refreshToken;
+    let activeCallback;
+    if (authInstance) {
+        activeCallback = authInstance.isActiveCallback();
         authInstance.setActiveCallback(false);
-    } else {
-        const refreshToken = authInstance ? authInstance.refreshToken : undefined;
+        refreshToken = authInstance.refreshToken;
+    }
 
+    // Set up the authorization flow instance, except if there is an active callback.
+    if (!activeCallback) {
         // Set up the auth flow instance
         if (variant) {
             authInstance = new flowClasses[flowName](variant);
