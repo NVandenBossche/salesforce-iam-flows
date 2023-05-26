@@ -117,6 +117,8 @@ app.get('/launch/:id', (req, res) => {
 app.get('/state', (req, res) => {
     const step = authInstance.currentStep;
 
+    // For user-agent, we're parsing access token and id token on client side
+    // So we're passing these in when we're retrieving the state. Not ideal?
     const newAccessToken = req.query.accessToken;
     if (newAccessToken) {
         authInstance.accessToken = newAccessToken;
