@@ -49,6 +49,7 @@ class WebServerService extends AuthService {
             exp: Math.floor(new Date() / 1000) + 60 * 3,
         };
 
+        // Client assertion is a JWT, so it needs to be signed
         return this.signJwtClaims(assertionData);
     }
 
