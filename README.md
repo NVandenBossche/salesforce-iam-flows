@@ -23,6 +23,8 @@ It took a while but I've finally built it.
 
 ## Video walkthrough
 
+!! This video is outdated - planning to update soon
+
 You can find a video walkthrough of how to install and set up the application on your personal Heroku environment.
 Click the below image to launch the video on Youtube.
 
@@ -32,6 +34,8 @@ Click the below image to launch the video on Youtube.
 
 Step-by-step instructions on how to get the application up and running.
 
+You can run this application locally via Node.js or on Heroku.
+
 ### Prerequisites
 
 Create a [Heroku](https://heroku.com) account if you don't already have one.
@@ -40,16 +44,15 @@ If you want to run the application locally, install the [Heroku CLI](https://dev
 
 ### Step 1
 
-Click on the below button to deploy this application on Heroku.
+#### Step 1.1 Generate your own private key and public certificate
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+For some of the OAuth flows, we'll need a public certificate (or public key) and upload it to the Connected App.
 
-### Step 2
+We'll either need to generate our own public & private key, or you can use the ones in this repository. Both keys are stored in the root folder:
 
-#### Step 2.1 (Optional) Generate your own private key and public certificate
-
-This step can be skipped if you're ok using the private key and public certificate that are stored in this GitHub repository.
-Be aware that this isn't safe and you should only do this for Salesforce environments that you don't mind getting compromised.
+-   key.pem is the private key
+-   server.crt is the public key (certificate)
+    Be aware that this isn't safe and you should only do this for Salesforce environments that you don't mind getting compromised.
 
 To generate your own private key and public certificate, follow these steps
 
@@ -58,10 +61,8 @@ To generate your own private key and public certificate, follow these steps
 -   Run the following command in the root of the cloned repository:
     -   For OpenSSL 3.0 and above: `openssl req -x509 -newkey rsa:2048 -keyout key.pem -out server.crt -days 365 -noenc`
     -   For earlier versions of OpenSSL: `openssl req -x509 -newkey rsa:2048 -keyout key.pem -out server.crt -days 365 -nodes`
--   Set your [Heroku remote](https://devcenter.heroku.com/articles/git#for-an-existing-heroku-app).
--   Stage these changes, commit them and then [push](https://devcenter.heroku.com/articles/git#deploying-code) to the heroku master.
 
-#### Step 2.2 Create Connected App
+#### Step 1.2 Create Connected App
 
 Create a Connected App in your Salesforce org. The Connected App should have the following settings:
 
@@ -79,37 +80,52 @@ Create a Connected App in your Salesforce org. The Connected App should have the
 -   Mobile App Settings: leave default.
 -   Canvas App Settings: leave default.
 
-#### Step 2.3 - Set Connected App Policies
+#### Step 1.3 - Set Connected App Policies
 
 From the newly created Connected App, click 'Manage', then 'Edit Policies'. Under 'OAuth Policies', selected 'Admin approved users are pre-authorized' for 'Permitted Users'.
 
 After saving, add the correct profile of your user or add a permission set that is assigned to your user.
 
+### Step 2
+
+#### Option 1 - Deploying to Heroku
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+-   Click on the above button to deploy this application on Heroku.
+-   If you've created your own private & public keys:
+    -   In your local terminal, set your [Heroku remote](https://devcenter.heroku.com/articles/git#for-an-existing-heroku-app).
+    -   Stage the changes to the key files, commit them and then [push](https://devcenter.heroku.com/articles/git#deploying-code) to the heroku master.
+-   Update the Config Vars of your Heroku app (Settings > Config Vars) for the following key-value pairs.
+    -   PORT = 8080
+    -   CLIENT_ID = client ID / consumer key of your connected app
+    -   CLIENT_SECRET = client secret / consumer secret of your connected app
+    -   BASE_URL = myDomain URL of your Salesforce org
+    -   CALLBACK_URL = callback URL added to your connected app
+    -   USERNAME = Salesforce username
+    -   API_VERSION = Salesforce API version (e.g. 57.0)
+    -   PERSIST = false
+
+#### Option 2 - Running locally
+
+-   Create a file ".env" in the root directory with the following contents
+    ```
+    PORT=8080
+    CALLBACK_URL=https://localhost:8081/services/oauth2/success
+    PERSIST=true
+    CLIENT_ID=3MVG9Rd3qC6oMalWJCSJXAUD00hp7CXsrAV._dFrbch4jYXUOu_kAuP0uuRsrzMSSwYqldy5qdylySUwZvkn3
+    CLIENT_SECRET=B2ABE781A2EA7927084257478BB783074DD7E79A220758439D5F575C4FC6B7BF
+    BASE_URL=https://nicolasvandenbossche-dev-ed.my.salesforce.com
+    USERNAME=n.vanden.bossche@accenture.com
+    API_VERSION=57.0
+    ```
+-   Open a terminal in the root directory and run the following commands:
+    ```
+    npm install
+    node -r dotenv/config Server.js
+    ```
+
 ### Step 3
 
-Update the Config Vars of your Heroku app (Settings > Config Vars) for the following key-value pairs.
-
--   PORT = 8080
--   CLIENT_ID = client ID / consumer key of your connected app
--   CLIENT_SECRET = client secret / consumer secret of your connected app
--   BASE_URL = myDomain URL of your Salesforce org
--   CALLBACK_URL = callback URL added to your connected app
--   USERNAME = Salesforce username
--   API_VERSION = Salesforce API version (e.g. 57.0)
--   PERSIST = false
-
-You can set "PERSIST" to "true" if you're running the application locally and you'd like to persist the response from the SAML Assertion flow.
-
-### Step 4
-
-Navigate to the Heroku app at https://your-heroku-app.herokuapp.com/. Go to the flow you're interested in, read the description and
-click the Production / Sandbox button to execute.
-
-## Local testing
-
-There's also a possibility to test a Heroku app locally. If you're taking this approach, execute the following steps:
-
--   Create a local installation of Node.js and install the correct package dependencies.
--   Install the Heroku CLI.
--   Make sure the date & time are set automatically on your local machine to avoid time skew in your messages.
--   Create a .env file in the root of your project directory that contains the environment variables.
+Navigate to your app, either on Heroku or locally. Go to the flow you're interested in, read the description and
+click the Launch button to execute.
