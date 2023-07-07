@@ -127,5 +127,5 @@ After saving, add the correct profile of your user or add a permission set that 
 
 ### Step 3
 
-Navigate to your app, either on Heroku or locally. Go to the flow you're interested in, read the description and
+Navigate to your app, either on Heroku or locally (via https://localhost:8081). Go to the flow you're interested in, read the description and
 click the Launch button to execute.
